@@ -1,0 +1,11 @@
+body {
+    background-color: #90a0c0;
+}
+
+td {
+   padding:0; margin:0;
+}
+
+table {
+    border-collapse: collapse;
+}
