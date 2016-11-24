@@ -18,19 +18,25 @@ def sum(l):
   ret = 0
   for n in l:
     ret = ret + n
-  print('sum of %s is %d' % (str(l), ret))
+  #print('sum of %s is %d' % (str(l), ret))
   return ret
+
+def colorCell(c):
+  fgColor = '#000000'
+  tot = sum(c)
+  if (tot < 300):
+    fgColor = '#ffffff'
+  cs = rgb(c)
+  return '<td style="background-color: %s;"><span style="color: %s;">%s <b>%d</b></span></td>\n' % (cs,fgColor,cs,tot)
 
 def thiefFile(f):
   ct = ColorThief(DIR + '/' + f)
   #dom = ct.get_color(quality=5)
-  palette = ct.get_palette(color_count=10,quality=2)
-  dom = palette[0]
+  palette = ct.get_palette(color_count=10,quality=1)
   OUT.write('<tr>\n')
-  OUT.write(' <td style="background-color: %s;"><b>DOM</b> %s</td>\n' % (rgb(dom),rgb(dom)))
-  for c in palette[1:]:
-    OUT.write(' <td style="background-color: %s;">%s</td>\n' % (rgb(c),rgb(c)))
-  OUT.write(' <td><img src="%s/%s" width="150" height="200"/></td>\n</tr>\n' % (DIR, f))
+  for c in palette:
+    OUT.write(colorCell(c))
+  OUT.write(' <td><img src="%s/%s"/></td>\n</tr>\n' % (DIR, f))
 
 global NUM_CLUSTERS
 NUM_CLUSTERS = 5.0
@@ -84,7 +90,8 @@ def pillowFile_2(f):
 def batch(args):  
   OUT.write('<html><body><table>\n')
   for f in os.listdir(DIR):
-    if (f.find('JPG') < 0 and f.find('jpg') < 0) or  f.find('_t') > 0:
+#    if (f.find('JPG') < 0 and f.find('jpg') < 0) or  f.find('_t') > 0:
+    if (f.find('JPG') < 0 and f.find('jpg') < 0) or f.find('30x40_t') < 0:
       continue
     print(f)
     if True: 
@@ -119,9 +126,9 @@ def scaleImage(args):
   thumb.close()
 
 global DIR
-DIR = os.environ['HOME'] + '/pics/exported'
+DIR = os.environ['HOME'] + '/code/fruit-faces/exported'
 global OUT
-OUT = open(DIR + '/thumbs-scales-20x27.html', 'w')
+OUT = open(DIR + '/thumbs-colors-30x40.html', 'w')
 
 def doThumbs(scaleDown=100, size=None, ncols=40):
   print('scaling down %d' % scaleDown)
@@ -216,7 +223,9 @@ def thumbDir():
   
 if __name__ == '__main__':
 #  thumbSingles()
-  thumbDir()
+#  thumbDir()
+  batch(sys.argv[1:])
+      
   
   
 
