@@ -94,7 +94,7 @@ def batch(args):
     if (f.find('JPG') < 0 and f.find('jpg') < 0) or f.find('30x40_t') < 0:
       continue
     print(f)
-    if True: 
+    if True:
       thiefFile(f)
     else:
       pillowFile(f)
