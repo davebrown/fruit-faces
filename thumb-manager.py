@@ -154,7 +154,8 @@ def cmd_thumb_page():
     if not rowOpen:
       out.write('<tr>\n')
       rowOpen = True
-    out.write('<td><img src="%s%s"/></td>' % (pathPrefix, os.path.basename(thumbs[count])))
+    _, fname, basename, _2 = paths(thumbs[count])
+    out.write('<td><img onClick="thumbClickHandler(\'%s\');" src="%s%s"/></td>' % (basename, pathPrefix, fname))
     if (count+1) % ncols == 0:
       out.write('</tr>')
       rowOpen = False
