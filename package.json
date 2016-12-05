@@ -10,6 +10,7 @@
     "url": "git@github.com:davebrown/fruit-faces.git"
   },
   "dependencies": {
+    "browser-request": "^0.3.3",
     "lodash": "^4.16.6",
     "react": "^0.14.5",
     "react-dom": "0.14.0"

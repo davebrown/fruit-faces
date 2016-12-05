@@ -23,11 +23,22 @@ table {
     float:left;
     width: 50%;
     background-color: #0000bb;
+}
+
+.thumbs {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
  }
 
 .floatright {
     background-color: #00ff00;
     width: 50%;
+}
+
+
+.thumb {
+    
 }
 } /* close large screen media */
 .footer {

@@ -5,6 +5,7 @@ import re
 #from datetime.datetime import strptime
 import datetime
 import argparse
+import json
 
 from PIL import Image
 from colorthief import ColorThief
@@ -71,6 +72,11 @@ def _defaultMatchFunc(f):
     return True
   return False
 
+def fullSizeMatch(f):
+  if (f.find('.jpg') > 0 or f.find('.JPG') > 0) and f.find('_t') < 0: # not a thumbnail
+    return True
+  return False
+
 def listFiles(dirname, matchFunc=_defaultMatchFunc):
   ret = []
   for f in os.listdir(dirname):
@@ -84,6 +90,32 @@ def paths(f):
   base, ext = os.path.splitext(fname)
   return dirpath, fname, base, ext
 
+def cmd_json():
+  """make a JSON catalogue of all images base name"""
+  ret = []
+  if len(ARGS.args) != 1:
+    err('error! usage: json -d <image-dir> <json-output-file>')
+    fail('check usage')
+    
+  if ARGS.dir is None:
+    fail('json requires "--dir" option')
+
+  files = listFiles(ARGS.dir, fullSizeMatch)
+  for f in files:
+    im = Image.open(f)
+    dirname, fname, base, ext = paths(f)
+    d = {
+      'base': base,
+      'full': fname
+    }
+    ret.append(d)
+    with open(ARGS.args[0], 'w') as f:
+      f.write(str(ret))
+    
+  if ARGS.verbose:
+    print json.dumps(ret, indent=2)
+  return ret
+
 # FIXME: handle landscape vs portrait?
 def cmd_make_thumbs():
   verbose('make-thumbs got args: ' + str(ARGS.args))
@@ -91,11 +123,6 @@ def cmd_make_thumbs():
     fail('make-thumbs requires "--dir" option')
   if ARGS.size is None:
     fail('make-thumbs requires "--size" option')
-
-  def fullSizeMatch(f):
-    if (f.find('.jpg') > 0 or f.find('.JPG') > 0) and f.find('_t') < 0: # not a thumbnail
-      return True
-    return False
 
   thumbwidth, thumbheight = decodeSize(ARGS.size)
   files = listFiles(ARGS.dir, fullSizeMatch)
