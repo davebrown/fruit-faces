@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import request from 'browser-request';
+import Dispatcher from './AppDispatcher.js';
 
+console.log('dispatcher is:');
+console.log(Dispatcher);
 export function secondClickHandler(arg) {
   console.log("SECOND click handler: " + arg);
   document.getElementById('main-image').src = '/thumbs/' + arg;
@@ -85,5 +88,3 @@ for (var i = 0; i < images.length; i++) {
   });
 }*/
 ReactDOM.render(<FFTable phrase="FF"/>, document.getElementById('thumbs'));
-secondClickHandler('howya doing?!?');
-console.log([].map);

@@ -2,12 +2,14 @@
 import sys
 import os
 import re
-#from datetime.datetime import strptime
-import datetime
+from datetime import datetime
+#import datetime from datetime
 import argparse
 import json
+import exifread
 
 from PIL import Image
+from PIL.ExifTags import TAGS
 from colorthief import ColorThief
 
 #import psycopg2
@@ -90,6 +92,47 @@ def paths(f):
   base, ext = os.path.splitext(fname)
   return dirpath, fname, base, ext
 
+def cmd_exif():
+  with open(ARGS.args[0], 'rb') as f:
+    tags = exifread.process_file(f)
+  for name in tags.keys():
+    if name.find('Time') > -1 and False:
+      val = tags[name]
+      print name,val
+      try:
+        if name == 'EXIF DateTimeOriginal' or name == 'EXIF DateTimeDigitized':
+          print 'parsing', val
+          # "2014:08:07 06:23:58"
+          d = datetime.strptime(str(val), '%Y:%m:%d %H:%M:%S')
+          print 'parsed date:', name, d, 'original"', val, '"', d.strftime('%A, %B %d, %Y %I:%M %p'), d.toordinal()
+      except:
+        print('could not parse date: "%s"="%s"' % (name, val))
+        traceback.print_exc()
+
+  im = Image.open(ARGS.args[0])
+  for (k,val) in im._getexif().iteritems():
+    name = TAGS.get(k)
+    if name == 'DateTimeOriginal' or name  == 'DateTimeDigitized':
+      print 'parsing', val
+      # "2014:08:07 06:23:58"
+      d = datetime.strptime(str(val), '%Y:%m:%d %H:%M:%S')
+      print 'parsed date:', name, d, 'original"', val, '"', d.strftime('%A, %B %d, %Y %I:%M %p'), d.toordinal()
+      #print '%s = %s' % (TAGS.get(k), v)
+  im.close()
+
+def getDateString(imgFile):
+  dateStr = 'Unknown!'
+  im = Image.open(imgFile)
+  for (k,val) in im._getexif().iteritems():
+    name = TAGS.get(k)
+    if name == 'DateTimeOriginal' or name  == 'DateTimeDigitized':
+      d = datetime.strptime(str(val), '%Y:%m:%d %H:%M:%S')
+      im.close()
+      dateStr = d.strftime('%A, %B %d, %Y %I:%M %p')
+      break
+
+  return dateStr
+                     
 def cmd_json():
   """make a JSON catalogue of all images base name"""
   ret = []
@@ -102,15 +145,16 @@ def cmd_json():
 
   files = listFiles(ARGS.dir, fullSizeMatch)
   for f in files:
-    im = Image.open(f)
     dirname, fname, base, ext = paths(f)
+    dateStr = getDateString(os.path.join(dirname, fname))
     d = {
       'base': base,
-      'full': fname
+      'full': fname,
+      'timestamp': dateStr
     }
     ret.append(d)
     with open(ARGS.args[0], 'w') as f:
-      f.write(str(ret))
+      f.write(json.dumps(ret))
     
   if ARGS.verbose:
     print json.dumps(ret, indent=2)

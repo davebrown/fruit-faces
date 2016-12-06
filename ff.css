@@ -18,29 +18,34 @@ table {
 }
 
 @media only screen and (min-width: 800px) {
- 
-.floatleft, .floatright {
-    float:left;
-    width: 50%;
-    background-color: #0000bb;
-}
-
-.thumbs {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
- }
-
-.floatright {
-    background-color: #00ff00;
-    width: 50%;
-}
-
-
-.thumb {
     
-}
+    .floatleft, .floatright {
+        float:left;
+        width: 50%;
+        background-color: #0000bb;
+    }
+
+    .thumbs {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .floatright {
+        background-color: #00ff00;
+        width: 50%;
+    }
+
+    #main-image {
+        max-height: 90%;
+        max-width: 90%;
+        object-fit: contain;
+    }
+    .thumb {
+        
+    }
 } /* close large screen media */
+
 .footer {
     /*float: bottom;*/
     /*min-height: 200px;*/
