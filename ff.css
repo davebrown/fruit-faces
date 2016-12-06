@@ -34,12 +34,16 @@ table {
     .floatright {
         background-color: #00ff00;
         width: 50%;
+        height: 90%;
     }
 
     #main-image {
-        max-height: 90%;
+        display: block;
+        width: auto;
+        height: auto;
+        max-height: 80vh;
         max-width: 90%;
-        object-fit: contain;
+        margin: 20px auto;
     }
     .thumb {
         

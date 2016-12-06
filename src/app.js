@@ -4,29 +4,32 @@ import request from 'browser-request';
 import Dispatcher from './dispatcher/AppDispatcher.js';
 import { IMAGE_CHANGED, IMAGES_LOADED } from './constants/FFConstants.js';
 import FFActions from './actions/FFActions.js';
+import ImageStore from './stores/ImageStore.js';
 
 console.log('dispatcher is');
 console.log(Dispatcher);
 console.log(IMAGE_CHANGED);
 console.log(IMAGES_LOADED);
+console.log('ImageStore is');
+console.log(ImageStore);
 
 class FFTable extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = { images: [] };
+    ImageStore.addChangeListener(this.changeListener.bind(this));
   }
-  /*
-  getInitialState() {
-    return {
-      images: []
-    };
-  }*/
 
   componentWillMount() {
     console.log('component will mount');
     this.loadImageDefs();
   }
+
+  changeListener() {
+    this.setState( { images: ImageStore.getImages() } );
+  }
+  
 
   loadImageDefs() {
     request('images.json', function(er, response, bodyString) {
@@ -38,7 +41,8 @@ class FFTable extends React.Component {
       for (var i = 0; i < body.length; i++) {
         console.log(body[i].base);
       }*/
-      this.setState( { images: body } );
+      //this.setState( { images: body } );
+      FFActions.imagesLoaded(body);
     }.bind(this));
   }
 
@@ -94,16 +98,20 @@ class FFMain extends React.Component {
 
   constructor(props) {
     super(props);
-    Dispatcher.register(this.changeListener.bind(this));
+    //Dispatcher.register(this.changeListener.bind(this));
+    ImageStore.addChangeListener(this.changeListener.bind(this));
   }
 
   changeListener(action) {
+    /*
     console.log('FFMain.changeListener(' + action + ')');
     switch (action.actionType) {
     case IMAGE_CHANGED:
       this.setState({image: action.image });
       break;
     }
+    */
+    this.setState( { image: ImageStore.getSelectedImage() } );
   }
 
   render() {
@@ -114,7 +122,7 @@ class FFMain extends React.Component {
       return <h2>Select an image!</h2>;
     }
     var src = '/thumbs/' + this.state.image.full;
-    return <img id="main-image" src={src}/>
+    return (<div><img id="main-image" src={src}/><br/><i>{this.state.image.timestamp}</i></div>)
   }
 }
 ReactDOM.render(<FFMain/>, document.getElementById('main'));
