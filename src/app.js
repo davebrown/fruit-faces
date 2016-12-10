@@ -94,6 +94,31 @@ class FFThumb extends React.Component {
   }
 };
 
+var FRUITS = [ 'apple', 'bacon', 'banana', 'blueberry', 'cantaloupe', 'cheese', 'clementine',
+               'grape', 'honeydew', 'kiwi', 'mango',
+               'peach', 'pear', 'pineapple', 'plum', 'raspberry', 'strawberry', 'watermelon' ];
+
+class TagForm extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+        <div id="tag-form" className="tag-form">
+        <ul>
+        {
+          FRUITS.map((fruit) => {
+            var key = 'checkbox-' + fruit;
+            return (<li key={key}><input type="checkbox"/><label>{fruit}</label></li>);
+          })
+        }
+      </ul>
+      </div>
+    );
+  }
+}
+
 class FFMain extends React.Component {
 
   constructor(props) {
@@ -114,6 +139,11 @@ class FFMain extends React.Component {
     this.setState( { image: ImageStore.getSelectedImage() } );
   }
 
+  dialogCloseHandler() {
+    console.log('dialog close');
+    FFActions.imageChanged(null);
+  }
+
   render() {
     console.log('FFMain render()');
     console.log(this);
@@ -122,7 +152,13 @@ class FFMain extends React.Component {
       return <h2>Select an image!</h2>;
     }
     var src = '/thumbs/' + this.state.image.full;
-    return (<div><img id="main-image" className="dialog" src={src}/><br/><i>{this.state.image.timestamp}</i></div>)
+    var tagForm = <TagForm className="tag-form" image={this.state.image}/>
+    return (<div className="dialog">
+            {tagForm}
+            <img id="main-image" src={src}/><br/>
+            <i>{this.state.image.timestamp}</i>
+            <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
+            </div>);
   }
 }
 ReactDOM.render(<FFMain/>, document.getElementById('main'));

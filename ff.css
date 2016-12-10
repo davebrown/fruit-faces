@@ -12,6 +12,19 @@ table {
     margin-right: auto;
 }
 
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tag-form {
+    float: left;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
 .container {
     background-color: white;
     width: 100%;
@@ -22,6 +35,7 @@ table {
     .floatleft {
         float:left;
         width: 100%;
+        max-width: 480px; /* 16 cols x 30px per col */
         background-color: #0000bb;
     }
 
@@ -43,27 +57,40 @@ table {
         height: auto;
         max-height: 80vh;
         max-width: 90%;
-        margin: 20px auto;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .dialog {
         display: block;
-        position: absolute;
+        position: fixed;
         top: 0; /* Half the icon's height */
         right: 0; /* half the icon's width */
         z-index:50;
+        background-color: #c0c0c0;
+        width: 100%;
+        height: 100%;
     }
-    
+
+    .dialog button {
+        z-index: 100;
+        float: right;
+        font-size: 200%;
+        font-weight: bold;
+    }
+
     .thumb {
         
     }
-} /* close large screen media */
+} /* close small screen media */
 
 @media only screen and (min-width: 800px) {
     
-    .floatleft, .floatright {
+    .floatleft {
         float:left;
         width: 50%;
+        max-width: 480px; /* 16 cols x 30px per col */
+        min-width: 480px;
         background-color: #0000bb;
     }
 
@@ -74,11 +101,16 @@ table {
     }
 
     .floatright {
+        float: left;
         background-color: #00ff00;
         width: 50%;
         height: 90%;
     }
 
+    .dialog {
+        position: fixed;
+    }
+    
     #main-image {
         display: block;
         width: auto;
@@ -87,16 +119,11 @@ table {
         max-width: 90%;
         margin: 20px auto;
     }
+
+    .dialog button {
+        display: none;
+    }    
     .thumb {
         
     }
 } /* close large screen media */
-
-.footer {
-    /*float: bottom;*/
-    /*min-height: 200px;*/
-    position: absolute;
-    bottom: 0;
-    background-color: red;
-    width: 100%;
-}

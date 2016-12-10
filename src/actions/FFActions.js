@@ -14,7 +14,7 @@ class FFActions {
   }
   
   imageChanged(image) {
-    console.log('Action.imageChanged(' + image.base + ')');
+    console.log('Action.imageChanged(' + image  + ')');
     Dispatcher.dispatch({
       actionType: IMAGE_CHANGED,
       image: image
