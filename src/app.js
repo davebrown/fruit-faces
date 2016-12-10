@@ -122,7 +122,7 @@ class FFMain extends React.Component {
       return <h2>Select an image!</h2>;
     }
     var src = '/thumbs/' + this.state.image.full;
-    return (<div><img id="main-image" src={src}/><br/><i>{this.state.image.timestamp}</i></div>)
+    return (<div><img id="main-image" className="dialog" src={src}/><br/><i>{this.state.image.timestamp}</i></div>)
   }
 }
 ReactDOM.render(<FFMain/>, document.getElementById('main'));
