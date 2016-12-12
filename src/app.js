@@ -5,13 +5,7 @@ import Dispatcher from './dispatcher/AppDispatcher.js';
 import { IMAGE_CHANGED, IMAGES_LOADED } from './constants/FFConstants.js';
 import FFActions from './actions/FFActions.js';
 import ImageStore from './stores/ImageStore.js';
-
-console.log('dispatcher is');
-console.log(Dispatcher);
-console.log(IMAGE_CHANGED);
-console.log(IMAGES_LOADED);
-console.log('ImageStore is');
-console.log(ImageStore);
+import bowser from 'bowser';
 
 class FFTable extends React.Component {
 
@@ -62,8 +56,18 @@ class FFTable extends React.Component {
     }
     console.log('render: this.state is:');
     console.log(this.state);
+    var nums = [];
+    for (var i = 0; i < 16; i++) {
+      //nums = nums + '<div>' + i + '</div>';
+      nums.push(i);
+    }
+    var cols = nums.map((num) => {
+      var key = 'cols-' + num;
+      return (<div className="thirty" key={key}>{num}</div>);
+    });
     return (
         <div className="thumbs" onKeyPress={this.keyPressHandler}>
+        {cols}
         {
           this.state.images.map((image) => {
             var key = 'ff-thumb-' + image.base;
@@ -87,12 +91,44 @@ class FFThumb extends React.Component {
   }
   
   render() {
-    var path = '/thumbs/' + this.props.image.base + '_30x40_t.jpg';
+    var dim = '30x40';
+    if (bowser.mobile) {
+      dim = '20x27';
+    }
+    var path = '/thumbs/' + this.props.image.base + '_' + dim + '_t.jpg';
     return <div className="thumb" key={this.props.image.base}>
       <img src={path} onClick={this.clickHandler.bind(this)}/>
       </div>;
   }
 };
+
+function imageHasTag(image, tag) {
+  if (image) {
+    if (!image.tags) image.tags = [];
+    console.log('imageHasTag(' + image.base + '): tags.length=' + image.tags.length);
+    for (var i = 0, len = image.tags.length; i < len; i++) {
+      if (tag === image.tags[i]) return true;
+      console.log('for ' + image.base + ' ' + tag + '!=' + image.tags[i]);
+    }
+  } else {
+    console.log('no image!');
+  }
+  return false;
+}
+
+function imageRemoveTag(image, tag) {
+  if (!image.tags) image.tags = [];
+  console.log('imageRemove(' + tag + ') BEFORE ' + JSON.stringify(image.tags));
+  image.tags = image.tags.filter((val) => { return val !== tag; });
+  console.log('imageRemove AFTER ' + JSON.stringify(image.tags));
+}
+
+function imageAddTag(image, tag) {
+  if (!image.tags) image.tags = [];
+  if (image.tags.indexOf(tag) === -1) {
+    image.tags.push(tag);
+  }
+}
 
 var FRUITS = [ 'apple', 'bacon', 'banana', 'blueberry', 'cantaloupe', 'cheese', 'clementine',
                'grape', 'honeydew', 'kiwi', 'mango',
@@ -103,14 +139,19 @@ class TagForm extends React.Component {
     super(props);
   }
 
+  componentWillMount() {
+    this.checkBoxes = new Set();
+  }
+  
   render() {
+    var image = ImageStore.getSelectedImage();
     return (
         <div id="tag-form" className="tag-form">
         <ul>
         {
           FRUITS.map((fruit) => {
-            var key = 'checkbox-' + fruit;
-            return (<li key={key}><input type="checkbox"/><label>{fruit}</label></li>);
+            var key = 'ff-checkbox-' + fruit;
+            return <FFCheck key={key} image={image} fruit={fruit}/>
           })
         }
       </ul>
@@ -119,6 +160,43 @@ class TagForm extends React.Component {
   }
 }
 
+class FFCheck extends React.Component {
+ constructor(props) {
+    super(props);
+  }
+
+  checkHandler() {
+    var image = this.props.image;
+    var fruit = this.props.fruit;
+    console.log('checkhandler(' + image.base + ',' + fruit + ')');
+    if (imageHasTag(image, fruit)) {
+      console.log('removing tag');
+      imageRemoveTag(image, fruit);
+    } else {
+      console.log('adding tag');
+      imageAddTag(image, fruit);
+    }
+    console.log('after handling tags are ' + JSON.stringify(image.tags));
+    this.forceUpdate();
+  }
+
+  render() {
+    console.log('FFCheck(' + this.props.fruit + ').render()');
+    var image = ImageStore.getSelectedImage();
+    var fruit = this.props.fruit;
+    var key = 'checkbox-' + fruit;
+    var checked = imageHasTag(image, fruit);
+    var checkStr = '';
+    if (checked) {
+      console.log('checkbox rendering checked image for ' + image.base);
+      checkStr = 'checked';
+    } else {
+      console.log(fruit + ' NOT checked');
+    }
+    return (<li key={key}><input checked={checkStr} onChange={this.checkHandler.bind(this)} type="checkbox"/><label>{fruit}</label></li>);
+  }
+
+}
 class FFMain extends React.Component {
 
   constructor(props) {
@@ -155,9 +233,9 @@ class FFMain extends React.Component {
     var tagForm = <TagForm className="tag-form" image={this.state.image}/>
     return (<div className="dialog">
             {tagForm}
-            <img id="main-image" src={src}/><br/>
-            <i>{this.state.image.timestamp}</i>
             <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
+            <img id="main-image" src={src}/><br/>
+            <i>{this.state.image.date || 'Unknown date...'}</i>
             </div>);
   }
 }

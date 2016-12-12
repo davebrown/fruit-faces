@@ -7,7 +7,8 @@ from datetime import datetime
 import argparse
 import json
 import exifread
-
+import psycopg2
+import psycopg2.extras
 from PIL import Image
 from PIL.ExifTags import TAGS
 from colorthief import ColorThief
@@ -68,6 +69,8 @@ def cmd_hack():
   w,h = decodeSize(s)
   print('decoded size (%d X %d)' % (w, h))
   cprint('THIS SHOULD BE GRAY', 'grey', end='\n')
+  print datetime.now().toordinal()
+  print int(datetime.now().strftime("%s")) * 1000 
 
 def _defaultMatchFunc(f):
   if f.find('.JPG') > 0 or f.find('.jpg') > 0:
@@ -120,18 +123,22 @@ def cmd_exif():
       #print '%s = %s' % (TAGS.get(k), v)
   im.close()
 
-def getDateString(imgFile):
-  dateStr = 'Unknown!'
+def getTimestamp(imgFile):
+  """timestamp and date formatted string"""
+  d = None
   im = Image.open(imgFile)
   for (k,val) in im._getexif().iteritems():
     name = TAGS.get(k)
     if name == 'DateTimeOriginal' or name  == 'DateTimeDigitized':
       d = datetime.strptime(str(val), '%Y:%m:%d %H:%M:%S')
       im.close()
-      dateStr = d.strftime('%A, %B %d, %Y %I:%M %p')
       break
 
-  return dateStr
+  if d is not None:
+    return  ( int(d.strftime('%s')) * 1000, d.strftime('%A, %B %d, %Y %I:%M %p') )
+  return -1, "Unknown"
+
+  return 
                      
 def cmd_json():
   """make a JSON catalogue of all images base name"""
@@ -146,18 +153,29 @@ def cmd_json():
   files = listFiles(ARGS.dir, fullSizeMatch)
   for f in files:
     dirname, fname, base, ext = paths(f)
-    dateStr = getDateString(os.path.join(dirname, fname))
+    timestamp, dateStr = getTimestamp(os.path.join(dirname, fname))
     d = {
       'base': base,
-      'full': fname,
-      'timestamp': dateStr
+      'full': fname
     }
+    if timestamp > 0:
+      d['timestamp'] = timestamp
+      d['tstamp'] = timestamp
+    if dateStr is not None:
+      d['date'] = dateStr
+      
     ret.append(d)
     with open(ARGS.args[0], 'w') as f:
       f.write(json.dumps(ret))
     
   if ARGS.verbose:
     print json.dumps(ret, indent=2)
+  DB = psycopg2.connect("dbname='ff' host='localhost'")
+  cur = DB.cursor(cursor_factory=psycopg2.extras.DictCursor)
+  for img in ret:
+    imgId = cur.execute("""INSERT INTO image (tstamp, dateStr, base, "full") values (to_timestamp(%(tstamp)s), %(date)s, %(base)s, %(full)s) RETURNING id;""", img)
+  DB.commit()
+  DB.close()
   return ret
 
 # FIXME: handle landscape vs portrait?
