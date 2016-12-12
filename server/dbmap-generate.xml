@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<generate-config>
+    <destination-directory>ejb-src</destination-directory>
+    <url>jdbc:postgresql://localhost:5432/ff</url>
+    <password>bogus</password>
+    <user>dave</user>
+    <package>com.moonspider.ff.ejb</package>
+
+    <table>
+      <name>image</name>
+      <class>Image</class>
+    </table>
+
+    <table>
+      <name>tag</name>
+      <class>Tag</class>
+    </table>
+
+    <table>
+      <name>show_file</name>
+      <extra-body>
+      @javax.persistence.Transient
+      public String getFileName() {
+         String s = getPath();
+         if (s != null) {
+            int ind = s.lastIndexOf('/');
+            if (ind != -1) {
+               s = s.substring(ind + 1);
+            }
+         }
+         return s;
+      }
+      </extra-body>
+    </table>
+
+    <table>
+      <name>show</name>
+      <extra-body>
+      @javax.persistence.Transient
+      public java.util.Date getUploadTime() {
+	if (getShowFileList() == null || getShowFileList().size() == 0) return null;
+	ShowFile sf = getShowFileList().iterator().next();
+	return sf.getUploadTime();
+      }
+
+      @javax.persistence.Transient
+      public int getYear() {
+         java.util.Calendar cal = java.util.Calendar.getInstance();
+         cal.setTime(getDate());
+         return cal.get(Calendar.YEAR);
+      }
+      
+      </extra-body>
+    </table>
+    <table>
+      <name>config</name>
+      <extra-body>
+   public static final int TYPE_STRING = 0;
+   public static final int TYPE_INT = 1;
+   public static final int TYPE_LONG_STRING = 2;
+
+   public static Config getByName(String name) {
+     try {
+	Config conf = (Config) com.moonspider.koam.EMUtil.doSingleQuery(
+		"SELECT c FROM Config c WHERE c.name='" + name + "'"
+		);
+        return conf;
+     } catch (NoResultException nre) {
+        throw new RuntimeException("config prop '" + name + "' not found");
+     } catch (EntityNotFoundException enfe) {
+        throw new RuntimeException("config prop '" + name + "' not found");
+     }
+   }
+   public static String getString(String name) {
+	return getByName(name).getStringValue();
+   }
+
+   @javax.persistence.Transient
+   public boolean isWideString() {
+     return getType() == TYPE_LONG_STRING;
+   }
+   @javax.persistence.Transient
+   public Object getValue() {
+       switch (getType()) {
+          case TYPE_STRING:
+          case TYPE_LONG_STRING:
+          return getStringValue();
+          case TYPE_INT:
+          return getIntValue();
+       }
+       throw new RuntimeException("unknown conf type: " + getType());
+   }
+    public static int getInt(String name) {
+	return getByName(name).getIntValue();
+    }
+     </extra-body>
+    </table>
+
+</generate-config>

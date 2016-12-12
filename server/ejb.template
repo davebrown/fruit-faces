@@ -1,0 +1,73 @@
+/*
+ * Copyright (c) 2005, Gauntlet Systems Corporation. All Rights Reserved.
+ */
+
+package $conf.pkg;
+
+import java.util.*;
+import javax.persistence.*;
+import javax.xml.bind.annotation.*;
+
+@Entity
+@Table(name="$table.name")
+@XmlRootElement
+@XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.PROPERTY)
+public class ${table.className}
+#if ($table.tableExtends) extends $table.tableExtends
+#elseif ($conf.globalExtends) extends $conf.globalExtends
+#end
+#if ($table.tableImplements)implements $table.tableImplements
+#elseif ($conf.globalImplements) implements $conf.globalImplements
+#end
+{
+    // Columns
+    
+#foreach($col in $table.columns)
+#if($col.xmlAnnotation)    $col.xmlAnnotation
+#end
+    $col.annotation
+    $col.getterAccess $col.javaType get${col.fieldUpcase}() {
+        return this.$col.name;
+    }
+    ${col.setterAccess} void set${col.fieldUpcase}($col.javaType $col.name) {
+        this.${col.name} = $col.name;
+    }
+    private $col.javaType $col.name;
+    
+#end
+
+    // Relations
+    
+#foreach($rel in $table.relations)
+    // Relation name: ${rel.name}
+#if ($rel.xmlTransient)
+    @XmlTransient
+#end    
+    @${rel.cardinality}(
+        ${rel.mappedBy}
+        cascade = ${rel.cascade},
+        fetch = FetchType.${rel.fetchType})
+    $rel.joinColumn
+    public $rel.type get${rel.method}() {
+        return this.my${rel.method};
+    }
+    public void set${rel.method}(${rel.type} my${rel.method}) {
+        this.my${rel.method} = my${rel.method};
+    }
+    private ${rel.type} my${rel.method};
+    
+#end
+#if ($table.extraBody)$table.extraBody#end
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(this.getClass().getName() + "|");
+#foreach ($col in $table.columns)
+#if (!${col.xmlTransient})
+        sb.append("${col.name}=" + get${col.fieldUpcase}() + "|");
+#end        
+#end
+        
+        return sb.toString();
+    }
+}
