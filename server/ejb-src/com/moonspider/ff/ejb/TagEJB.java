@@ -6,18 +6,14 @@ package com.moonspider.ff.ejb;
 
 import java.util.*;
 import javax.persistence.*;
-import javax.xml.bind.annotation.*;
 
 @Entity
 @Table(name="tag")
-@XmlRootElement
-@XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.PROPERTY)
 public class TagEJB
 {
     // Columns
     
     @Id
-    @XmlAttribute
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="name")
     public String getName() {
@@ -32,7 +28,6 @@ public class TagEJB
     // Relations
     
     // Relation name: name-image
-    @XmlTransient
     @ManyToMany(
         // not mapped by
         cascade = {},

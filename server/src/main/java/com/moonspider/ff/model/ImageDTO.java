@@ -1,18 +1,46 @@
 package com.moonspider.ff.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.moonspider.ff.ejb.ImageEJB;
+import com.moonspider.ff.ejb.TagEJB;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 public class ImageDTO {
 
     private String base, full, date;
     private long timestamp;
+    private String[] tags;
 
-    public ImageDTO(String base, long timestamp, String full, String date) {
-        this.base = base;
-        this.timestamp = timestamp;
-        this.full = full;
-        this.date = date;
+    public ImageDTO() {
+        // jackson de-serialization
     }
+
+    public ImageDTO(ImageEJB ejb) {
+        this.base = ejb.getBase();
+        Date d = ejb.getTstamp();
+        this.timestamp = d != null ? d.getTime() : -1;
+        this.full = ejb.getFull();
+        this.date = ejb.getDatestr();
+        Collection<TagEJB> tlist = ejb.getTagList();
+        this.tags = new String[tlist.size()];
+        int i = 0;
+        for (TagEJB t : tlist) {
+            tags[i++] = t.getName();
+        }
+    }
+
+    @JsonProperty
+    public String[] getTags() {
+        return tags;
+    }
+
+    public void setTags(String[] tags) {
+        this.tags = tags;
+    }
+
 
     @JsonProperty
     public String getBase() {

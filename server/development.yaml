@@ -5,7 +5,7 @@ database:
   driverClass: org.postgresql.Driver
 
   # the username
-  user: davebro2
+  user: dave
 
   # the password
   password: na

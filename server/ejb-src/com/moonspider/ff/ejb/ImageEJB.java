@@ -4,6 +4,9 @@
 
 package com.moonspider.ff.ejb;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.*;
 import javax.persistence.*;
 
@@ -16,6 +19,7 @@ public class ImageEJB
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="base")
+    @JsonProperty
     public String getBase() {
         return this.base;
     }
@@ -25,6 +29,7 @@ public class ImageEJB
     private String base;
     
     @Column(name="datestr", nullable=true)
+    @JsonProperty
     public String getDatestr() {
         return this.datestr;
     }
@@ -32,7 +37,8 @@ public class ImageEJB
         this.datestr = datestr;
     }
     private String datestr;
-    
+
+    @JsonProperty
     @Column(name="full", nullable=false)
     public String getFull() {
         return this.full;
@@ -41,7 +47,8 @@ public class ImageEJB
         this.full = full;
     }
     private String full;
-    
+
+    @JsonProperty
     @Column(name="tstamp", nullable=true)
     @Temporal(TemporalType.TIMESTAMP)
     public java.util.Date getTstamp() {
@@ -51,7 +58,17 @@ public class ImageEJB
         this.tstamp = tstamp;
     }
     private java.util.Date tstamp;
-    
+
+    /* this field should exist in JSON but not JPA - but how to reconcile annotations??
+    @Transient
+    @JsonProperty
+    public Collection<String> getTags() {
+        Collection<String> ret = new ArrayList<>();
+        Collection<TagEJB> tags = getTagList();
+        tags.forEach(tag->ret.add(tag.getName()));
+        return ret;
+    }
+    */
 
     // Relations
     
@@ -66,6 +83,7 @@ public class ImageEJB
       joinColumns={@JoinColumn(name="image_id")},
       inverseJoinColumns={@JoinColumn(name="tag_id")}
     )
+    @JsonIgnore
     public Collection<TagEJB> getTagList() {
         return this.myTagList;
     }

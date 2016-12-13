@@ -33,7 +33,7 @@ public class FFApplication extends Application<FFConfiguration> {
         //final EntityManager entityManager = entityManagerBundle.getSharedEntityManager();
         final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager());
         environment.jersey().register(imgResource);
-        System.out.println("**** REGISTERED RESOURCES ***** db in config is: " + configuration.getDataSourceFactory());
+        environment.jersey().register(new TagResource(entityManagerBundle.getSharedEntityManager()));
     }
     public static void main(String[] args) throws Exception {
         new FFApplication().run(args);
