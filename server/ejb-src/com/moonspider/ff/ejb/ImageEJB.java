@@ -6,18 +6,14 @@ package com.moonspider.ff.ejb;
 
 import java.util.*;
 import javax.persistence.*;
-import javax.xml.bind.annotation.*;
 
 @Entity
 @Table(name="image")
-@XmlRootElement
-@XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.PROPERTY)
-public class Image
+public class ImageEJB
 {
     // Columns
     
     @Id
-    @XmlAttribute
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="base")
     public String getBase() {
@@ -60,7 +56,6 @@ public class Image
     // Relations
     
     // Relation name: base-tag
-    @XmlTransient
     @ManyToMany(
         // not mapped by
         cascade = {},
@@ -71,13 +66,13 @@ public class Image
       joinColumns={@JoinColumn(name="image_id")},
       inverseJoinColumns={@JoinColumn(name="tag_id")}
     )
-    public Collection<Tag> getTagList() {
+    public Collection<TagEJB> getTagList() {
         return this.myTagList;
     }
-    public void setTagList(Collection<Tag> myTagList) {
+    public void setTagList(Collection<TagEJB> myTagList) {
         this.myTagList = myTagList;
     }
-    private Collection<Tag> myTagList;
+    private Collection<TagEJB> myTagList;
     
 
     public String toString() {

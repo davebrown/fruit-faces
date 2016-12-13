@@ -5,13 +5,13 @@ database:
   driverClass: org.postgresql.Driver
 
   # the username
-  user: dave
+  user: davebro2
 
   # the password
   password: na
 
   # the JDBC URL
-  url: jdbc:postgresql://db.example.com/db-prod
+  url: jdbc:postgresql://localhost/ff
 
   # any properties specific to your JDBC driver:
   properties:
@@ -37,3 +37,11 @@ database:
 
   # the minimum amount of time an connection must sit idle in the pool before it is eligible for eviction
   minIdleTime: 1 minute
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 9080
+  adminConnectors:
+    - type: http
+      port: 9081

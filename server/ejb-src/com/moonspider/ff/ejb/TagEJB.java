@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.*;
 @Table(name="tag")
 @XmlRootElement
 @XmlAccessorType(value = javax.xml.bind.annotation.XmlAccessType.PROPERTY)
-public class Tag
+public class TagEJB
 {
     // Columns
     
@@ -43,13 +43,13 @@ public class Tag
       joinColumns={@JoinColumn(name="tag_id")},
       inverseJoinColumns={@JoinColumn(name="image_id")}
     )
-    public Collection<Image> getImageList() {
+    public Collection<ImageEJB> getImageList() {
         return this.myImageList;
     }
-    public void setImageList(Collection<Image> myImageList) {
+    public void setImageList(Collection<ImageEJB> myImageList) {
         this.myImageList = myImageList;
     }
-    private Collection<Image> myImageList;
+    private Collection<ImageEJB> myImageList;
     
 
     public String toString() {

@@ -135,7 +135,7 @@ def getTimestamp(imgFile):
       break
 
   if d is not None:
-    return  ( int(d.strftime('%s')) * 1000, d.strftime('%A, %B %d, %Y %I:%M %p') )
+    return  ( int(d.strftime('%s')) , d.strftime('%A, %B %d, %Y %I:%M %p') )
   return -1, "Unknown"
 
   return 
@@ -173,7 +173,7 @@ def cmd_json():
   DB = psycopg2.connect("dbname='ff' host='localhost'")
   cur = DB.cursor(cursor_factory=psycopg2.extras.DictCursor)
   for img in ret:
-    imgId = cur.execute("""INSERT INTO image (tstamp, dateStr, base, "full") values (to_timestamp(%(tstamp)s), %(date)s, %(base)s, %(full)s) RETURNING id;""", img)
+    imgId = cur.execute("""INSERT INTO image (tstamp, dateStr, base, "full") values (to_timestamp(%(tstamp)s), %(date)s, %(base)s, %(full)s);""", img)
   DB.commit()
   DB.close()
   return ret

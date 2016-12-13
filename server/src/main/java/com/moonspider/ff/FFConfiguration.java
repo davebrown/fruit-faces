@@ -7,9 +7,6 @@ import io.dropwizard.db.DataSourceFactory;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-/**
- * Created by dave on 12/11/16.
- */
 public class FFConfiguration extends Configuration {
 
     @Valid
@@ -24,6 +21,7 @@ public class FFConfiguration extends Configuration {
     public void setDataSourceFactory(DataSourceFactory s) {
         this.database = s;
     }
+
 
     @NotNull
     @JsonProperty

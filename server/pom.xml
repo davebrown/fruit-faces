@@ -36,11 +36,11 @@
             <version>${postgres.version}</version>
         </dependency>
 
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.openjpa</groupId>
             <artifactId>openjpa</artifactId>
             <version>${openjpa.version}</version>
-        </dependency>
+        </dependency-->
 
         <!--dependency>
             <groupId>org.elasticsearch</groupId>
@@ -58,6 +58,12 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-jdbi</artifactId>
             <version>${dropwizard.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.scottescue</groupId>
+            <artifactId>dropwizard-entitymanager</artifactId>
+            <version>1.0.0-1</version>
         </dependency>
 
     </dependencies>
