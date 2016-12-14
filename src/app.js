@@ -16,7 +16,6 @@ class FFTable extends React.Component {
   }
 
   componentWillMount() {
-    console.log('component will mount');
     this.loadImageDefs();
   }
 
@@ -40,44 +39,78 @@ class FFTable extends React.Component {
     }.bind(this));
   }
 
-  clickHandler(arg) {
-    console.log('FFTable click handler with ' + arg);
-    console.log(arg);
-  }
-
-  keyPressHandler(arg) {
-    console.log('FFTable key pressed');
-    console.log(arg);
-  }
-  
   render() {
     if (!this.state.images || this.state.images.length == 0) {
       return (<b>LOADING...</b>);
     }
-    console.log('render: this.state is:');
-    console.log(this.state);
     var nums = [];
-    for (var i = 0; i < 16; i++) {
-      //nums = nums + '<div>' + i + '</div>';
+    for (var i = 0; i < 24; i++) {
       nums.push(i);
     }
     var cols = nums.map((num) => {
       var key = 'cols-' + num;
       return (<div className="thirty" key={key}>{num}</div>);
     });
-    return (
-        <div className="thumbs" onKeyPress={this.keyPressHandler}>
-        {cols}
+
+    var blues = ImageStore.getBlues();
+    var grays = ImageStore.getNonBlues();
+    var images = this.state.images;
+    var images = imageList(HEART_21, blues, grays);
+    
+    var old = (
+        <div className="thumbs">
         {
-          this.state.images.map((image) => {
+          images.map((image) => {
             var key = 'ff-thumb-' + image.base;
             return <FFThumb key={key} image={image}/>;
           })
         }
       </div>
     );
+    return old;
   }
 };
+
+const MOBILE_HEART_9 = '000000000011101110111111111011111110001111100000111000000010000000000000';
+const MOBILE_HEART_10 = '00000000000111011100111111111001111111000011111000000111000000001000000000000000';
+const MOBILE_HEART_11 = '0000000000000111011100011111111100011111110000011111000000011100000000010000000000000000';
+const HEART_21 = '000000000000000000000000111100000001111000011111110000011111110111111111101111111111011111111111111111110000111111111111111000000001111111111100000000000011111110000000000000000111000000000000000000010000000000000000000000000000000'
+
+function imageList(map, blues, grays) {
+  var ret = [];
+  for (var i = 0; blues.length > 0 && grays.length; i++) {
+    var c = map[i % map.length];
+    switch (c) {
+    case '0':
+      ret.push(grays.pop());
+      break;
+    case '1':
+      ret.push(blues.pop());
+      break;
+    default:
+      throw new Error('invalid map value: ' + c);
+    }
+  }
+  //console.log('end pattern loop, leftover blues=' + blues.length + " grays=" + grays.length);
+  var leftover = blues.length > 0 ? blues: grays;
+  while (leftover.length > 0)
+    ret.push(leftover.pop());
+  return ret;
+}
+
+class ThumbEmitter {
+
+  constructor(map, blues, grays) {
+    this.map = map;
+    this.blues = blues;
+    this.grays = grays;
+    this.index = 0;
+    this.len = map.length;
+  }
+
+  
+  
+}
 
 class FFThumb extends React.Component {
 
@@ -92,7 +125,7 @@ class FFThumb extends React.Component {
   
   render() {
     var dim = '30x40';
-    if (bowser.mobile) {
+    if (false && bowser.mobile) {
       dim = '20x27';
     }
     var path = '/thumbs/' + this.props.image.base + '_' + dim + '_t.jpg';
@@ -113,8 +146,6 @@ function imageHasTag(image, tag) {
     for (var i = 0, len = image.tags.length; i < len; i++) {
       if (tag === image.tags[i]) return true;
     }
-  } else {
-    console.log('imageHasTag: no image!');
   }
   return false;
 }
@@ -132,6 +163,26 @@ function imageAddTag(image, tag) {
   }
   updateTagDB(image);
 }
+
+
+function keyDownHandler(arg) {
+  var newImage = null;
+  switch (arg.keyCode) {
+  case 39: // right arrow
+    newImage = ImageStore.getNextImage();
+    break;
+  case 37: // left
+    newImage = ImageStore.getPreviousImage();
+    break;
+  case 40: // down
+    break;
+  case 38: // up
+    break;
+  }
+  if (newImage) FFActions.imageChanged(newImage);
+}
+
+document.onkeydown = keyDownHandler;
 
 function updateTagDB(image) {
   var body = JSON.stringify(image.tags);
@@ -242,19 +293,27 @@ class FFMain extends React.Component {
   }
 
   dialogCloseHandler() {
-    console.log('dialog close');
+    //console.log('dialog close');
     FFActions.imageChanged(null);
   }
 
   render() {
-    console.log('FFMain render()');
-    console.log(this);
-    console.log(this.state);
     if (!this.state || !this.state.image) {
       return <h2>Select an image!</h2>;
     }
+    var mainDiv = document.getElementById('main');
+    if (imageHasTag(this.state.image, 'blue')) {
+      mainDiv.style = 'background-color: blue;';
+    } else if (imageHasTag(this.state.image, 'gray')) {
+      mainDiv.style = 'background-color: gray;';
+    } else if (imageHasTag(this.state.image, 'white')) {
+      mainDiv.style = 'background-color: white;';
+    } else {
+      mainDiv.style = 'background-color: red;';
+    }
+      
     var src = '/thumbs/' + this.state.image.full;
-    var tagForm = <TagForm className="tag-form" image={this.state.image}/>
+    var tagForm = <TagForm className="tag-form" image={this.state.image}/>;
     return (<div className="dialog">
             {tagForm}
             <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
@@ -264,7 +323,4 @@ class FFMain extends React.Component {
   }
 }
 ReactDOM.render(<FFMain/>, document.getElementById('main'));
-ReactDOM.render(<FFTable phrase="FF"/>, document.getElementById('thumbs'));
-console.log('ff actions');
-console.log(FFActions);
-document.FFActions = FFActions;
+ReactDOM.render(<FFTable/>, document.getElementById('thumbs'));

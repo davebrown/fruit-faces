@@ -11,7 +11,7 @@ import psycopg2.extras
 from PIL import Image
 from PIL.ExifTags import TAGS
 from colorthief import ColorThief
-
+import StringIO
 from termcolor import cprint
 import traceback
 
@@ -410,6 +410,67 @@ def kmeans(points, k, min_diff):
             break
 
     return clusters
+
+# 9 pixels wide, 8 rows, 72 chars
+# empty row above and below
+MOBILE_HEART_9 = """
+         
+ 888 888 
+888888888
+ 8888888 
+  88888  
+   888   
+    8    
+         
+"""
+
+MOBILE_HEART_10 = """
+          
+ 888 888  
+888888888 
+ 8888888  
+  88888   
+   888    
+    8     
+          
+"""
+
+MOBILE_HEART_11 = """
+           
+  888 888  
+ 888888888 
+  8888888  
+   88888   
+    888    
+     8     
+           
+"""
+
+HEART_21 = """
+                     
+   ****       ****   
+ *******     ******* 
+********** **********
+ ******************* 
+   ***************   
+     ***********     
+       *******       
+         ***         
+          *          
+                     
+"""
+def cmd_heart():
+  s = HEART_21
+  out = StringIO.StringIO()
+  for i in range(len(s)):
+    c = s[i]
+    if c == ' ':
+      out.write('0')
+    elif c != '\n':
+      out.write('1')
+  print out.getvalue()
+  print '\nlen:', len(out.getvalue())
+    
 
 def main():
   global ARGS

@@ -1,6 +1,5 @@
 body {
     background-color: #90a0c0;
-    margin: 0;
 }
 
 td {
@@ -35,12 +34,29 @@ ul {
     width: 30px;
     color: white;
 }
+
+.blue-bg {
+    background-color: #90a0c0;
+}
+
+.gray-bg {
+    background-color: #a0a0a0;
+}
+
+.white-bg {
+    background-color: #e8e8e8;
+}
+
+.red-bg {
+    background-color: #ff0000;
+}
+    
 @media only screen and (max-width: 799px) {
     
     .floatleft {
         float:left;
         width: 100%;
-        max-width: 480px; /* 16 cols x 30px per col */
+        /*max-width: 320px;*/ /* 16 cols x 30px per col */
         background-color: #0000bb;
     }
 
@@ -94,8 +110,8 @@ ul {
     .floatleft {
         float:left;
         width: 50%;
-        max-width: 480px; /* 16 cols x 30px per col */
-        min-width: 480px;
+        max-width: 630px; /* 16 cols x 30px per col */
+        min-width: 630px;
         background-color: #0000bb;
     }
 
