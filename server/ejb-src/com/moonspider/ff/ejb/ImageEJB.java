@@ -6,6 +6,7 @@ package com.moonspider.ff.ejb;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.moonspider.ff.model.ImageDTO;
 
 import java.util.*;
 import javax.persistence.*;
@@ -14,10 +15,18 @@ import javax.persistence.*;
 @Table(name="image")
 public class ImageEJB
 {
+
+    public ImageEJB() { }
+
+    public ImageEJB(ImageDTO dto) {
+        setBase(dto.getBase());
+        setFull(dto.getFull());
+        setTstamp(new Date(dto.getTimestamp()));
+        setDatestr(dto.getDate());
+    }
     // Columns
     
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="base")
     @JsonProperty
     public String getBase() {

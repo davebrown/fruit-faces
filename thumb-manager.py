@@ -3,7 +3,6 @@ import sys
 import os
 import re
 from datetime import datetime
-#import datetime from datetime
 import argparse
 import json
 import exifread
@@ -13,10 +12,12 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 from colorthief import ColorThief
 
-#import psycopg2
-
 from termcolor import cprint
 import traceback
+
+from collections import namedtuple
+from math import sqrt
+import random
 
 TTY = sys.stdout.isatty()
 
@@ -204,6 +205,95 @@ def cmd_make_thumbs():
 
   print('created %d thumbnail(s)' % len(files))
 
+def rgb(t):
+  return 'rgb(%d, %d, %d)' % (t[0], t[1], t[2])
+
+def colorAverage(palette):
+  r = 0
+  g = 0
+  b = 0
+  for c in palette:
+    r = r + c[0]
+    g = g + c[1]
+    b = b + c[2]
+  sz = len(palette)
+  return (r / sz, g / sz, b / sz)
+def thiefFile(f,OUT):
+  ct = ColorThief(f)
+  verbose('thiefing on ' + f)
+  #dom = ct.get_color(quality=5)
+  palette = ct.get_palette(color_count=10,quality=1)
+  dom = palette[0]
+  OUT.write('<tr>\n')
+  OUT.write(' <td style="background-color: %s;"><b>DOM</b> %s</td>\n' % (rgb(dom),rgb(dom)))
+  avg = colorAverage(palette)
+  OUT.write(' <td style="background-color: %s;"><b>AVG</b> %s</td>\n' % (rgb(avg),rgb(avg)))
+  for c in palette[1:]:
+    OUT.write(' <td style="background-color: %s;">%s</td>\n' % (rgb(c),rgb(c)))
+  OUT.write(' <td><img src="%s" width="150" height="200"/></td>\n</tr>\n' % (f))
+
+# heuristic: if b >= 1.4x both r and g, call it blue
+def isBlue(pallette):
+  FACTOR = 1.4
+  for c in pallette:
+    r = c[0]
+    g = c[1]
+    b = c[2]
+    if b >= FACTOR * r and b > FACTOR * g:
+      return True
+  return False
+
+def colorzFile(f,out):
+  verbose('colorz on %s:' % f)
+  out.write('<tr>\n')
+  colors = colorz(f)
+  blue = isBlue(colors)
+  if blue:
+    bs = "BLUE"
+  else:
+    bs = "NOT BLUE"
+  out.write('<td><img src="%s" width="150" height="200"/><br/>%s</td>\n' % (f, bs))
+  for c in colors:
+    out.write(' <td style="background-color: %s;">%s</td>\n' % (rgb(c),rgb(c)))
+  out.write('</tr>\n')
+  return blue
+
+def cmd_colors():
+  verbose('colors got args: ' + str(ARGS.args))
+  if ARGS.dir is None:
+    fail('colors requires "--dir" option')
+  if ARGS.size is None:
+    fail('colors requires "--size" option')
+  if len(ARGS.args) < 2:
+    err('usage: colors <output-file> [img-path-prefix=""]')
+    sys.exit(1)
+  out = open(ARGS.args[0], 'w')
+  out.write('<html>')
+  out.write('  <head><link rel="stylesheet" type="text/css" href="ff.css"/></head>')
+  out.write('<body><table>\n')
+  def baseMatch(f):
+    return f.find('.jpg') > 0 and f.find('_t') < 0
+
+  files = listFiles(ARGS.dir, baseMatch)
+  DB = psycopg2.connect("dbname='ff' host='localhost'")
+  cur = DB.cursor(cursor_factory=psycopg2.extras.DictCursor)
+  for f in files:
+    _, fname, base, _2 = paths(f)
+    out.write('<tr><td>' + f + '</td></tr>\n')
+    #thiefFile(f, out)
+    blue = colorzFile(f, out)
+    print('%s is blue? %s' % (base, str(blue)))
+    if blue:
+      cur.execute("""INSERT INTO image_tag (image_id, tag_id) VALUES ('%(img)s', '%(tag)s');""" % {'img': base, 'tag': 'blue' })
+      DB.commit()
+
+  out.write('</table></body></html>')
+  out.flush()
+  out.close()
+  cur.close()
+  DB.close()
+  print('done!')
+  
 def cmd_thumb_page():
   verbose('thumb-page got args: ' + str(ARGS.args))
   if ARGS.dir is None:
@@ -251,7 +341,76 @@ def cmd_thumb_page():
   if rowOpen: out.write('</tr>')
   out.write('</table></body></html>')
   out.close()
-    
+
+def cmd_colors2():
+  ret = colorz(ARGS.args[0])
+  print ret
+
+Point = namedtuple('Point', ('coords', 'n', 'ct'))
+Cluster = namedtuple('Cluster', ('points', 'center', 'n'))
+
+def get_points(img):
+    points = []
+    w, h = img.size
+    for count, color in img.getcolors(w * h):
+        points.append(Point(color, 3, count))
+    return points
+
+rtoh = lambda rgb: '#%s' % ''.join(('%02x' % p for p in rgb))
+
+def colorz(filename, n=3):
+    img = Image.open(filename)
+    img.thumbnail((200, 200))
+    w, h = img.size
+
+    points = get_points(img)
+    clusters = kmeans(points, n, 1)
+    rgbs = [map(int, c.center.coords) for c in clusters]
+    return rgbs
+    #return map(rtoh, rgbs)
+
+def euclidean(p1, p2):
+    return sqrt(sum([
+        (p1.coords[i] - p2.coords[i]) ** 2 for i in range(p1.n)
+    ]))
+
+def calculate_center(points, n):
+    vals = [0.0 for i in range(n)]
+    plen = 0
+    for p in points:
+        plen += p.ct
+        for i in range(n):
+            vals[i] += (p.coords[i] * p.ct)
+    return Point([(v / plen) for v in vals], n, 1)
+
+def kmeans(points, k, min_diff):
+    clusters = [Cluster([p], p, p.n) for p in random.sample(points, k)]
+
+    while 1:
+        plists = [[] for i in range(k)]
+
+        for p in points:
+            smallest_distance = float('Inf')
+            for i in range(k):
+                distance = euclidean(p, clusters[i].center)
+                if distance < smallest_distance:
+                    smallest_distance = distance
+                    idx = i
+            plists[idx].append(p)
+
+        diff = 0
+        for i in range(k):
+            old = clusters[i]
+            center = calculate_center(plists[i], old.n)
+            new = Cluster(plists[i], center, old.n)
+            clusters[i] = new
+            diff = max(diff, euclidean(old.center, new.center))
+
+        if diff < min_diff:
+            break
+
+    return clusters
+
 def main():
   global ARGS
   parser = argparse.ArgumentParser(

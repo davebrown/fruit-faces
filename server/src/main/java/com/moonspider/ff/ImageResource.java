@@ -2,6 +2,7 @@ package com.moonspider.ff;
 
 import com.codahale.metrics.annotation.Timed;
 import com.moonspider.ff.ejb.ImageEJB;
+import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.model.ImageDTO;
 import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 
@@ -34,6 +35,7 @@ public class ImageResource {
         return dtoList;
     }
 
+    // http://stackoverflow.com/questions/29109887/how-can-i-return-404-http-status-from-dropwizard
     @GET
     @Path("/{id}")
     @Timed
@@ -46,7 +48,27 @@ public class ImageResource {
         return Optional.of(new ImageDTO(ejb));
     }
 
-    
+    @POST
+    @Path("/{id}/tags")
+    @UnitOfWork(transactional = true)
+    //public void updateImage(@PathParam("id") String base, ImageDTO imageDTO) {
+    public void updateTags(@PathParam("id") String base, Collection<String> tags) {
+        p("received tag update: /" + base + " " + tags);
+        ImageEJB ejb = entityManager.find(ImageEJB.class, base);
+        if (ejb == null) {
+            throw new WebApplicationException(404);
+        }
+        List<TagEJB> tagEJBs = new ArrayList<>();
+        for (String tag : tags) {
+            TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
+            if (tagEJB == null)
+                throw new WebApplicationException(404);
+            tagEJBs.add(tagEJB);
+        }
+        ejb.setTagList(tagEJBs);
+        entityManager.persist(ejb);
+    }
+
     private static void p(String s) {
         System.out.println("[ImgResource] " + s);
     }

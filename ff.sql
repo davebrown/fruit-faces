@@ -20,3 +20,4 @@ CREATE INDEX image_base_idx ON image(base);
 CREATE INDEX tag_idx ON tag("name");
 CREATE INDEX join_image_idx ON image_tag(image_id);
 CREATE INDEX join_tag_idx ON image_tag(tag_id);
+CREATE UNIQUE INDEX it_unique_idx ON image_tag (image_id, tag_id);

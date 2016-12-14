@@ -6,8 +6,12 @@ import io.dropwizard.Application;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.persistence.EntityManager;
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
+import java.util.EnumSet;
 
 public class FFApplication extends Application<FFConfiguration> {
 
@@ -29,6 +33,10 @@ public class FFApplication extends Application<FFConfiguration> {
         final SayingResource resource = new SayingResource(
                 configuration.getWord()
         );
+        /* set up CORS to help our browser friends */
+        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("crossOriginRequsts", CrossOriginFilter.class);
+        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+
         environment.jersey().register(resource);
         //final EntityManager entityManager = entityManagerBundle.getSharedEntityManager();
         final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager());

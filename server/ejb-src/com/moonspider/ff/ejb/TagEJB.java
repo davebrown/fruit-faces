@@ -14,7 +14,6 @@ public class TagEJB
     // Columns
     
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name="name")
     public String getName() {
         return this.name;
