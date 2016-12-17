@@ -28,7 +28,7 @@ public class ImageResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Collection<ImageDTO> getAll() {
-        TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i", ImageEJB.class);
+        TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i ORDER BY random()", ImageEJB.class);
         List<ImageEJB> dbList = query.getResultList();
         List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
         dbList.forEach(ejb->dtoList.add(new ImageDTO(ejb)));
