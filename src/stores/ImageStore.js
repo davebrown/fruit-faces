@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
 import { IMAGE_CHANGED, IMAGES_LOADED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
+import bowser from 'bowser';
+
 //import _ from  'loadash';
 
 class ImageStore extends EventEmitter {
@@ -29,16 +31,9 @@ class ImageStore extends EventEmitter {
     return images;
   }
 
-  // just a re-ordering from the UI logic
-  // no event fired here
-  /*setOrderedList(oList) {
-    indexImages(oList);
-    images = oList;
-  }*/
-
   getNextImage() {
     var ret = selectedImage ? images[(selectedImage.index + 1) % images.length]: null;
-    console.log('selected, next index=' + selectedImage.index + '/' + ret.index);
+    //console.log('selected, next index=' + selectedImage.index + '/' + ret.index);
     return ret;
   }
 
@@ -51,19 +46,19 @@ class ImageStore extends EventEmitter {
   }
 
   getBlues() {
-    return getTaggedImages('blue');
+    return this.getTaggedImages('blue');
   }
 
   getWhites() {
-    return getTaggedImages('white');
+    return this.getTaggedImages('white');
   }
 
   getGrays() {
-    return getTaggedImages('gray');
+    return this.getTaggedImages('gray');
   }
 
   getNonColors() {
-    return images.filter((img) => { return !imageHasTag(img, 'blue'); });
+    return images.filter((img) => { return img.tags === null || img.tags.length === 0; });
   }
 }
 
@@ -84,7 +79,7 @@ function indexImages(images) {
   imageMap = {};
   for (var i = 0; i < images.length; i++) {
     var image = images[i];
-    image.index = i;
+    //image.index = i;
     imageMap[image.base] = image;
   }
   console.log('images indexed');
@@ -102,7 +97,41 @@ const MOBILE_HEART_10 = '0000000000011101110011111111100111111100001111100000011
 const MOBILE_HEART_11 = '0000000000000111011100011111111100011111110000011111000000011100000000010000000000000000';
 const HEART_21 = '000000000000000000000000111100000001111000011111110000011111110111111111101111111111011111111111111111110000111111111111111000000001111111111100000000000011111110000000000000000111000000000000000000010000000000000000000000000000000'
 
-function imageList(map, blues, grays) {
+function mix2(arrays) {
+  var total = 0;
+  var i, j;
+  for (i = 0; i < arrays.length; i++) {
+    total += arrays[i].length;
+  }
+  var ret = [];
+  for (i = 0; i < arrays.length; i++) {
+    for (j = 0; j < arrays[i].length; j++) {
+      var img = arrays[i][j];
+      img.index = ret.length;
+      ret.push(img);
+    }
+  }
+  return ret;
+}
+
+function mix(arrays) {
+  var ret = [];
+  var i, j;
+  for (i = 0; i < arrays.length; i++) {
+    for (j = 0; j < arrays[i].length; j++) {
+      var img = arrays[i][j];
+      img.index = ret.length;
+      ret.push(img);
+    }
+  }
+  return ret;
+}
+function imageList(map, images) {
+  var blues = imageStore.getBlues();
+  var whites = imageStore.getWhites();
+  var grays = imageStore.getGrays();
+  var nons = imageStore.getNonColors();
+  return mix2([blues, whites, grays, nons]);
   var ret = [];
   var i = 0;
   for (i = 0; blues.length > 0 && grays.length; i++) {
@@ -137,10 +166,8 @@ Dispatcher.register((action) => {
     break;
     case IMAGES_LOADED:
     images = action.images;
-    var blues = imageStore.getBlues();
-    var grays = imageStore.getNonBlues();
-    images = imageList(HEART_21, blues, grays);
-    //indexImages(images);
+    images = imageList(bowser.mobile ? MOBILE_HEART_9: HEART_21, images);
+    indexImages(images);
     imageStore.emitChange();
     break;
   }

@@ -8,6 +8,8 @@ import ImageStore from './stores/ImageStore.js';
 import bowser from 'bowser';
 import dateformat from 'dateformat';
 
+const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
+
 class FFTable extends React.Component {
 
   constructor(props) {
@@ -25,25 +27,20 @@ class FFTable extends React.Component {
   }
   
   loadImageDefs() {
-    request('http://localhost:9080/images', function(er, response, bodyString) {
+    request(API_BASE_URL + '/images', function(er, response, bodyString) {
       if (er)
         throw er;
       var body = JSON.parse(bodyString);
       console.log("loaded " + body.length + " image(s)");
       window.FFImages = body;
-      /*
-      for (var i = 0; i < body.length; i++) {
-        console.log(body[i].base);
-      }*/
-      //this.setState( { images: body } );
       FFActions.imagesLoaded(body);
       // FIXME: move to React routes
       var hash = window.location.hash;
       if (hash) {
         var elems = hash.split('/');
         if (elems && elems.length === 3) {
-          console.log('looking up and selecting ' + elems[2]);
           var image = ImageStore.getImage(elems[2]);
+          console.log('selecting image from hash: ' + elems[2] + '/' + image);
           FFActions.imageChanged(image);
         }
       }
@@ -73,9 +70,10 @@ class FFTable extends React.Component {
         }
       </div>
     );
+    /*
     for (var i = 0; i < this.state.images.length; i++) {
       console.log(i + '/' + this.state.images[i].index);
-    }
+    }*/
     return old;
   }
 };
@@ -239,8 +237,47 @@ class FFCheck extends React.Component {
     }
     return (<li key={key}><input checked={checkStr} onChange={this.checkHandler.bind(this)} type="checkbox"/><label>{fruit}</label></li>);
   }
-
 }
+
+class FFDialog extends React.Component {
+
+  constructor(props) {
+    super(props);
+    //Dispatcher.register(this.changeListener.bind(this));
+    ImageStore.addChangeListener(this.changeListener.bind(this));
+  }
+
+  changeListener(action) {
+    this.setState( { image: ImageStore.getSelectedImage() } );
+  }
+  
+  dialogCloseHandler() {
+    //console.log('dialog close');
+    FFActions.imageChanged(null);
+  }
+
+  render() {
+    if (!this.state || !this.state.image) {
+      return null;
+    }
+    var src = '/thumbs/' + this.state.image.full;
+    //var tagForm = <TagForm className="tag-form" image={this.state.image}/>;
+    var tagForm = '';
+    window.location.hash = '/images/' + this.state.image.base;
+    var dateStr = 'Unknown date...';
+    if (this.state.image.timestamp) {
+      dateStr = dateformat(new Date(this.state.image.timestamp), 'dddd mmmm d, yyyy h:MM TT');
+    }
+    return (<div className="dialog">
+            {tagForm}
+            <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
+            <img id="main-image" src={src}/>
+            <p>{dateStr}</p>
+            </div>
+           );
+  }
+}
+
 class FFMain extends React.Component {
 
   constructor(props) {
@@ -250,26 +287,17 @@ class FFMain extends React.Component {
   }
 
   changeListener(action) {
-    /*
-    console.log('FFMain.changeListener(' + action + ')');
-    switch (action.actionType) {
-    case IMAGE_CHANGED:
-      this.setState({image: action.image });
-      break;
-    }
-    */
+    // console.log('FFMain.changeListener(' + action + ')');
+    // switch (action.actionType) {
+    // case IMAGE_CHANGED:
+    //   this.setState({image: action.image });
+    //   break;
+    // }
     this.setState( { image: ImageStore.getSelectedImage() } );
   }
 
-  dialogCloseHandler() {
-    //console.log('dialog close');
-    FFActions.imageChanged(null);
-  }
-
   render() {
-    if (!this.state || !this.state.image) {
-      return <h2>Select an image!</h2>;
-    }
+    /*
     var mainDiv = document.getElementById('main');
     if (imageHasTag(this.state.image, 'blue')) {
       mainDiv.style = 'background-color: blue;';
@@ -280,22 +308,55 @@ class FFMain extends React.Component {
     } else {
       mainDiv.style = 'background-color: red;';
     }
-
-    var src = '/thumbs/' + this.state.image.full;
-    var tagForm = <TagForm className="tag-form" image={this.state.image}/>;
-    window.location.hash = '/images/' + this.state.image.base;
-    var dateStr = 'Unknown date...';
-    if (this.state.image.timestamp) {
-      dateStr = dateformat(new Date(this.state.image.timestamp), 'dddd, mmmm d, yyyy, h:MM TT');
-    }
-    return (<div className="dialog">
-            {tagForm}
-            <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
-            <img id="main-image" src={src}/><br/>
-            <i>{dateStr}</i>
-            </div>);
+    */
+    var dialog = (<FFDialog/>);
+    return (
+        <div className="main">
+        {dialog}
+        <FFNav/>
+        </div>
+    );
   }
 }
-ReactDOM.render(<FFMain/>, document.getElementById('main'));
-ReactDOM.render(<FFTable/>, document.getElementById('thumbs'));
+
+class FFNav extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (<div className="nav">
+      <ul>
+        <li>About</li>
+        <li>Filters</li>
+        <li>Data</li>
+        <li>Slideshow</li>
+        <li>Tech</li>
+        <li>Credits</li>
+      </ul>
+     </div>
+           );
+    
+  }
+}
+
+class FFApp extends React.Component {
+ constructor(props) {
+    super(props);
+    //Dispatcher.register(this.changeListener.bind(this));
+    //ImageStore.addChangeListener(this.changeListener.bind(this));
+  }
+
+  render() {
+    return (
+      <div className="container">
+        <FFTable/>
+        <FFMain/>
+      </div>
+    );
+  }
+}
+ReactDOM.render(<FFApp/>, document.getElementById('container'));
+//ReactDOM.render(<FFMain/>, document.getElementById('main'));
+//ReactDOM.render(<FFTable/>, document.getElementById('thumbs'));
 

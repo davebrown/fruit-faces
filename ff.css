@@ -30,6 +30,7 @@ ul {
     width: 100%;
 }
 
+/* begin debug */
 .thirty {
     width: 30px;
     color: white;
@@ -50,26 +51,23 @@ ul {
 .red-bg {
     background-color: #ff0000;
 }
-    
+
+.red-border {
+    border: 2px solid red;
+}
+/* end debug */
 @media only screen and (max-width: 799px) {
-    
-    .floatleft {
-        float:left;
-        width: 100%;
-        /*max-width: 320px;*/ /* 16 cols x 30px per col */
-        background-color: #0000bb;
+
+    body {
+        margin: 0;
     }
 
     .thumbs {
         display: flex;
         flex-direction: row;
+        max-width: 360px;
         flex-wrap: wrap;
-    }
-
-    .floatright {
-        background-color: #00ff00;
-        width: 100%;
-        height: 90%;
+        margin: auto;
     }
 
     #main-image {
@@ -96,7 +94,7 @@ ul {
     .dialog button {
         z-index: 100;
         float: right;
-        font-size: 200%;
+        font-size: 1.5em;
         font-weight: bold;
     }
 
@@ -109,41 +107,50 @@ ul {
     
     .floatleft {
         float:left;
-        width: 50%;
-        max-width: 630px; /* 16 cols x 30px per col */
-        min-width: 630px;
+        /*width: 50%;*/
+        max-width: 450px;
+        min-width: 450px;
         background-color: #0000bb;
-    }
-
-    .thumbs {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
     }
 
     .floatright {
         float: left;
         background-color: #00ff00;
-        width: 50%;
+        /*width: 50%;*/
+        width: auto;
         height: 90%;
     }
 
-    .dialog {
-        position: fixed;
+    .container {
+        display: flex;
+        flex-direction: row;
     }
     
-    #main-image {
-        display: block;
-        width: auto;
-        height: auto;
-        max-height: 80vh;
-        max-width: 90%;
-        margin: 20px auto;
+    .thumbs {
+        max-width: 450px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
 
-    .dialog button {
-        display: none;
-    }    
+    .main {
+        /*min-width: 400px;*/
+    }
+
+    .nav {
+        background-color: yellow;
+        flex-grow: 1;
+    }
+
+    .nav ul {
+        float: right;
+        margin: 20px;
+    }
+
+    .nav ul li {
+        margin-bottom: 40px;
+    }
+    
     .thumb-selected {
         border: 2px solid red;
     }
@@ -151,4 +158,38 @@ ul {
         width: 26px;
         height: 36px;
     }
+    
+    .dialog {
+        position: fixed;
+        display: flex;
+        flex-direction: column;
+        background-color: #d0d0d0;
+        /* center the dialog */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);        
+    }
+
+    .dialog button {
+        /*display: none;*/
+        /*position: fixed;*/
+        text-align: right;
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+
+    .dialog p {
+        margin-left: 10px;
+    }
+    
+    #main-image {
+        display: block;
+        width: auto;
+        height: auto;
+        max-height: 80vh;
+        max-width: 360px; /* visually even with width of thumbs section */
+        /* top right bottom left */
+        margin: 0px 0px 5px 10px;
+    }
+
 } /* close large screen media */

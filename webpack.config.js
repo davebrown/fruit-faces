@@ -11,7 +11,7 @@ module.exports = {
   },
   plugins: [
     new webpack.EnvironmentPlugin([
-      "NODE_ENV", "TOKEN"
+      "NODE_ENV", "FF_BACKEND_URL", "TOKEN"
     ])    
   ],
   module: {
