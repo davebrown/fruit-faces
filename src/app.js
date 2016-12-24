@@ -1,12 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Router, Route, Link, IndexRoute, hashHistory, browserHistory } from 'react-router';
 import request from 'browser-request';
+import bowser from 'bowser';
+import dateformat from 'dateformat';
+
 import Dispatcher from './dispatcher/AppDispatcher.js';
 import { IMAGE_CHANGED, IMAGES_LOADED } from './constants/FFConstants.js';
 import FFActions from './actions/FFActions.js';
 import ImageStore from './stores/ImageStore.js';
-import bowser from 'bowser';
-import dateformat from 'dateformat';
+import Dialog from './components/Dialog.js';
+import FFNav from './components/FFNav.js';
 
 const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
 
@@ -254,6 +258,8 @@ class FFDialog extends React.Component {
   dialogCloseHandler() {
     //console.log('dialog close');
     FFActions.imageChanged(null);
+    // FIXME: should a component be doing this?
+    window.location.hash = '/';
   }
 
   render() {
@@ -261,13 +267,15 @@ class FFDialog extends React.Component {
       return null;
     }
     var src = '/thumbs/' + this.state.image.full;
-    //var tagForm = <TagForm className="tag-form" image={this.state.image}/>;
-    var tagForm = '';
+    var tagForm = <TagForm className="tag-form" image={this.state.image}/>;
+    //var tagForm = '';
+    // FIXME: should a component be doing this?
     window.location.hash = '/images/' + this.state.image.base;
     var dateStr = 'Unknown date...';
     if (this.state.image.timestamp) {
       dateStr = dateformat(new Date(this.state.image.timestamp), 'dddd mmmm d, yyyy h:MM TT');
     }
+    /*
     return (<div className="column dialog expandable compressible">
             {tagForm}
             <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
@@ -275,6 +283,15 @@ class FFDialog extends React.Component {
             <p>{dateStr}</p>
             </div>
            );
+    */
+    return (<Dialog>
+            <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
+            {tagForm}
+            <img id="main-image" src={src}/>
+            <p>{dateStr}</p>
+            </Dialog>
+           );
+    
   }
 }
 
@@ -316,6 +333,7 @@ class FFMain extends React.Component {
       dialog = (<div className="expandable compressible red-border"></div>);
     }
     */
+    console.log('FFMain.render()');
     return (
         <div className="main">
         {dialog}
@@ -326,26 +344,9 @@ class FFMain extends React.Component {
   }
 }
 
-class FFNav extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (<div className="nav fixed">
-      <ul>
-        <li>About</li>
-        <li>Filters</li>
-        <li>Data</li>
-        <li>Slideshow</li>
-        <li>Tech</li>
-        <li>Credits</li>
-      </ul>
-     </div>
-           );
-    
-  }
-}
+const Defalt = () => (<h1>Default</h1>);
+const About = () => (<h1>About</h1>);
+const Filters = () => (<h1>Filters</h1>);
 
 class FFApp extends React.Component {
  constructor(props) {
@@ -356,14 +357,30 @@ class FFApp extends React.Component {
 
   render() {
     return (
-      <div className="container">
+        <div className="container">
         <FFTable/>
         <FFMain/>
-      </div>
+        </div>
     );
   }
 }
-ReactDOM.render(<FFApp/>, document.getElementById('container'));
+
+class FFContainer extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  
+  render() {
+    return (
+        <Router history={hashHistory}>
+         <Route path='/' component={FFApp}>
+          <Route path='/images/:imageId' component={FFApp}/>
+         </Route>
+        </Router>
+    );
+  }
+}
+ReactDOM.render(<FFContainer/>, document.getElementById('container'));
 //ReactDOM.render(<FFMain/>, document.getElementById('main'));
 //ReactDOM.render(<FFTable/>, document.getElementById('thumbs'));
 
