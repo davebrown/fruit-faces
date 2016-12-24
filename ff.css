@@ -1,15 +1,7 @@
-body {
-    background-color: #90a0c0;
-}
-
-td {
-   padding:0; margin:0;
-}
-
-table {
-    border-collapse: collapse;
-    margin-left: auto;
-    margin-right: auto;
+html, body, .container {
+  width: 100%;
+  height: 100%;
+  margin: 0;
 }
 
 ul {
@@ -18,156 +10,48 @@ ul {
     margin: 0;
 }
 
-.tag-form {
-    float: left;
-    position: absolute;
-    left: 0px;
-    top: 0px;
-}
-
 .container {
-    background-color: white;
-    width: 100%;
+  display: flex;
 }
 
-/* begin debug */
-.thirty {
-    width: 30px;
-    color: white;
+.column {
+  display: flex;
+  flex-direction: column;
 }
 
-.blue-bg {
-    background-color: #90a0c0;
+.scrollable {
+  overflow-y: scroll;
 }
 
-.gray-bg {
-    background-color: #a0a0a0;
+.fixed {
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
-.white-bg {
-    background-color: #e8e8e8;
+.expandable {
+  flex-grow: 1;
 }
 
-.red-bg {
-    background-color: #ff0000;
+.compressible {
+  flex-shrink: 1;
 }
-
-.red-border {
-    border: 2px solid red;
-}
-/* end debug */
-@media only screen and (max-width: 799px) {
-
-    body {
-        margin: 0;
-    }
-
-    .thumbs {
-        display: flex;
-        flex-direction: row;
-        max-width: 360px;
-        flex-wrap: wrap;
-        margin: auto;
-    }
-
-    #main-image {
-        display: block;
-        width: auto;
-        height: auto;
-        max-height: 80vh;
-        max-width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .dialog {
-        display: block;
-        position: fixed;
-        top: 0; /* Half the icon's height */
-        right: 0; /* half the icon's width */
-        z-index:50;
-        background-color: #c0c0c0;
-        width: 100%;
-        height: 100%;
-    }
-
-    .dialog button {
-        z-index: 100;
-        float: right;
-        font-size: 1.5em;
-        font-weight: bold;
-    }
-
-    .thumb {
-        
-    }
-} /* close small screen media */
 
 @media only screen and (min-width: 800px) {
-    
-    .floatleft {
-        float:left;
-        /*width: 50%;*/
-        max-width: 450px;
-        min-width: 450px;
-        background-color: #0000bb;
-    }
 
-    .floatright {
-        float: left;
-        background-color: #00ff00;
-        /*width: 50%;*/
-        width: auto;
-        height: 90%;
-    }
-
-    .container {
-        display: flex;
-        flex-direction: row;
-    }
-    
     .thumbs {
         max-width: 450px;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
+    }
+
+    .thumbs img {
+        opacity: 0.5;
     }
 
     .main {
-        /*min-width: 400px;*/
-    }
-
-    .nav {
-        background-color: yellow;
-        flex-grow: 1;
-    }
-
-    .nav ul {
-        float: right;
-        margin: 20px;
-    }
-
-    .nav ul li {
-        margin-bottom: 40px;
-    }
-    
-    .thumb-selected {
-        border: 2px solid red;
-    }
-    .thumb-selected img {
-        width: 26px;
-        height: 36px;
-    }
-    
-    .dialog {
-        position: fixed;
         display: flex;
-        flex-direction: column;
-        background-color: #d0d0d0;
-        /* center the dialog */
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);        
+        width: 100%;
     }
 
     .dialog button {
@@ -176,6 +60,8 @@ ul {
         text-align: right;
         font-weight: bold;
         font-size: 1.5em;
+        border-width: 0px;
+        background-color: white;
     }
 
     .dialog p {
@@ -187,9 +73,31 @@ ul {
         width: auto;
         height: auto;
         max-height: 80vh;
-        max-width: 360px; /* visually even with width of thumbs section */
+        max-width: 90%;
         /* top right bottom left */
         margin: 0px 0px 5px 10px;
     }
 
-} /* close large screen media */
+    .nav {
+        background-color: yellow;
+    }
+
+    .nav ul {
+        margin: 20px;
+    }
+
+    .nav ul li {
+        margin-bottom: 40px;
+        text-align: right;
+    }
+    
+    .thumb-selected {
+        border: 2px solid red;
+    }
+    .thumb-selected img {
+        width: 26px;
+        height: 36px;
+        opacity: 1.0;
+    }
+
+} /* close large screen media */    

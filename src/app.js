@@ -61,7 +61,7 @@ class FFTable extends React.Component {
     });
     
     var old = (
-        <div className="thumbs">
+        <div className="scrollable fixed thumbs">
         {
           this.state.images.map((image) => {
             var key = 'ff-thumb-' + image.base;
@@ -268,7 +268,7 @@ class FFDialog extends React.Component {
     if (this.state.image.timestamp) {
       dateStr = dateformat(new Date(this.state.image.timestamp), 'dddd mmmm d, yyyy h:MM TT');
     }
-    return (<div className="dialog">
+    return (<div className="column dialog expandable compressible">
             {tagForm}
             <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
             <img id="main-image" src={src}/>
@@ -309,10 +309,17 @@ class FFMain extends React.Component {
       mainDiv.style = 'background-color: red;';
     }
     */
-    var dialog = (<FFDialog/>);
+    var dialog = null;
+    dialog = (<FFDialog/>);
+    /*
+    if (dialog === null || ImageStore.getSelectedImage() === null) {
+      dialog = (<div className="expandable compressible red-border"></div>);
+    }
+    */
     return (
         <div className="main">
         {dialog}
+        <div className="expandable compressible red-border"></div>
         <FFNav/>
         </div>
     );
@@ -325,7 +332,7 @@ class FFNav extends React.Component {
   }
 
   render() {
-    return (<div className="nav">
+    return (<div className="nav fixed">
       <ul>
         <li>About</li>
         <li>Filters</li>
