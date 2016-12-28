@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Router, Route, Link, IndexRoute, hashHistory, browserHistory } from 'react-router';
 import request from 'browser-request';
@@ -90,10 +90,9 @@ class FFThumb extends React.Component {
   }
 
   clickHandler() {
-    //document.getElementById('main-image').src = '/thumbs/' + this.props.image.full;
     FFActions.imageChanged(this.props.image);
   }
-  
+
   render() {
     var dim = '30x40';
     if (false && bowser.mobile) {
@@ -137,27 +136,6 @@ function imageAddTag(image, tag) {
   }
   updateTagDB(image);
 }
-
-
-function keyDownHandler(arg) {
-  var newImage = null;
-  switch (arg.keyCode) {
-  case 39: // right arrow
-    newImage = ImageStore.getNextImage();
-    console.log('right arrow, new image ' + newImage);
-    break;
-  case 37: // left
-    newImage = ImageStore.getPreviousImage();
-    break;
-  case 40: // down
-    break;
-  case 38: // up
-    break;
-  }
-  if (newImage) FFActions.imageChanged(newImage);
-}
-
-document.onkeydown = keyDownHandler;
 
 function updateTagDB(image) {
   var body = JSON.stringify(image.tags);
@@ -262,6 +240,8 @@ class FFMainImage extends React.Component {
     console.log('action: ' + action.actionType);
     switch (action.actionType) {
     case IMAGES_LOADED:
+      // FIXME: necessary for when we arrive with an image route selected,
+      // but the images are not loaded yet...
       this.forceUpdate();
       break;
     }
@@ -441,6 +421,32 @@ class FFContainer extends React.Component {
   }
 }
 
+function keyDownHandler(arg) {
+  var newImage = null;
+  switch (arg.keyCode) {
+  case 39: // right arrow
+    newImage = ImageStore.getNextImage();
+    console.log('right arrow, new image ' + newImage);
+    break;
+  case 37: // left
+    newImage = ImageStore.getPreviousImage();
+    break;
+  case 40: // down
+    break;
+  case 38: // up
+    break;
+  }
+  if (newImage) {
+    FFActions.imageChanged(newImage);
+    hashHistory.push('/images/' + newImage.base);
+  }
+}
+
+
+// FIXME: don't like using global document handler, but I don't receive arrow key
+// events if certain elements don't have focus
+document.onkeydown = keyDownHandler;
+
 function routeLocationDidUpdate(location) {
   console.debug('routeLocationUpdated: ');
   console.log(location);
@@ -452,7 +458,7 @@ class FFApp extends React.Component {
   constructor(props) {
     super(props);
   }
-  
+
   render() {
     return (
         <Router history={hashHistory}>
@@ -466,6 +472,7 @@ class FFApp extends React.Component {
     );
   }
 }
+
 ReactDOM.render(<FFApp/>, document.getElementById('container'));
 //ReactDOM.render(<FFMain/>, document.getElementById('main'));
 //ReactDOM.render(<FFTable/>, document.getElementById('thumbs'));
