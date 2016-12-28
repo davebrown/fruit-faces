@@ -27,6 +27,7 @@ class FFTable extends React.Component {
   }
 
   changeListener() {
+    console.debug('FFTable.changeListener()');
     this.setState( { images: ImageStore.getImages() } );
   }
   
@@ -100,12 +101,15 @@ class FFThumb extends React.Component {
     }
     var path = '/thumbs/' + this.props.image.base + '_' + dim + '_t.jpg';
     var selImage = ImageStore.getSelectedImage();
-    var selClass = "";
+    var selClass = '';
     if (selImage && selImage.base === this.props.image.base) {
       selClass = 'thumb-selected';
     }
+    var to = '/images/' + this.props.image.base;
     return <div className={selClass} key={this.props.image.base}>
+      <Link to={to}>
       <img src={path} onClick={this.clickHandler.bind(this)}/>
+      </Link>
       </div>;
   }
 };
@@ -243,55 +247,113 @@ class FFCheck extends React.Component {
   }
 }
 
-class FFDialog extends React.Component {
+class FFMainImage extends React.Component {
 
   constructor(props) {
     super(props);
     //Dispatcher.register(this.changeListener.bind(this));
-    ImageStore.addChangeListener(this.changeListener.bind(this));
+    this.log('CTOR');
+    this.mounted = false;
+    this.actionListener = this.actionListener.bind(this);
+    //this.log = this.log.bind(this);
   }
 
+  actionListener(action) {
+    console.log('action: ' + action.actionType);
+    switch (action.actionType) {
+    case IMAGES_LOADED:
+      this.forceUpdate();
+      break;
+    }
+  }
+
+  /*
   changeListener(action) {
+    this.log('changeListener mounted=' + this.mounted);
     this.setState( { image: ImageStore.getSelectedImage() } );
   }
-  
-  dialogCloseHandler() {
-    //console.log('dialog close');
-    FFActions.imageChanged(null);
-    // FIXME: should a component be doing this?
-    window.location.hash = '/';
+  */
+
+  componentWillMount() {
+    this.log('willMount');
+    this.dispatcherToken = Dispatcher.register(this.actionListener);
+    //ImageStore.addChangeListener(this.changeListener.bind(this));
   }
 
+  componentDidMount() {
+    this.log('didMount');
+    this.mounted = true;
+  }
+
+  componentWillReceiveProps(nextProps, nextContext) {
+    this.log('willReceiveProps');
+  }
+
+  /*
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    this.log('shouldUpdate');
+    console.debug(this.props);
+    console.debug(nextProps);
+    //var ret = super.shouldComponentUpdate(nextProps, nextState, nextContext);
+    var ret = true;
+    this.log('shouldUpdate->' + ret);
+    return ret;
+  }
+  */
+
+  componentWillUpdate(nextProps, nextState, nextContext) {
+    this.log('willUpdate');
+  }
+
+  componentDidUpdate(nextProps, nextState, nextContext) {
+    this.log('didUpdate');
+  }
+
+  componentWillUnmount() {
+    this.log('willUnmount');
+    this.mounted = false;
+    var tmpToken = this.dispatcherToken;
+    this.dispatcherToken = null;
+    if (tmpToken)
+      Dispatcher.unregister(tmpToken);
+    //ImageStore.removeChangeListener(this.changeListener.bind(this));
+  }
+  
   render() {
+    var imageId = this.props && this.props.params && this.props.params.imageId;
+    this.log('render: imageId=' + imageId);
+    var image = null;
+    /*image = this.state.image;
     if (!this.state || !this.state.image) {
+      this.log('nothing selected, returning NULL');
       return null;
     }
-    var src = '/thumbs/' + this.state.image.full;
-    var tagForm = <TagForm className="tag-form" image={this.state.image}/>;
+    */
+    image = ImageStore.getImage(imageId);
+    if (image === null) {
+      this.log('no image or not found, returning null');
+      return null;
+    }
+    var src = '/thumbs/' + image.full;
+    var tagForm = <TagForm className="tag-form" image={image}/>;
     //var tagForm = '';
     // FIXME: should a component be doing this?
-    window.location.hash = '/images/' + this.state.image.base;
+    window.location.hash = '/images/' + image.base;
     var dateStr = 'Unknown date...';
-    if (this.state.image.timestamp) {
-      dateStr = dateformat(new Date(this.state.image.timestamp), 'dddd mmmm d, yyyy h:MM TT');
+    if (image.timestamp) {
+      dateStr = dateformat(new Date(image.timestamp), 'dddd mmmm d, yyyy h:MM TT');
     }
-    /*
-    return (<div className="column dialog expandable compressible">
+    return (<div>
             {tagForm}
-            <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
             <img id="main-image" src={src}/>
             <p>{dateStr}</p>
             </div>
            );
-    */
-    return (<Dialog>
-            <button onClick={this.dialogCloseHandler.bind(this)}>X</button>
-            {tagForm}
-            <img id="main-image" src={src}/>
-            <p>{dateStr}</p>
-            </Dialog>
-           );
     
+  }
+
+  log(msg) {
+    console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
   }
 }
 
@@ -300,17 +362,24 @@ class FFMain extends React.Component {
   constructor(props) {
     super(props);
     //Dispatcher.register(this.changeListener.bind(this));
-    ImageStore.addChangeListener(this.changeListener.bind(this));
+    //ImageStore.addChangeListener(this.changeListener.bind(this));
   }
 
   changeListener(action) {
-    // console.log('FFMain.changeListener(' + action + ')');
+    console.debug('FFMain.changeListener');
     // switch (action.actionType) {
     // case IMAGE_CHANGED:
     //   this.setState({image: action.image });
     //   break;
     // }
     this.setState( { image: ImageStore.getSelectedImage() } );
+  }
+
+  dialogCloseHandler() {
+    console.log('FFMain: dialog close');
+    FFActions.imageChanged(null);
+    // FIXME: should a component be doing this?
+    window.location.hash = '/';
   }
 
   render() {
@@ -326,8 +395,8 @@ class FFMain extends React.Component {
       mainDiv.style = 'background-color: red;';
     }
     */
-    var dialog = null;
-    dialog = (<FFDialog/>);
+    //var dialog = null;
+    //dialog = (<FFMainImage/>);
     /*
     if (dialog === null || ImageStore.getSelectedImage() === null) {
       dialog = (<div className="expandable compressible red-border"></div>);
@@ -336,9 +405,13 @@ class FFMain extends React.Component {
     console.log('FFMain.render()');
     return (
         <div className="main">
-        {dialog}
+        <Dialog onClose={this.dialogCloseHandler.bind(this)}>
+            <Route path='/' component={Defalt}/>
+            <Route path='/about' component={About}/>
+            <Route path='/filters' component={Filters}/>
+            <Route path='/images/:imageId' component={FFMainImage}/>
+        </Dialog>
         <div className="expandable compressible red-border"></div>
-        <FFNav/>
         </div>
     );
   }
@@ -348,7 +421,7 @@ const Defalt = () => (<h1>Default</h1>);
 const About = () => (<h1>About</h1>);
 const Filters = () => (<h1>Filters</h1>);
 
-class FFApp extends React.Component {
+class FFContainer extends React.Component {
  constructor(props) {
     super(props);
     //Dispatcher.register(this.changeListener.bind(this));
@@ -359,13 +432,23 @@ class FFApp extends React.Component {
     return (
         <div className="container">
         <FFTable/>
-        <FFMain/>
+        <Dialog>
+        {this.props.children}
+        </Dialog>
+        <FFNav/>
         </div>
     );
   }
 }
 
-class FFContainer extends React.Component {
+function routeLocationDidUpdate(location) {
+  console.debug('routeLocationUpdated: ');
+  console.log(location);
+}
+
+hashHistory.listen(location => routeLocationDidUpdate(location));
+
+class FFApp extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -373,14 +456,17 @@ class FFContainer extends React.Component {
   render() {
     return (
         <Router history={hashHistory}>
-         <Route path='/' component={FFApp}>
-          <Route path='/images/:imageId' component={FFApp}/>
+        <Route path='/' component={FFContainer}>
+            <Route path='/' component={Defalt}/>
+            <Route path='/about' component={About}/>
+            <Route path='/filters' component={Filters}/>
+            <Route path='/images/:imageId' component={FFMainImage}/>
          </Route>
         </Router>
     );
   }
 }
-ReactDOM.render(<FFContainer/>, document.getElementById('container'));
+ReactDOM.render(<FFApp/>, document.getElementById('container'));
 //ReactDOM.render(<FFMain/>, document.getElementById('main'));
 //ReactDOM.render(<FFTable/>, document.getElementById('thumbs'));
 

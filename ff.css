@@ -61,25 +61,14 @@ ul {
 .red-border {
     border: 2px solid red;
 }
+.blue-border {
+    border: 2px solid green;
+}
+.green-border {
+    border: 2px solid green;
+}
+
 /* end debug */
-
-@media only screen and (min-width: 800px) {
-
-    .thumbs {
-        max-width: 450px;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-
-    .thumbs img {
-        opacity: 0.5;
-    }
-
-    .main {
-        display: flex;
-        width: 100%;
-    }
 
     .dialog button {
         text-align: right;
@@ -91,6 +80,45 @@ ul {
 
     .dialog p {
         margin-left: 10px;
+    }
+    
+@media only screen and (min-width: 800px) {
+
+    .thumbs {
+        max-width: 480px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+
+    .thumbs img {
+        /*opacity: 0.5;*/
+    }
+
+    .thumb-selected {
+        border: 2px solid red;
+    }
+
+    .thumb-selected img {
+        width: 26px;
+        height: 36px;
+        opacity: 1.0;
+    }
+/*
+    .thumbs div {
+        width: 30px;
+        height: 40px;
+    }
+*/
+    
+    .main {
+        display: flex;
+        width: 100%;
+    }
+
+    .dialog button {
+        display: none;
     }
     
     #main-image {
@@ -116,13 +144,4 @@ ul {
         text-align: right;
     }
     
-    .thumb-selected {
-        border: 2px solid red;
-    }
-    .thumb-selected img {
-        width: 26px;
-        height: 36px;
-        opacity: 1.0;
-    }
-
 } /* close large screen media */    

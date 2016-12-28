@@ -4,11 +4,9 @@ import { Link } from 'react-router';
 class FFNav extends React.Component {
   constructor(props) {
     super(props);
-    console.log('FFNav.<init>');
   }
 
   render() {
-    console.log('FFNav.render');
     return (<div className="nav fixed">
       <ul>
         <li><Link to='/about'>About</Link></li>

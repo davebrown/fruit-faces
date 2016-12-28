@@ -19,8 +19,11 @@ class ImageStore extends EventEmitter {
     this.removeListener(CHANGE_EVENT, callback);
   }
 
+  haveImages() {
+    return images && images.length > 0;
+  }
   getImage(base) {
-    return imageMap && imageMap[base];
+    return base && imageMap && imageMap[base];
   }
 
   getSelectedImage() {
