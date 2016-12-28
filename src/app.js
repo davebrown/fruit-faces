@@ -27,8 +27,10 @@ class FFTable extends React.Component {
   }
 
   changeListener() {
-    console.debug('FFTable.changeListener()');
-    this.setState( { images: ImageStore.getImages() } );
+    if (!this.state.images || this.state.images.length === 0) {
+      console.debug('FFTable.changeListener()');
+      this.setState( { images: ImageStore.getImages() } );
+    }
   }
   
   loadImageDefs() {
@@ -91,6 +93,7 @@ class FFThumb extends React.Component {
 
   clickHandler() {
     FFActions.imageChanged(this.props.image);
+    hashHistory.push('/images/' + this.props.image.base);
   }
 
   render() {
@@ -106,9 +109,7 @@ class FFThumb extends React.Component {
     }
     var to = '/images/' + this.props.image.base;
     return <div className={selClass} key={this.props.image.base}>
-      <Link to={to}>
       <img src={path} onClick={this.clickHandler.bind(this)}/>
-      </Link>
       </div>;
   }
 };
@@ -237,7 +238,7 @@ class FFMainImage extends React.Component {
   }
 
   actionListener(action) {
-    console.log('action: ' + action.actionType);
+    //console.log('FFMainImage.action: ' + action.actionType);
     switch (action.actionType) {
     case IMAGES_LOADED:
       // FIXME: necessary for when we arrive with an image route selected,
@@ -248,7 +249,7 @@ class FFMainImage extends React.Component {
   }
 
   /*
-  changeListener(action) {
+    changeListener(action) {
     this.log('changeListener mounted=' + this.mounted);
     this.setState( { image: ImageStore.getSelectedImage() } );
   }
@@ -333,7 +334,7 @@ class FFMainImage extends React.Component {
   }
 
   log(msg) {
-    console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
+    //console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
   }
 }
 
@@ -426,7 +427,6 @@ function keyDownHandler(arg) {
   switch (arg.keyCode) {
   case 39: // right arrow
     newImage = ImageStore.getNextImage();
-    console.log('right arrow, new image ' + newImage);
     break;
   case 37: // left
     newImage = ImageStore.getPreviousImage();
@@ -438,7 +438,9 @@ function keyDownHandler(arg) {
   }
   if (newImage) {
     FFActions.imageChanged(newImage);
-    hashHistory.push('/images/' + newImage.base);
+    // FIXME: will hash history exhaust memory if my kid just hits right arrow for an hour?
+    //hashHistory.push('/images/' + newImage.base);
+    hashHistory.replace('/images/' + newImage.base);
   }
 }
 
@@ -452,7 +454,7 @@ function routeLocationDidUpdate(location) {
   console.log(location);
 }
 
-hashHistory.listen(location => routeLocationDidUpdate(location));
+//hashHistory.listen(location => routeLocationDidUpdate(location));
 
 class FFApp extends React.Component {
   constructor(props) {
