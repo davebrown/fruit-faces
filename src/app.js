@@ -102,10 +102,17 @@ class FFThumb extends React.Component {
       dim = '20x27';
     }
     var path = '/thumbs/' + this.props.image.base + '_' + dim + '_t.jpg';
-    var selImage = ImageStore.getSelectedImage();
     var selClass = '';
-    if (selImage && selImage.base === this.props.image.base) {
-      selClass = 'thumb-selected';
+    /* race condition on route load...look at hash instead */
+    //var selImage = ImageStore.getSelectedImage();
+    //if (selImage && selImage.base === this.props.image.base) {
+    //selClass = 'thumb-selected';
+    //}
+    {
+      var hash = '#/images/' + this.props.image.base;
+      if (hash === window.location.hash) {
+        selClass = 'thumb-selected';
+      }
     }
     var to = '/images/' + this.props.image.base;
     return <div className={selClass} key={this.props.image.base}>
@@ -360,7 +367,8 @@ class FFMain extends React.Component {
     console.log('FFMain: dialog close');
     FFActions.imageChanged(null);
     // FIXME: should a component be doing this?
-    window.location.hash = '/';
+    //window.location.hash = '/';
+    hashHistory.push('/');
   }
 
   render() {

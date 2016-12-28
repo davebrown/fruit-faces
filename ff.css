@@ -92,8 +92,9 @@ ul {
     }
 
 
+    /* can't decide if I like opacity < 1.0 for non-selected */
     .thumbs img {
-        /*opacity: 0.5;*/
+        opacity: 1.0;
     }
 
     .thumb-selected {
@@ -105,12 +106,6 @@ ul {
         height: 36px;
         opacity: 1.0;
     }
-/*
-    .thumbs div {
-        width: 30px;
-        height: 40px;
-    }
-*/
     
     .main {
         display: flex;
