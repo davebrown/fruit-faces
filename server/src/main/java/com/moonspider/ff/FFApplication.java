@@ -34,7 +34,7 @@ public class FFApplication extends Application<FFConfiguration> {
                 configuration.getWord()
         );
         /* set up CORS to help our browser friends */
-        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("crossOriginRequsts", CrossOriginFilter.class);
+        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("crossOriginRequests", CrossOriginFilter.class);
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
         environment.jersey().register(resource);

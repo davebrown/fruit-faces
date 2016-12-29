@@ -2,6 +2,13 @@ html, body, .container {
   width: 100%;
   height: 100%;
   margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+p {
+    font-family: "Droid Serif", "Open Sans", Cambria, Georgia, "DejaVu Serif", serif;
+    line-height: 1.6;
+    font-size: 1.0em;
 }
 
 ul {
@@ -17,6 +24,10 @@ ul {
 .column {
   display: flex;
   flex-direction: column;
+}
+
+.wrap {
+    flex-wrap: wrap;
 }
 
 .scrollable {
@@ -115,7 +126,17 @@ ul {
     .dialog button {
         display: none;
     }
-    
+
+    .tag-form {
+        width: initial;
+        height: initial;
+        background-color: coral;
+        flex-wrap: wrap;
+        max-width: 450px; /* FIXME: hack */
+    }
+    .tag-check {
+        margin: 8px;
+    }
     #main-image {
         display: block;
         width: auto;

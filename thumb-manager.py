@@ -446,6 +446,19 @@ MOBILE_HEART_11 = """
            
 """
 
+HEART_16 = """
+                
+  ***     ***   
+******* ******* 
+*************** 
+ *************  
+   *********    
+     *****      
+      ***       
+       *        
+                
+"""
+
 HEART_21 = """
                      
    ****       ****   
@@ -460,7 +473,7 @@ HEART_21 = """
                      
 """
 def cmd_heart():
-  s = HEART_21
+  s = HEART_16
   out = StringIO.StringIO()
   for i in range(len(s)):
     c = s[i]

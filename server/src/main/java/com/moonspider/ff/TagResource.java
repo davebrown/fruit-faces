@@ -24,11 +24,45 @@ public class TagResource {
         this.entityManager = entityManager;
     }
 
+    private static Collection<String> COLOR_TAGS = new ArrayList();
+    static {
+        COLOR_TAGS.add("blue");
+        COLOR_TAGS.add("white");
+        COLOR_TAGS.add("gray");
+    };
+
+    @GET
+    @Path("/colors")
+    @UnitOfWork(transactional = false)
+    public Collection<String> getColors() {
+        TypedQuery<TagEJB> query = entityManager.createQuery(
+                "SELECT t FROM TagEJB t WHERE t.name IN (:color_tags)",
+                TagEJB.class);
+        query.setParameter("color_tags", COLOR_TAGS);
+        return toStrings(query);
+    }
+
+    @GET
+    @Path("/non-colors")
+    @UnitOfWork(transactional = false)
+    public Collection<String> getNonColors() {
+        TypedQuery<TagEJB> query = entityManager.createQuery(
+                "SELECT t FROM TagEJB t WHERE t.name NOT IN (:color_tags)",
+                TagEJB.class);
+        query.setParameter("color_tags", COLOR_TAGS);
+        return toStrings(query);
+    }
+
+
     @GET
     @Timed
     @UnitOfWork(transactional = false)
     public Collection<String> getAll() {
         TypedQuery<TagEJB> query = entityManager.createQuery("SELECT t FROM TagEJB t", TagEJB.class);
+        return toStrings(query);
+    }
+
+    private Collection<String> toStrings(TypedQuery<TagEJB> query) {
         List<TagEJB> dbList = query.getResultList();
         List<String> dtoList = new ArrayList<>(dbList.size());
         dbList.forEach(ejb->dtoList.add(ejb.getName()));

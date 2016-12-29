@@ -11,6 +11,10 @@ import javax.persistence.*;
 @Table(name="tag")
 public class TagEJB
 {
+    public TagEJB() { /* need default CTOR for JPA */ }
+    public TagEJB(final String name) {
+        setName(name);
+    }
     // Columns
     
     @Id
@@ -22,7 +26,6 @@ public class TagEJB
         this.name = name;
     }
     private String name;
-    
 
     // Relations
     
@@ -44,7 +47,22 @@ public class TagEJB
         this.myImageList = myImageList;
     }
     private Collection<ImageEJB> myImageList;
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TagEJB tagEJB = (TagEJB) o;
+
+        return name.equals(tagEJB.name);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 
     public String toString() {
         StringBuffer sb = new StringBuffer();

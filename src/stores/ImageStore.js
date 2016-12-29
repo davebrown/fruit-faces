@@ -85,7 +85,7 @@ function indexImages(images) {
     //image.index = i;
     imageMap[image.base] = image;
   }
-  console.log('images indexed');
+  console.log('images indexed (count=' + images.length + ')');
 }
 // array
 var images = null;
@@ -98,6 +98,7 @@ const CHANGE_EVENT = 'change';
 const MOBILE_HEART_9 = '000000000011101110111111111011111110001111100000111000000010000000000000';
 const MOBILE_HEART_10 = '00000000000111011100111111111001111111000011111000000111000000001000000000000000';
 const MOBILE_HEART_11 = '0000000000000111011100011111111100011111110000011111000000011100000000010000000000000000';
+const HEART_16 = '0000000000000000001110000011100011111110111111101111111111111110011111111111110000011111111100000000011111000000000000111000000000000001000000000000000000000000'
 const HEART_21 = '000000000000000000000000111100000001111000011111110000011111110111111111101111111111011111111111111111110000111111111111111000000001111111111100000000000011111110000000000000000111000000000000000000010000000000000000000000000000000'
 
 function mix2(arrays) {
@@ -134,7 +135,8 @@ function imageList(map, images) {
   var whites = imageStore.getWhites();
   var grays = imageStore.getGrays();
   var nons = imageStore.getNonColors();
-  return mix2([blues, whites, grays, nons]);
+  //return mix2([whites, blues, grays, nons]);
+  grays = mix2([whites, grays]);
   var ret = [];
   var i = 0;
   for (i = 0; blues.length > 0 && grays.length; i++) {
@@ -157,6 +159,10 @@ function imageList(map, images) {
     ret.push(leftover.pop());
     ret[ret.length - 1].index = i++;
   }
+  while (nons.length > 0) {
+    ret.push(nons.pop());
+    ret[ret.length - 1].index = i++;
+  }
   return ret;
 }
 
@@ -169,7 +175,7 @@ Dispatcher.register((action) => {
     break;
     case IMAGES_LOADED:
     images = action.images;
-    images = imageList(bowser.mobile ? MOBILE_HEART_9: HEART_21, images);
+    images = imageList(bowser.mobile ? MOBILE_HEART_9: HEART_16, images);
     indexImages(images);
     imageStore.emitChange();
     break;

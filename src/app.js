@@ -41,16 +41,6 @@ class FFTable extends React.Component {
       console.log("loaded " + body.length + " image(s)");
       window.FFImages = body;
       FFActions.imagesLoaded(body);
-      // FIXME: move to React routes
-      var hash = window.location.hash;
-      if (hash) {
-        var elems = hash.split('/');
-        if (elems && elems.length === 3) {
-          var image = ImageStore.getImage(elems[2]);
-          console.log('selecting image from hash: ' + elems[2] + '/' + image);
-          FFActions.imageChanged(image);
-        }
-      }
     }.bind(this));
   }
 
@@ -134,7 +124,7 @@ function imageHasTag(image, tag) {
 function imageRemoveTag(image, tag) {
   if (!image.tags) image.tags = [];
   image.tags = image.tags.filter((val) => { return val !== tag; });
-  updateTagDB(image);
+  tagImage(image, 'DELETE', tag);  
 }
 
 function imageAddTag(image, tag) {
@@ -142,33 +132,33 @@ function imageAddTag(image, tag) {
   if (image.tags.indexOf(tag) === -1) {
     image.tags.push(tag);
   }
-  updateTagDB(image);
+  tagImage(image, 'POST', tag);
 }
 
-function updateTagDB(image) {
-  var body = JSON.stringify(image.tags);
-  console.log('updating "' + image.base + '" with tags ' + body);
+function tagImage(image, verb, tag) {
+  console.log('calling ' + verb + ' tag=' + tag + ' on ' + image.base);
   request({
-    method:'POST',
-    url: 'http://localhost:9080/images/' + image.base + '/tags',
+    method:verb,
+    url: 'http://localhost:9080/images/' + image.base + '/tags/' + tag,
     headers: {
       'Content-Type': 'application/json'
-    },
-    body: body
+    }
   }, function(er, response, bodyString) {
     if (er) {
       console.log('update tags problem: ' + er);
       throw er;
     }
-    console.log('updateTagDB OK? code=' + response.statusCode);
+    console.log('updateTag OK? code=' + response.statusCode);
   });
 }
 
-var FRUITS = [ 'apple', 'bacon', 'banana', 'blueberry', 'cantaloupe', 'cheese', 'clementine',
-               'grape', 'honeydew', 'kiwi', 'mango',
-               'peach', 'pear', 'pineapple', 'plum', 'raspberry', 'strawberry', 'watermelon' ];
+var FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloupe', 'cereal', 'cheese', 'clementine',
+               'googly eyes', 'grape', 'honeydew', 'kiwi', 'mango',
+               'peach', 'pear', 'pineapple', 'plum', 'raspberry', 'strawberry', 'try harder Dad!', 'watermelon' ];
 
 var TAGS = [ 'blue', 'gray', 'white' ];
+
+TAGS = TAGS.concat(FRUITS);
 
 class TagForm extends React.Component {
   constructor(props) {
@@ -180,17 +170,17 @@ class TagForm extends React.Component {
   }
   
   render() {
+    /* FIXME: race condition on initial load, selected image still null, need to handle async properties */
     var image = ImageStore.getSelectedImage();
+    console.log('TagForm selImage=' + image);
     return (
-        <div id="tag-form" className="tag-form">
-        <ul>
+        <div id="tag-form" className="container tag-form">
         {
           TAGS.map((fruit) => {
             var key = 'ff-checkbox-' + fruit;
             return <FFCheck key={key} image={image} fruit={fruit}/>
           })
         }
-      </ul>
       </div>
     );
   }
@@ -198,8 +188,9 @@ class TagForm extends React.Component {
 
 class FFCheck extends React.Component {
  constructor(props) {
-    super(props);
-  }
+   super(props);
+   console.log('FFCheck image=' + props.image);
+ }
 
   checkHandler() {
     var image = this.props.image;
@@ -229,7 +220,10 @@ class FFCheck extends React.Component {
     } else {
       //console.log(fruit + ' NOT checked');
     }
-    return (<li key={key}><input checked={checkStr} onChange={this.checkHandler.bind(this)} type="checkbox"/><label>{fruit}</label></li>);
+    return (<div key={key} className="tag-check">
+            <input checked={checkStr} onChange={this.checkHandler.bind(this)} type="checkbox"/>
+            <label>{fruit}</label>
+            </div>);
   }
 }
 
@@ -345,69 +339,19 @@ class FFMainImage extends React.Component {
   }
 }
 
-class FFMain extends React.Component {
-
-  constructor(props) {
-    super(props);
-    //Dispatcher.register(this.changeListener.bind(this));
-    //ImageStore.addChangeListener(this.changeListener.bind(this));
-  }
-
-  changeListener(action) {
-    console.debug('FFMain.changeListener');
-    // switch (action.actionType) {
-    // case IMAGE_CHANGED:
-    //   this.setState({image: action.image });
-    //   break;
-    // }
-    this.setState( { image: ImageStore.getSelectedImage() } );
-  }
-
-  dialogCloseHandler() {
-    console.log('FFMain: dialog close');
-    FFActions.imageChanged(null);
-    // FIXME: should a component be doing this?
-    //window.location.hash = '/';
-    hashHistory.push('/');
-  }
-
-  render() {
-    /*
-    var mainDiv = document.getElementById('main');
-    if (imageHasTag(this.state.image, 'blue')) {
-      mainDiv.style = 'background-color: blue;';
-    } else if (imageHasTag(this.state.image, 'gray')) {
-      mainDiv.style = 'background-color: gray;';
-    } else if (imageHasTag(this.state.image, 'white')) {
-      mainDiv.style = 'background-color: white;';
-    } else {
-      mainDiv.style = 'background-color: red;';
-    }
-    */
-    //var dialog = null;
-    //dialog = (<FFMainImage/>);
-    /*
-    if (dialog === null || ImageStore.getSelectedImage() === null) {
-      dialog = (<div className="expandable compressible red-border"></div>);
-    }
-    */
-    console.log('FFMain.render()');
-    return (
-        <div className="main">
-        <Dialog onClose={this.dialogCloseHandler.bind(this)}>
-            <Route path='/' component={Defalt}/>
-            <Route path='/about' component={About}/>
-            <Route path='/filters' component={Filters}/>
-            <Route path='/images/:imageId' component={FFMainImage}/>
-        </Dialog>
-        <div className="expandable compressible red-border"></div>
-        </div>
-    );
-  }
-}
-
 const Defalt = () => (<h1>Default</h1>);
-const About = () => (<h1>About</h1>);
+const About = () => (
+  <div className="text">
+    <h1>About</h1>
+    <h2>Why</h2>
+    <p>
+    My family always has fruit for breakfast.
+    </p>
+    <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </p>
+    </div>
+);
 const Filters = () => (<h1>Filters</h1>);
 
 class FFContainer extends React.Component {
@@ -484,6 +428,4 @@ class FFApp extends React.Component {
 }
 
 ReactDOM.render(<FFApp/>, document.getElementById('container'));
-//ReactDOM.render(<FFMain/>, document.getElementById('main'));
-//ReactDOM.render(<FFTable/>, document.getElementById('thumbs'));
 
