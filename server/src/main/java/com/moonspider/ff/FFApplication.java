@@ -42,6 +42,7 @@ public class FFApplication extends Application<FFConfiguration> {
         final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager());
         environment.jersey().register(imgResource);
         environment.jersey().register(new TagResource(entityManagerBundle.getSharedEntityManager()));
+        environment.jersey().register(new StatsResource(entityManagerBundle.getSharedEntityManager()));
     }
     public static void main(String[] args) throws Exception {
         new FFApplication().run(args);

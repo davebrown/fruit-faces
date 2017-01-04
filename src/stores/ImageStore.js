@@ -167,7 +167,6 @@ function imageList(map, images) {
 }
 
 Dispatcher.register((action) => {
-  //console.log('ImageStore dispatcher callback ' + action.actionType);
   switch (action.actionType) {
     case IMAGE_CHANGED:
     selectedImage = action.image;

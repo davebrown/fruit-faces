@@ -11,6 +11,8 @@ import FFActions from './actions/FFActions.js';
 import ImageStore from './stores/ImageStore.js';
 import Dialog from './components/Dialog.js';
 import FFNav from './components/FFNav.js';
+import FFData from './components/FFData.js';
+import FFTech from './components/FFTech.js';
 
 const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
 
@@ -56,9 +58,9 @@ class FFTable extends React.Component {
       var key = 'cols-' + num;
       return (<div className="thirty" key={key}>{num}</div>);
     });
-    
+
     var old = (
-        <div className="scrollable fixed thumbs">
+        <div className="fixed thumbs">
         {
           this.state.images.map((image) => {
             var key = 'ff-thumb-' + image.base;
@@ -139,7 +141,7 @@ function tagImage(image, verb, tag) {
   console.log('calling ' + verb + ' tag=' + tag + ' on ' + image.base);
   request({
     method:verb,
-    url: 'http://localhost:9080/images/' + image.base + '/tags/' + tag,
+    url: API_BASE_URL + '/images/' + image.base + '/tags/' + tag,
     headers: {
       'Content-Type': 'application/json'
     }
@@ -158,7 +160,7 @@ var FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloup
 
 var TAGS = [ 'blue', 'gray', 'white' ];
 
-TAGS = TAGS.concat(FRUITS);
+//TAGS = TAGS.concat(FRUITS);
 
 class TagForm extends React.Component {
   constructor(props) {
@@ -172,7 +174,6 @@ class TagForm extends React.Component {
   render() {
     /* FIXME: race condition on initial load, selected image still null, need to handle async properties */
     var image = ImageStore.getSelectedImage();
-    console.log('TagForm selImage=' + image);
     return (
         <div id="tag-form" className="container tag-form">
         {
@@ -339,7 +340,8 @@ class FFMainImage extends React.Component {
   }
 }
 
-const Defalt = () => (<h1>Default</h1>);
+//const Defalt = () => (<h1>Default</h1>);
+const Defalt = null;
 const About = () => (
   <div className="text">
     <h1>About</h1>
@@ -420,6 +422,8 @@ class FFApp extends React.Component {
             <Route path='/' component={Defalt}/>
             <Route path='/about' component={About}/>
             <Route path='/filters' component={Filters}/>
+            <Route path='/data' component={FFData}/>
+            <Route path='/tech' component={FFTech}/>
             <Route path='/images/:imageId' component={FFMainImage}/>
          </Route>
         </Router>

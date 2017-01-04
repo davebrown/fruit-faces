@@ -11,9 +11,9 @@ class FFNav extends React.Component {
       <ul>
         <li><Link to='/about'>About</Link></li>
         <li><Link to='/filters'>Filters</Link></li>
-        <li>Data</li>
+        <li><Link to='/data'>Data</Link></li>
         <li>Slideshow</li>
-        <li>Tech</li>
+        <li><Link to='/tech'>Tech</Link></li>
         <li>Credits</li>
       </ul>
      </div>
