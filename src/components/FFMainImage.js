@@ -19,6 +19,8 @@ class FFMainImage extends React.Component {
     this.swipeLeft = this.swipeLeft.bind(this);
     this.swipeRight = this.swipeRight.bind(this);
     this.onSwiping = this.onSwiping.bind(this);
+    this.onSwipingLeft = this.onSwipingLeft.bind(this);
+    this.onSwipingRight = this.onSwipingRight.bind(this);
     //this.log = this.log.bind(this);
   }
 
@@ -112,11 +114,12 @@ class FFMainImage extends React.Component {
     if (image.timestamp) {
       dateStr = dateformat(new Date(image.timestamp), 'dddd mmmm d, yyyy h:MM TT');
     }
-    this.log('******* rendering swipable!');
     var key = 'main-image-' + image.base;
     return (
-        <Swipable key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight} onSwiping={this.onSwiping} trackMouse={true}>
-             <div>
+        <Swipable key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
+      onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
+      onSwiping={this.onSwiping}>
+             <div id="main-image-holder">
            <img id="main-image" src={src}/>
            <p>{dateStr}</p>
             </div>
@@ -125,8 +128,26 @@ class FFMainImage extends React.Component {
     
   }
 
-  onSwiping() {
-    //console.log('onSwiping!');
+  
+  onSwipingLeft(event, absX) {
+    //console.log('onSwipingLeft(' + absX + ')');
+    this.translateImage(-absX);
+  }
+  onSwipingRight(event, absX) {
+    //console.log('onSwipingRight(' + absX + ')');
+    this.translateImage(absX);
+  }
+
+  translateImage(delta) {
+    var imageHolder = document.getElementById('main-image-holder');
+    if (imageHolder != null) {
+      imageHolder.style.left = delta + 'px';
+    } else {
+      //console.log('CANNOT FIND IMAGE HOLDER');
+    }
+  }
+  onSwiping(event, deltaX, deltaY, absX, absY, velocity) {
+    //console.log('onSwiping(' + deltaX + ', ' + deltaY + ', ' + absX + ', ' + absY + ', ' + velocity + ')');
   }
   
   swipeLeft() {
