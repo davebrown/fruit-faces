@@ -6,19 +6,17 @@ class FFNav extends React.Component {
     super(props);
   }
 
+
   render() {
-    return (<div className="nav fixed">
-      <ul>
-        <li><Link to='/about'>About</Link></li>
-        <li><Link to='/filters'>Filters</Link></li>
-        <li><Link to='/data'>Data</Link></li>
-        <li>Slideshow</li>
-        <li><Link to='/tech'>Tech</Link></li>
-        <li>Credits</li>
-      </ul>
+    return (<div className="nav">
+        <div className="nav-item"><Link to='/about'>About</Link></div>
+        <div className="nav-item"><Link to='/filters'>Filters</Link></div>
+        <div className="nav-item"><Link to='/data'>Data</Link></div>
+        <div className="nav-item">Slideshow</div>
+        <div className="nav-item"><Link to='/tech'>Tech</Link></div>
+        <div className="nav-item">Credits</div>
      </div>
            );
-    
   }
 }
 

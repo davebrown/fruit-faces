@@ -57,10 +57,9 @@ class FFData extends React.Component {
             title="DoW Chart"
             xAxisLabel="Day"
                 yAxisLabel="Count"
-                className="red-border"
                     /></div>);
 
-    return (<div className="data blue-border">
+    return (<div className="data">
             <h2>Data</h2>
             <p>Lorem ipsum. Interesting chart.</p>
             {rd3Chart}

@@ -11,15 +11,10 @@ p {
     font-size: 1.0em;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
 /* iremmel boilerplate */
 .container {
   display: flex;
+  align-items: flex-start; /* don't stretch height of flex items */
 }
 
 .column {
@@ -92,7 +87,7 @@ ul {
 .dialog button {
     text-align: right;
     font-weight: bold;
-    font-size: 1.5em;
+    font-size: 2.0em;
     border-width: 0px;
     background-color: white;
 }
@@ -130,7 +125,7 @@ ul {
     .dialog {
         position: fixed;
         top: 0px;
-        background-color: cornsilk;
+        background-color: white;
         height: 100vh;
         width: 100vw;
         z-index: 10;
@@ -140,17 +135,24 @@ ul {
         display: none;
     }
 
-    .nav ul {
-        background-color: cornsilk;
+    .nav {
+        position: fixed;
+        top: 0px;
+        display: flex;
+        flex-direction: row;
+        align-self: stretch;
+        align-items: stretch;
+        background-color: white;
+        width: 100%;
     }
-    
-    .nav ul li {
+
+    .nav-item {
+        padding: 4px;
+        flex-grow: 1;
+        flex-shrink: 1;
         font-size: 4vw;
-        float: left;
-        margin-left: 10px;
-        /*margin-right: 10px;*/
-        border: 1px solid gold;
-    }        
+        text-align: center;
+    }
 }
 
 @media only screen and (min-width: 800px) {
@@ -159,6 +161,8 @@ ul {
         width: 480px;
         max-width: 480px;
         margin: 10px;
+        cursor: pointer;
+        overflow-y: scroll;
     }
 
 
@@ -210,16 +214,13 @@ ul {
     }
 
     .nav {
-        /*background-color: yellow;*/
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
     }
 
-    .nav ul {
-        margin: 20px;
+    .nav-item {
+        padding: 12px;
     }
 
-    .nav ul li {
-        margin-bottom: 40px;
-        text-align: right;
-    }
-    
 } /* close large screen media */    
