@@ -1,9 +1,12 @@
 import React from 'react';
+import { hashHistory } from 'react-router';
 import ImageStore from '../stores/ImageStore.js';
 import { IMAGE_CHANGED, IMAGES_LOADED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
+import FFActions from '../actions/FFActions.js';
 import TagForm from './TagForm.js';
 import dateformat from 'dateformat';
+import Swipable from 'react-swipeable';
 
 class FFMainImage extends React.Component {
 
@@ -13,6 +16,9 @@ class FFMainImage extends React.Component {
     this.log('CTOR');
     this.mounted = false;
     this.actionListener = this.actionListener.bind(this);
+    this.swipeLeft = this.swipeLeft.bind(this);
+    this.swipeRight = this.swipeRight.bind(this);
+    this.onSwiping = this.onSwiping.bind(this);
     //this.log = this.log.bind(this);
   }
 
@@ -22,6 +28,9 @@ class FFMainImage extends React.Component {
     case IMAGES_LOADED:
       // FIXME: necessary for when we arrive with an image route selected,
       // but the images are not loaded yet...
+      this.forceUpdate();
+      break;
+    case IMAGE_CHANGED:
       this.forceUpdate();
       break;
     }
@@ -103,15 +112,38 @@ class FFMainImage extends React.Component {
     if (image.timestamp) {
       dateStr = dateformat(new Date(image.timestamp), 'dddd mmmm d, yyyy h:MM TT');
     }
-    return (<div>
-            {tagForm}
-            <img id="main-image" src={src}/>
-            <p>{dateStr}</p>
+    this.log('******* rendering swipable!');
+    var key = 'main-image-' + image.base;
+    return (
+        <Swipable key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight} onSwiping={this.onSwiping} trackMouse={true}>
+             <div>
+           <img id="main-image" src={src}/>
+           <p>{dateStr}</p>
             </div>
+            </Swipable>
            );
     
   }
 
+  onSwiping() {
+    //console.log('onSwiping!');
+  }
+  
+  swipeLeft() {
+    var newImage = ImageStore.getPreviousImage();
+    this.pushImage(newImage);
+  }
+
+  swipeRight() {
+    var newImage = ImageStore.getNextImage();
+    this.pushImage(newImage);
+  }
+
+  pushImage(newImage) {
+    FFActions.imageChanged(newImage);
+    hashHistory.replace(newImage ? '/images/' + newImage.base : '/');
+  }
+  
   log(msg) {
     //console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
   }

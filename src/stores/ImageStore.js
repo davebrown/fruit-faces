@@ -36,12 +36,14 @@ class ImageStore extends EventEmitter {
 
   getNextImage() {
     var ret = selectedImage ? images[(selectedImage.index + 1) % images.length]: null;
-    //console.log('selected, next index=' + selectedImage.index + '/' + ret.index);
+    //console.log('selected, next index=' + selectedImage.index + '/' + (ret && ret.index));
     return ret;
   }
 
   getPreviousImage() {
-    return selectedImage ? images[Math.max(selectedImage.index - 1, 0)]: null;
+    var ret = selectedImage ? images[Math.max(selectedImage.index - 1, 0)]: null;
+    //console.log('selected, prev index=' + selectedImage.index + '/' + (ret && ret.index));
+    return ret;
   }
 
   getTaggedImages(tag) {

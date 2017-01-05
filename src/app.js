@@ -43,6 +43,18 @@ class FFTable extends React.Component {
       console.log("loaded " + body.length + " image(s)");
       window.FFImages = body;
       FFActions.imagesLoaded(body);
+      /* need to set selected image state, if any, from hash path
+       * FIXME: cleaner way to do this?
+       */
+      var location = hashHistory.getCurrentLocation();
+      if (location && location.pathname) {
+        var elems = location.pathname.split('/');
+        if (elems.length === 3 && elems[1] === 'images') {
+          var selImage = ImageStore.getImage(elems[2]);
+          FFActions.imageChanged(selImage);
+        }
+      }
+
     }.bind(this));
   }
 
@@ -202,6 +214,10 @@ class FFApp extends React.Component {
         </Router>
     );
   }
+}
+if (process.env.NODE_ENV != 'production') {
+  window.imageStore = ImageStore;
+  window.hashHistory = hashHistory;
 }
 
 ReactDOM.render(<FFApp/>, document.getElementById('container'));
