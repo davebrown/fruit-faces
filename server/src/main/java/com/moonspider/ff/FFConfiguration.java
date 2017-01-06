@@ -21,17 +21,4 @@ public class FFConfiguration extends Configuration {
     public void setDataSourceFactory(DataSourceFactory s) {
         this.database = s;
     }
-
-
-    @NotNull
-    @JsonProperty
-    private String word;
-
-    public String getWord() {
-        return word;
-    }
-
-    public void setWord(String s) {
-        this.word = s;
-    }
 }

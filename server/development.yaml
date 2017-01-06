@@ -1,5 +1,3 @@
-word: potato
-
 database:
   # the name of your JDBC driver
   driverClass: org.postgresql.Driver
