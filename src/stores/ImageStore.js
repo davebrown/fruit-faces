@@ -126,7 +126,7 @@ function getMobileMap() {
   return ret;
 }
 
-function mix2(arrays) {
+function mix(arrays) {
   var total = 0;
   var i, j;
   for (i = 0; i < arrays.length; i++) {
@@ -148,8 +148,7 @@ function imageList(map, images) {
   var whites = imageStore.getWhites();
   var grays = imageStore.getGrays();
   var nons = imageStore.getNonColors();
-  //return mix2([whites, blues, grays, nons]);
-  grays = mix2([whites, grays]);
+  grays = mix([whites, grays]);
   var ret = [];
   var i = 0;
   for (i = 0; blues.length > 0 && grays.length; i++) {

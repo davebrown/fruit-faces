@@ -30,7 +30,7 @@ class FFTable extends React.Component {
 
   changeListener() {
     if (!this.state.images || this.state.images.length === 0) {
-      console.debug('FFTable.changeListener()');
+      //console.debug('FFTable.changeListener()');
       this.setState( { images: ImageStore.getImages() } );
     }
   }
@@ -128,7 +128,7 @@ class FFThumb extends React.Component {
 //const Defalt = () => (<h1>Default</h1>);
 const Defalt = null;
 const About = () => (
-  <div className="text">
+  <div>
     <h1>About</h1>
     <h2>tl;dr</h2>
     <p>
@@ -143,7 +143,17 @@ const About = () => (
     </p>
     </div>
 );
-const Filters = () => (<h1>Filters</h1>);
+const Filters = () => (<div><h1>Filters</h1><p><i>Coming soon!</i></p></div>);
+
+const Credits = () => (
+  <div>
+    <h1>Credits</h1>
+    <p>Props to <a href="https://github.com/ianwremmel">Ian Remmel</a> for his JS advice and his
+  straightforward <a href="http://ianwremmel.github.io/flexbox-layouts/">tutorial on FlexBox layouts.</a></p>
+    <p>Thanks to <a href="http://aliciachastain.com/">Alica Chastain</a> for her design advice.</p>
+    <p>Hugs to <a href="http://maisybrown.com/">Maisy</a> for eating all the fruit. I ❤ you!</p>
+    </div>
+);
 
 class FFContainer extends React.Component {
  constructor(props) {
@@ -213,6 +223,7 @@ class FFApp extends React.Component {
             <Route path='/filters' component={Filters}/>
             <Route path='/data' component={FFData}/>
             <Route path='/tech' component={FFTech}/>
+            <Route path='/credits' component={Credits}/>
             <Route path='/images/:imageId' component={FFMainImage}/>
          </Route>
         </Router>
@@ -229,10 +240,12 @@ if (process.env.NODE_ENV != 'production') {
 
 if (bowser.mobile || bowser.ipad) {
   // http://stackoverflow.com/questions/5284878/how-do-i-correctly-detect-orientation-change-using-javascript-and-phonegap-in-io
+  /*
   window.onresize = function() {
     console.debug('onResize: w=' + window.innerWidth);
     FFActions.orientationChanged();
   }
+  */
 }
 
 ReactDOM.render(<FFApp/>, document.getElementById('container'));
