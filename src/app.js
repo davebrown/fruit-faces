@@ -36,7 +36,7 @@ class FFTable extends React.Component {
   }
   
   loadImageDefs() {
-    request(API_BASE_URL + '/images', function(er, response, bodyString) {
+    request(API_BASE_URL + '/api/v1/images', function(er, response, bodyString) {
       if (er)
         throw er;
       var body = JSON.parse(bodyString);
@@ -72,7 +72,7 @@ class FFTable extends React.Component {
     });
 
     var old = (
-        <div className="fixed thumbs">
+        <div className="fixed scrollable thumbs">
         {
           this.state.images.map((image) => {
             var key = 'ff-thumb-' + image.base;
@@ -216,8 +216,19 @@ class FFApp extends React.Component {
   }
 }
 if (process.env.NODE_ENV != 'production') {
+  // debug niceties
   window.imageStore = ImageStore;
   window.hashHistory = hashHistory;
+  window.bowser = bowser;
+}
+
+
+if (bowser.mobile || bowser.ipad) {
+  // http://stackoverflow.com/questions/5284878/how-do-i-correctly-detect-orientation-change-using-javascript-and-phonegap-in-io
+  window.onresize = function() {
+    console.debug('onResize: w=' + window.innerWidth);
+    FFActions.orientationChanged();
+  }
 }
 
 ReactDOM.render(<FFApp/>, document.getElementById('container'));

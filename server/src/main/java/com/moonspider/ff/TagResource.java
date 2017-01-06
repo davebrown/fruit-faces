@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Path("/tags")
+@Path("/api/v1/tags")
 @Produces(MediaType.APPLICATION_JSON)
 public class TagResource {
 

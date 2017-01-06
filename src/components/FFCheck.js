@@ -30,7 +30,7 @@ function tagImage(image, verb, tag) {
   console.log('calling ' + verb + ' tag=' + tag + ' on ' + image.base);
   request({
     method:verb,
-    url: API_BASE_URL + '/images/' + image.base + '/tags/' + tag,
+    url: API_BASE_URL + '/api/v1/images/' + image.base + '/tags/' + tag,
     headers: {
       'Content-Type': 'application/json'
     }

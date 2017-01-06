@@ -121,7 +121,7 @@ p {
     .container {
         flex-direction: column;
     }
-    
+        
     .thumbs {
         width: 360px;
         max-width: 360px;
@@ -147,8 +147,7 @@ p {
     }
     #main-image-holder {
         position: absolute;
-        width: 100%;
-    }
+     }
     .nav {
         position: fixed;
         top: 0px;
@@ -169,6 +168,31 @@ p {
     }
 }
 
+@media only screen and (max-width: 799px) and (orientation: portrait) {
+   #main-image-holder {
+       width: 100%;
+     }
+}
+
+/* iphone 5 */
+@media only screen and (min-width: 400px) and (max-width: 629px) and (orientation: landscape) {
+    .thumbs {
+        width: 510px;
+        max-width: 510px;
+    }
+}
+
+@media only screen and (min-width: 630px) and (max-width: 799px) and (orientation: landscape) {
+    .thumbs {
+        width: 630px;
+        max-width: 630px;
+    }
+
+    #main-image-holder {
+        margin: 0 auto;
+    }
+}
+/* large screen, desktop */
 @media only screen and (min-width: 800px) {
 
     .thumbs {

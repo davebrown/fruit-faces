@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { IMAGE_CHANGED, IMAGES_LOADED } from '../constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGES_LOADED, ORIENTATION_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import bowser from 'bowser';
 
@@ -84,7 +84,6 @@ function indexImages(images) {
   imageMap = {};
   for (var i = 0; i < images.length; i++) {
     var image = images[i];
-    //image.index = i;
     imageMap[image.base] = image;
   }
   console.log('images indexed (count=' + images.length + ')');
@@ -102,7 +101,30 @@ const MOBILE_HEART_10 = '0000000000011101110011111111100111111100001111100000011
 const MOBILE_HEART_11 = '0000000000000111011100011111111100011111110000011111000000011100000000010000000000000000';
 const MOBILE_HEART_12 = '000000000000000111011100001111111110000111111100000011111000000001110000000000100000';
 const HEART_16 = '0000000000000000001110000011100011111110111111101111111111111110011111111111110000011111111100000000011111000000000000111000000000000001000000000000000000000000'
+const HEART_17 = '00000000000000000000111000001110000111111101111111001111111111111110001111111111111000000111111111000000000011111000000000000011100000000000000010000000000000000000000000';
 const HEART_21 = '000000000000000000000000111100000001111000011111110000011111110111111111101111111111011111111111111111110000111111111111111000000001111111111100000000000011111110000000000000000111000000000000000000010000000000000000000000000000000'
+
+const WIDTH_MAP = {
+  9: MOBILE_HEART_9,
+  10: MOBILE_HEART_10,
+  11: MOBILE_HEART_11,
+  12: MOBILE_HEART_12,
+  16: HEART_16,
+  17: HEART_17,
+  21: HEART_21
+}
+
+function getMobileMap() {
+  var width = window.innerWidth;
+  var ret = WIDTH_MAP[9];
+  for (var key in WIDTH_MAP) {
+    if (WIDTH_MAP.hasOwnProperty(key) && 30 * (key-1) < width) {
+      console.debug('getMobileMap() for width=' + width + ', ' + key + '/' + (30*key) + ' is a match');
+      ret = WIDTH_MAP[key];
+    }
+  }
+  return ret;
+}
 
 function mix2(arrays) {
   var total = 0;
@@ -121,18 +143,6 @@ function mix2(arrays) {
   return ret;
 }
 
-function mix(arrays) {
-  var ret = [];
-  var i, j;
-  for (i = 0; i < arrays.length; i++) {
-    for (j = 0; j < arrays[i].length; j++) {
-      var img = arrays[i][j];
-      img.index = ret.length;
-      ret.push(img);
-    }
-  }
-  return ret;
-}
 function imageList(map, images) {
   var blues = imageStore.getBlues();
   var whites = imageStore.getWhites();
@@ -177,8 +187,13 @@ Dispatcher.register((action) => {
     break;
     case IMAGES_LOADED:
     images = action.images;
-    images = imageList(bowser.mobile ? MOBILE_HEART_12: HEART_16, images);
+    images = imageList(bowser.mobile ? getMobileMap(): HEART_16, images);
     indexImages(images);
+    imageStore.emitChange();
+    break;
+  case ORIENTATION_CHANGED:
+    console.debug('emitting on orientation change');
+    images = imageList(bowser.mobile ? getMobileMap(): HEART_16, images);
     imageStore.emitChange();
     break;
   }

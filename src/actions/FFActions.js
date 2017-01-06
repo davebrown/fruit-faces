@@ -1,5 +1,5 @@
 import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { IMAGE_CHANGED, IMAGES_LOADED } from '../constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGES_LOADED, ORIENTATION_CHANGED } from '../constants/FFConstants.js';
 //import { * } from '../constants/FFConstants.js'; can't do this :-/
 
 class FFActions {
@@ -15,6 +15,12 @@ class FFActions {
     Dispatcher.dispatch({
       actionType: IMAGE_CHANGED,
       image: image
+    });
+  }
+
+  orientationChanged() {
+    Dispatcher.dispatch({
+      actionType: ORIENTATION_CHANGED
     });
   }
 }

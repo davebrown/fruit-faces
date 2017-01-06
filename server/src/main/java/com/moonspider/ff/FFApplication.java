@@ -30,15 +30,9 @@ public class FFApplication extends Application<FFConfiguration> {
     @Override
     public void run(FFConfiguration configuration,
                     Environment environment) {
-        final SayingResource resource = new SayingResource(
-                configuration.getWord()
-        );
         /* set up CORS to help our browser friends */
         final FilterRegistration.Dynamic cors = environment.servlets().addFilter("crossOriginRequests", CrossOriginFilter.class);
         cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
-
-        environment.jersey().register(resource);
-        //final EntityManager entityManager = entityManagerBundle.getSharedEntityManager();
         final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager());
         environment.jersey().register(imgResource);
         environment.jersey().register(new TagResource(entityManagerBundle.getSharedEntityManager()));

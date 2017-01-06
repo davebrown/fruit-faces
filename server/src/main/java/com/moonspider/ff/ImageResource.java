@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-@Path("/images")
+@Path("/api/v1/images")
 @Produces(MediaType.APPLICATION_JSON)
 public class ImageResource {
 
