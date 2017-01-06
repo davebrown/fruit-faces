@@ -1,3 +1,5 @@
+allowWriteOperations: true
+
 database:
   # the name of your JDBC driver
   driverClass: org.postgresql.Driver
@@ -43,3 +45,11 @@ server:
   adminConnectors:
     - type: http
       port: 9081
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+      threshold: ALL
+      timeZone: UTC
+      target: stdout

@@ -12,6 +12,8 @@ import javax.persistence.EntityManager;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FFApplication extends Application<FFConfiguration> {
 
@@ -31,9 +33,15 @@ public class FFApplication extends Application<FFConfiguration> {
     public void run(FFConfiguration configuration,
                     Environment environment) {
         /* set up CORS to help our browser friends */
-        final FilterRegistration.Dynamic cors = environment.servlets().addFilter("crossOriginRequests", CrossOriginFilter.class);
-        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
-        final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager());
+        {
+            final FilterRegistration.Dynamic cors = environment.servlets()
+                    .addFilter("crossOriginRequests", CrossOriginFilter.class);
+            cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+            cors.setInitParameter("allowedOrigins", "*");
+            cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin");
+            cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
+        }
+        final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager(), configuration);
         environment.jersey().register(imgResource);
         environment.jersey().register(new TagResource(entityManagerBundle.getSharedEntityManager()));
         environment.jersey().register(new StatsResource(entityManagerBundle.getSharedEntityManager()));

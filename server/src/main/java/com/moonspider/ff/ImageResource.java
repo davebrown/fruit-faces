@@ -5,6 +5,9 @@ import com.moonspider.ff.ejb.ImageEJB;
 import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.model.ImageDTO;
 import com.scottescue.dropwizard.entitymanager.UnitOfWork;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+//import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -19,9 +22,13 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 public class ImageResource {
 
+    private final Logger log = LoggerFactory.getLogger(ImageResource.class);
+
     private final EntityManager entityManager;
-    public ImageResource(EntityManager entityManager) {
+    private final FFConfiguration config;
+    public ImageResource(EntityManager entityManager, FFConfiguration config) {
         this.entityManager = entityManager;
+        this.config = config;
     }
 
     @GET
@@ -56,16 +63,23 @@ public class ImageResource {
     @Path("/{id}/tags")
     @UnitOfWork(transactional = true)
     public void updateTags(@PathParam("id") String base, Collection<String> tags) {
-        p("received tag update: /" + base + " " + tags);
+        log.info("received tag update: /" + base + " " + tags);
+        if (!config.isAllowWriteOperations()) {
+            log.warn("attempted tag operation when disallowed!");
+            throw new WebApplicationException(401);
+        }
         ImageEJB ejb = entityManager.find(ImageEJB.class, base);
         if (ejb == null) {
+            log.warn("image not found: " + base);
             throw new WebApplicationException(404);
         }
         List<TagEJB> tagEJBs = new ArrayList<>();
         for (String tag : tags) {
             TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
-            if (tagEJB == null)
+            if (tagEJB == null) {
+                log.warn("tag not found: " + tag);
                 throw new WebApplicationException(404);
+            }
             tagEJBs.add(tagEJB);
         }
         ejb.setTagList(tagEJBs);
@@ -77,7 +91,11 @@ public class ImageResource {
     @Path("/{id}/tags/{tag}")
     @UnitOfWork(transactional = true)
     public void addTag(@PathParam("id") String base, @PathParam("tag") String tag) {
-        p("received tag POST: /" + base + " " + tag);
+        log.info("received tag POST: /" + base + " " + tag);
+        if (!config.isAllowWriteOperations()) {
+            log.warn("attempted tag operation when disallowed!");
+            throw new WebApplicationException(401);
+        }
         ImageEJB ejb = entityManager.find(ImageEJB.class, base);
         if (ejb == null) {
             throw new WebApplicationException(404);
@@ -99,6 +117,10 @@ public class ImageResource {
     @Path("/{id}/tags/{tag}")
     @UnitOfWork(transactional = true)
     public void deleteTag(@PathParam("id") String base, @PathParam("tag") String tag) {
+        if (!config.isAllowWriteOperations()) {
+            log.warn("attempted tag DELETE when disallowed!");
+            throw new WebApplicationException(401);
+        }
         ImageEJB ejb = entityManager.find(ImageEJB.class, base);
         if (ejb == null) {
             throw new WebApplicationException(404);
@@ -110,8 +132,8 @@ public class ImageResource {
         }
     }
 
-    private static void p(String s) {
-        System.out.println("[ImgResource] " + s);
-    }
+    //private static void p(String s) {
+      //  System.out.println("[ImgResource] " + s);
+    //}
 
 }

@@ -130,6 +130,10 @@ const Defalt = null;
 const About = () => (
   <div className="text">
     <h1>About</h1>
+    <h2>tl;dr</h2>
+    <p>
+    I have all these fruit face pics from preparing breakfast for my kids. I wanted to make an app to view them, and learn some new tech along the way.
+    </p>
     <h2>Why</h2>
     <p>
     My family always has fruit for breakfast.

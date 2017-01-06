@@ -119,7 +119,7 @@ class FFMainImage extends React.Component {
         <Swipable key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
       onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
       onSwiping={this.onSwiping}>
-             <div id="main-image-holder">
+        <div id="main-image-holder">
            <img id="main-image" src={src}/>
            <p>{dateStr}</p>
             </div>

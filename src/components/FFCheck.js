@@ -2,6 +2,8 @@ import React from 'react';
 import request from 'browser-request';
 import ImageStore from '../stores/ImageStore.js';
 
+const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
+
 function imageHasTag(image, tag) {
   if (image) {
     if (!image.tags) image.tags = [];

@@ -14,6 +14,11 @@ public class FFConfiguration extends Configuration {
     @JsonProperty
     private DataSourceFactory database = new DataSourceFactory();
 
+    @Valid
+    @NotNull
+    @JsonProperty
+    private boolean allowWriteOperations;
+
     public DataSourceFactory getDataSourceFactory() {
         return database;
     }
@@ -21,4 +26,7 @@ public class FFConfiguration extends Configuration {
     public void setDataSourceFactory(DataSourceFactory s) {
         this.database = s;
     }
+
+    public boolean isAllowWriteOperations() { return allowWriteOperations; }
+    public void setAllowWriteOperations(boolean b) { this.allowWriteOperations = b; }
 }

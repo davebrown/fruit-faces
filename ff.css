@@ -198,6 +198,7 @@ p {
     .thumbs {
         width: 480px;
         max-width: 480px;
+        max-height: 95vh;
         margin: 10px;
         cursor: pointer;
         overflow-y: scroll;
