@@ -111,8 +111,10 @@ class FFMainImage extends React.Component {
     // FIXME: should a component be doing this?
     window.location.hash = '/images/' + image.base;
     var dateStr = 'Unknown date...';
+    var timeStr = '';
     if (image.timestamp) {
-      dateStr = dateformat(new Date(image.timestamp), 'dddd mmmm d, yyyy h:MM TT');
+      dateStr = dateformat(new Date(image.timestamp), 'dddd mmmm d, yyyy');
+      timeStr = dateformat(new Date(image.timestamp), 'h:MM TT');
     }
     var key = 'main-image-' + image.base;
     return (
@@ -121,7 +123,8 @@ class FFMainImage extends React.Component {
       onSwiping={this.onSwiping}>
         <div id="main-image-holder">
            <img id="main-image" src={src}/>
-           <p>{dateStr}</p>
+           <p>{timeStr}<br/>
+              {dateStr}</p>
             </div>
             </Swipable>
            );
