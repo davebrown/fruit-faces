@@ -10,6 +10,7 @@
     "url": "git@github.com:davebrown/fruit-faces.git"
   },
   "dependencies": {
+    "amplitude-js": "github:amplitude/Amplitude-Javascript",
     "bowser": "^1.6.0",
     "browser-request": "^0.3.3",
     "d3": "^3.5.17",

@@ -14,7 +14,12 @@ import FFData from './components/FFData.js';
 import FFTech from './components/FFTech.js';
 import FFMainImage from './components/FFMainImage.js';
 
+import amplitude from 'amplitude-js/amplitude.min';
+
 const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
+const AMPLITUDE_KEY = process.env.AMPLITUDE_API_KEY || 'error-missing-amplitude-key';
+// FIXME: where to put this so it's 'early'?
+amplitude.init(AMPLITUDE_KEY);
 
 class FFTable extends React.Component {
 
@@ -36,12 +41,15 @@ class FFTable extends React.Component {
   }
   
   loadImageDefs() {
+    var startTime = new Date().getTime();
     request(API_BASE_URL + '/api/v1/images', function(er, response, bodyString) {
-      if (er)
+      if (er) {
+        amplitude.logEvent('IMAGE_CATALOG_LOAD_ERROR', { errMsg: '' + err });
         throw er;
+      }
       var body = JSON.parse(bodyString);
-      console.log("loaded " + body.length + " image(s)");
-      window.FFImages = body;
+      var duration = new Date().getTime() - startTime;
+      console.log("loaded " + body.length + " image(s) in " + duration + " ms");
       FFActions.imagesLoaded(body);
       /* need to set selected image state, if any, from hash path
        * FIXME: cleaner way to do this?
@@ -54,7 +62,7 @@ class FFTable extends React.Component {
           FFActions.imageChanged(selImage);
         }
       }
-
+      amplitude.logEvent('IMAGE_CATALOG_LOADED', { durationMillis: duration });
     }.bind(this));
   }
 
@@ -235,6 +243,7 @@ if (process.env.NODE_ENV != 'production') {
   window.imageStore = ImageStore;
   window.hashHistory = hashHistory;
   window.bowser = bowser;
+  window.amplitude = amplitude;
 }
 
 

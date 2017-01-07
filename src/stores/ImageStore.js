@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import { IMAGE_CHANGED, IMAGES_LOADED, ORIENTATION_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import bowser from 'bowser';
+import amplitude from 'amplitude-js/amplitude.min';
 
 //import _ from  'loadash';
 
@@ -183,6 +184,8 @@ Dispatcher.register((action) => {
     case IMAGE_CHANGED:
     selectedImage = action.image;
     imageStore.emitChange();
+    var base = selectedImage ? selectedImage.base : null;
+    amplitude.logEvent('IMAGE_SELECTED', { imageBase: base });
     break;
     case IMAGES_LOADED:
     images = action.images;
