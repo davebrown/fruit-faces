@@ -14,6 +14,7 @@ import javax.servlet.FilterRegistration;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class FFApplication extends Application<FFConfiguration> {
 
@@ -47,6 +48,9 @@ public class FFApplication extends Application<FFConfiguration> {
         environment.jersey().register(new StatsResource(entityManagerBundle.getSharedEntityManager()));
     }
     public static void main(String[] args) throws Exception {
+        // see http://stackoverflow.com/questions/508019/jpa-hibernate-store-date-in-utc-time-zone
+        // still a FIXME: for using UTC in the DB
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
         new FFApplication().run(args);
     }
 }
