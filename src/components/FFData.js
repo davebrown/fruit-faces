@@ -64,8 +64,8 @@ class FFData extends React.Component {
             <p>When I have a collection of data, I&apos;m curious about it. I&apos;m weird like that. Plus I really like charts.</p>
             <h2>Day of Week Frequency</h2>
             <p>I often get up a little bit earlier than my family, to prep breakfast, walk the dog, and have some
-            quiet time before the morning rush begins. Still, I don&apos;t always have time/inclination to be the 
-            <a href="https://en.wikipedia.org/wiki/Michelangelo">Michelangelo</a> of fruit. Are there days of the
+            quiet time before the morning rush begins. Still, I don&apos;t always have time/inclination to be 
+            the <a href="https://en.wikipedia.org/wiki/Michelangelo">Michelangelo</a> of fruit. Are there days of the
             week when I&apos;m more likely than others to indulge my peculiar little hobby?
             </p>
             {rd3Chart}
