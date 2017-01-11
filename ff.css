@@ -3,6 +3,7 @@ html, body, .container {
   height: 100%;
   margin: 0;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  -webkit-overflow-scrolling: touch;
 }
 
 h1, h2, h3, p {
@@ -94,12 +95,15 @@ h1, h2, h3, p {
     margin: 0 auto; /* horizontal centering */
 }
 
-.dialog button {
+/* for some reason, a button in a 'position: fixed' causes hell with webkit,
+ * and a span element works just as well with the same styles
+ */
+.my-button {
+    width: 100%;
     text-align: right;
     font-weight: bold;
     font-size: 2.0em;
     border-width: 0px;
-    background-color: white;
     padding-right: 4px;
     padding-left: 2px;
     padding-bottom: 0px;

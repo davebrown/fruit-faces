@@ -19,8 +19,8 @@ class Dialog extends React.Component {
     }
     //console.debug('dialog children len: ' + Children.count(this.props.children));
     var closeHandler = this.props.onClose || this.dialogCloseHandler.bind(this);
-    return (<div className="column dialog expandable compressible">
-            <button onClick={closeHandler}>X</button>
+    return (<div className="column dialog expandable compressible scrollable">
+            <span className="my-button" onClick={closeHandler}>X</span>
             {this.props.children}
             </div>
            );
