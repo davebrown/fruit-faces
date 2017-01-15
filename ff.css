@@ -49,6 +49,11 @@ h1, h2, h3, p {
   flex-shrink: 1;
 }/* end boilerplate */
 
+.error {
+    color: red;
+    font-weight: bold;
+    border: 1px solid red;
+}
 /* begin debug */
 .thirty {
     width: 30px;
@@ -86,6 +91,12 @@ h1, h2, h3, p {
     height: 100%;
 }
 
+/*
+.dialog svg {
+    border: 1px solid red;
+}
+*/
+
 /* end debug */
 
 .thumbs {
@@ -95,22 +106,25 @@ h1, h2, h3, p {
     margin: 0 auto; /* horizontal centering */
 }
 
+.thumbs img {
+    width: 30px;
+    height: 40px;
+}
 /* for some reason, a button in a 'position: fixed' causes hell with webkit,
  * and a span element works just as well with the same styles
  */
-.my-button {
+.back-button {
     width: 100%;
-    text-align: right;
+    text-align: left;
     font-weight: bold;
     font-size: 2.0em;
     border-width: 0px;
     padding-right: 4px;
-    padding-left: 2px;
+    padding-left: 6px;
     padding-bottom: 0px;
-    align-self: flex-end;
+    align-self: flex-start;
     margin-bottom: -5px;
     z-order: 10;
-    /*border: 1px dashed gray;*/
 }
 
 #main-image {
@@ -132,6 +146,7 @@ h1, h2, h3, p {
     padding-bottom: 10px;
 }
 
+
 @media only screen and (max-width: 799px) {
 
     .container {
@@ -141,6 +156,7 @@ h1, h2, h3, p {
     .thumbs {
         width: 360px;
         max-width: 360px;
+        margin-top: 8vh;
     }
     
     .dialog {
@@ -171,10 +187,11 @@ h1, h2, h3, p {
     .nav {
         position: fixed;
         top: 0px;
+        height: 8vh;
         display: flex;
         flex-direction: row;
         align-self: stretch;
-        align-items: stretch;
+        align-items: center;
         background-color: white;
         width: 100%;
     }
@@ -183,7 +200,7 @@ h1, h2, h3, p {
         padding: 4px;
         flex-grow: 1;
         flex-shrink: 1;
-        font-size: 4vw;
+        font-size: 5vw;
         text-align: center;
     }
 }
@@ -250,7 +267,8 @@ h1, h2, h3, p {
         margin-top: 10px;
         margin-left: 6px;
     }
-    .dialog button {
+    
+    .dialog .back-button {
         display: none;
     }
 

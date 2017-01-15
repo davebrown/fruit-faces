@@ -10,16 +10,11 @@ import FFActions from './actions/FFActions.js';
 import ImageStore from './stores/ImageStore.js';
 import Dialog from './components/Dialog.js';
 import FFNav from './components/FFNav.js';
-import FFData from './components/FFData.js';
+import FFDataVictory from './components/FFDataVictory.jsx';
 import FFTech from './components/FFTech.js';
 import FFMainImage from './components/FFMainImage.js';
 
-import amplitude from 'amplitude-js/amplitude.min';
-
-const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
-const AMPLITUDE_KEY = process.env.AMPLITUDE_API_KEY || 'error-missing-amplitude-key';
-// FIXME: where to put this so it's 'early'?
-amplitude.init(AMPLITUDE_KEY);
+import { amplitude, API_BASE_URL } from './util/Util.js';
 
 class FFTable extends React.Component {
 
@@ -42,10 +37,12 @@ class FFTable extends React.Component {
   
   loadImageDefs() {
     var startTime = new Date().getTime();
-    request(API_BASE_URL + '/api/v1/images', function(er, response, bodyString) {
-      if (er) {
+    request(API_BASE_URL + '/api/v1/images', function(err, response, bodyString) {
+      if (err) {
         amplitude.logEvent('IMAGE_CATALOG_LOAD_ERROR', { errMsg: '' + err });
-        throw er;
+        // BIG FIXME: swallowing error, need an error state and to render
+        //throw err;
+        return;
       }
       var body = JSON.parse(bodyString);
       var duration = new Date().getTime() - startTime;
@@ -109,7 +106,8 @@ class FFThumb extends React.Component {
   }
 
   render() {
-    var dim = '30x40';
+    // thumb divs are 30x40, making browser scale down makes for sharper resolution
+    var dim = '60x80';
     if (false && bowser.mobile) {
       dim = '20x27';
     }
@@ -229,7 +227,7 @@ class FFApp extends React.Component {
             <Route path='/' component={Defalt}/>
             <Route path='/about' component={About}/>
             <Route path='/filters' component={Filters}/>
-            <Route path='/data' component={FFData}/>
+            <Route path='/data' component={FFDataVictory}/>
             <Route path='/tech' component={FFTech}/>
             <Route path='/credits' component={Credits}/>
             <Route path='/images/:imageId' component={FFMainImage}/>

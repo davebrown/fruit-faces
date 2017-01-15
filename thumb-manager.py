@@ -174,7 +174,7 @@ def cmd_json():
   DB = psycopg2.connect("dbname='ff' host='localhost'")
   cur = DB.cursor(cursor_factory=psycopg2.extras.DictCursor)
   for img in ret:
-    imgId = cur.execute("""INSERT INTO image (tstamp, dateStr, base, "full") values (to_timestamp(%(tstamp)s), %(date)s, %(base)s, %(full)s);""", img)
+    imgId = cur.execute("""INSERT INTO image (tstamp, dateStr, base, "full", import_time) values (to_timestamp(%(tstamp)s), %(date)s, %(base)s, %(full)s, NOW());""", img)
   DB.commit()
   DB.close()
   return ret
