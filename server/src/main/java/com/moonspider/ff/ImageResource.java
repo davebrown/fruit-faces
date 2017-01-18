@@ -36,7 +36,7 @@ public class ImageResource {
     @UnitOfWork(transactional = false)
     public Collection<ImageDTO> getAll() {
         //TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i ORDER BY random()", ImageEJB.class);
-        TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i ORDER BY i.tstamp ASC", ImageEJB.class);
+        TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i ORDER BY i.tstamp DESC", ImageEJB.class);
         List<ImageEJB> dbList = query.getResultList();
         List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
         dbList.forEach(ejb->dtoList.add(new ImageDTO(ejb)));

@@ -63,7 +63,7 @@ public class StatsResource {
             Map m = new HashMap();
             m.put("x", row[0]);
             m.put("y", row[1]);
-            m.put("label", row[0] + " faces: " + row[1]);
+            m.put("label", row[0] + ": " + row[1] + " faces");
             ret.add(m);
         }
         return ret;
@@ -91,7 +91,7 @@ public class StatsResource {
             Map m = new HashMap();
             m.put("time", row[0]);
             m.put("count", row[1]);
-            m.put("label", row[0] + " faces: " + row[1]);
+            m.put("label", row[0] + " - " + row[1] + " faces");
             ret.add(m);
         }
         return ret;

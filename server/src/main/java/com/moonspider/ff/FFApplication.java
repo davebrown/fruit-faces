@@ -4,6 +4,8 @@ import com.scottescue.dropwizard.entitymanager.EntityManagerBundle;
 import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
 import io.dropwizard.Application;
 import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.db.PooledDataSourceFactory;
+import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -25,9 +27,23 @@ public class FFApplication extends Application<FFConfiguration> {
                     return configuration.getDataSourceFactory();
                 }
             };
+
+    private final MigrationsBundle<FFConfiguration> migrationsBundle =
+            new MigrationsBundle<FFConfiguration>() {
+                @Override
+                public PooledDataSourceFactory getDataSourceFactory(FFConfiguration ffConfiguration) {
+                    return ffConfiguration.getDataSourceFactory();
+                }
+
+                @Override
+                public String getMigrationsFileName() {
+                    return "migrations.postgresql.sql";
+                }
+            };
     @Override
     public void initialize(Bootstrap<FFConfiguration> bootstrap) {
         bootstrap.addBundle(entityManagerBundle);
+        bootstrap.addBundle(migrationsBundle);
     }
 
     @Override
