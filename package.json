@@ -13,7 +13,6 @@
     "amplitude-js": "github:amplitude/Amplitude-Javascript",
     "bowser": "^1.6.0",
     "browser-request": "^0.3.3",
-    "d3": "^3.5.17",
     "dateformat": "^2.0.0",
     "flux": "^3.1.0",
     "keymirror": "^0.1.1",

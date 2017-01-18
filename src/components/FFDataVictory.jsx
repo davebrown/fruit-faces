@@ -164,14 +164,12 @@ class FFChartTOD extends React.Component {
           <VictoryLine/>
           <VictoryScatter
             style={{
-              labels: {fontSize: 10 },
               data: {
-                fill: "white",
-                stroke: "blue",
-                strokeWidth: 1.5
+                fill: "blue",
+                stroke: "white",
+                strokeWidth: 2.0
               }
             }}
-            labelsx={(datum) => datum.x > 20 ? datum.x : null}
             labelComponent={<VictoryTooltip/>}
           />
         </VictoryGroup>
@@ -179,7 +177,7 @@ class FFChartTOD extends React.Component {
     );
   }
 }
-
+  
 class FFChartMonth extends React.Component {
 
   constructor(props) {
@@ -233,7 +231,7 @@ class FFChartMonth extends React.Component {
     var tooltip = (
       <VictoryTooltip
         labelComponent={ tooltipLabel }
-        dx={(datum) => datum.y > 14 ? (14 - datum.y) * 14 : 0}
+        dx={(datum) => datum.y > 20 ? (20 - datum.y) * 10 : 0}
       />
     );
 
@@ -260,7 +258,6 @@ class FFChartMonth extends React.Component {
         />
         <VictoryBar
           data={this.state.data}
-          //labels={(datum) => datum.y}
           style={{
             data: {fill: '#4070ff', padding: 0, width: 9.0 },
             labels: {fontSize: 6},
@@ -300,7 +297,7 @@ export default class FFDataVictory extends React.Component {
         <p>Highly variable:</p>
         <FFChartMonth/>
         <p>as you can see.</p>
-        <h2>Time of Day</h2>
+        <h2>Time of Day Frequency</h2>
         <p>Hectic mornings to sculpt fruit - is there a pattern to time of day?</p>
         <FFChartTOD/>
         <h2>In conclusion</h2>
