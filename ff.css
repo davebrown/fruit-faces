@@ -17,6 +17,9 @@ h1, h2, h3, p {
     font-size: 1.0em;
 }
 
+.strike {
+    text-decoration: line-through;
+}
 /* iremmel boilerplate */
 .container {
   display: flex;

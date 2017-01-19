@@ -5,6 +5,7 @@ import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
 import io.dropwizard.Application;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.PooledDataSourceFactory;
+import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -42,8 +43,9 @@ public class FFApplication extends Application<FFConfiguration> {
             };
     @Override
     public void initialize(Bootstrap<FFConfiguration> bootstrap) {
-        bootstrap.addBundle(entityManagerBundle);
         bootstrap.addBundle(migrationsBundle);
+        bootstrap.addBundle(entityManagerBundle);
+        bootstrap.addBundle(new MultiPartBundle());
     }
 
     @Override

@@ -19,6 +19,11 @@ public class FFConfiguration extends Configuration {
     @JsonProperty
     private boolean allowWriteOperations;
 
+    @Valid
+    @NotNull
+    @JsonProperty
+    private long maxImageFileSize;
+
     public DataSourceFactory getDataSourceFactory() {
         return database;
     }
@@ -29,4 +34,12 @@ public class FFConfiguration extends Configuration {
 
     public boolean isAllowWriteOperations() { return allowWriteOperations; }
     public void setAllowWriteOperations(boolean b) { this.allowWriteOperations = b; }
+
+    public long getMaxImageFileSize() {
+        return maxImageFileSize;
+    }
+
+    public void setMaxImageFileSize(long maxImageFileSize) {
+        this.maxImageFileSize = maxImageFileSize;
+    }
 }

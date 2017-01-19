@@ -39,7 +39,8 @@ class FFTech extends React.Component {
           <li>Use <a href="https://aws.amazon.com/rds/postgresql/" target="_blank">Amazon RDS for Postgres</a> instead of local</li>
           <li>Deploy via <a href="https://skyliner.io" target="_blank">Skyliner</a>.</li>
           <li>Logging, monitoring, alerting</li>
-          <li>Version-controlled and automated database migrations</li>
+          <li><span className="strike">Version-controlled and automated database migrations</span></li>
+          <li><span className="strike">Use <a href="https://letsencrypt.org/" target="_blank">Let&apos;s Encrypt</a> for TLS</span></li>
           <li>At least a modicum of tests :-)</li>
         </ul>
       </div>

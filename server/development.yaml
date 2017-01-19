@@ -1,4 +1,5 @@
 allowWriteOperations: true
+maxImageFileSize: 10000000
 
 database:
   # the name of your JDBC driver

@@ -5,6 +5,8 @@ import com.moonspider.ff.ejb.ImageEJB;
 import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.model.ImageDTO;
 import com.scottescue.dropwizard.entitymanager.UnitOfWork;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //import org.slf4j.LoggerFactory;
@@ -13,6 +15,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -132,8 +136,46 @@ public class ImageResource {
         }
     }
 
-    //private static void p(String s) {
-      //  System.out.println("[ImgResource] " + s);
-    //}
-
+    /** associate tag with this image */
+    @POST
+    @UnitOfWork(transactional = true)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response addImage(@FormDataParam("imagefile") InputStream inputStream,
+                             @FormDataParam("imagefile") FormDataContentDisposition contentDispositionHeader,
+                             @HeaderParam("Content-Length") long contentLength
+                         ) throws IOException {
+        String fname = contentDispositionHeader != null ? contentDispositionHeader.getFileName() : System.currentTimeMillis() + ".jpg";
+        log.info("received new image POST: len=" + contentLength + "/" + contentDispositionHeader + "/" + fname);
+        if (!config.isAllowWriteOperations()) {
+            log.warn("attempted tag operation when disallowed!");
+            return Response.status(Response.Status.FORBIDDEN).build();
+        } else if (contentLength <= 0 || contentLength > config.getMaxImageFileSize()) {
+            log.warn("image POST for " + fname + " exceeded or absent content-length " + contentLength);
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        File dir = new File("/tmp/image_uploads");
+        dir.mkdirs();
+        File localFile = new File(dir, fname);
+        OutputStream out = new FileOutputStream(localFile);
+        long nread = 0;
+        try {
+            byte[] buf = new byte[4096];
+            int r;
+            while ((r = inputStream.read(buf)) > 0) {
+                nread += r;
+                if (nread > contentLength) {
+                    log.warn("image POST for " + fname + " exceeded content-length " + contentLength);
+                    out.close();
+                    localFile.delete();
+                    out = null;
+                    return Response.status(Response.Status.BAD_REQUEST).build();
+                }
+                out.write(buf, 0, r);
+            }
+        } finally {
+            if (out != null) out.close();
+        }
+        // FIXME: validate that it is in fact an image
+        return Response.noContent().build();
+    }
 }
