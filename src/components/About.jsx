@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
+import FBBlock from './FBBlock.jsx';
 
 export default class About extends React.Component {
 
@@ -27,6 +28,6 @@ export default class About extends React.Component {
         <hr width="50%"/>
         <p> * On this count, the experiment is a success, at least as far as fruit is concerned. I think she would eat her weight in assorted fruit if left to her own devices.</p>
       </div>
-    );    
+    );
   }
 }

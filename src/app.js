@@ -134,22 +134,6 @@ class FFThumb extends React.Component {
 
 //const Defalt = () => (<h1>Default</h1>);
 const Defalt = null;
-const Aboutx = () => (
-  <div>
-    <h1>About</h1>
-    <h2>tl;dr</h2>
-    <p>
-      I have all these fruit face pics from preparing breakfast for my kids. I wanted to make an app to view them, and learn some new tech along the way.
-    </p>
-    <h2>Why</h2>
-    <p>
-      My family always has fruit for breakfast.
-    </p>
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-    </p>
-  </div>
-);
 const Filters = () => (<div><h1>Filters</h1><p><i>Coming soon!</i></p></div>);
 
 const Credits = () => (

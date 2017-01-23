@@ -11,8 +11,8 @@ module.exports = {
   },
   plugins: [
     new webpack.EnvironmentPlugin([
-      "NODE_ENV", "FF_BACKEND_URL", "AMPLITUDE_API_KEY"
-    ])    
+      "NODE_ENV", "FF_BACKEND_URL", "AMPLITUDE_API_KEY", "FB_APP_ID"
+    ])
   ],
   module: {
     loaders: [
@@ -21,7 +21,7 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'babel',
         query: {
-          presets: ['es2015', 'react' ]
+          presets: ['es2015', 'react', 'babel-preset-stage-0' ]
         }
       }
     ]

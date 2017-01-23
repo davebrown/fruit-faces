@@ -7,6 +7,9 @@ import FFActions from '../actions/FFActions.js';
 import TagForm from './TagForm.js';
 import dateformat from 'dateformat';
 import Swipable from 'react-swipeable';
+import FBBlock from './FBBlock.jsx';
+
+//var fbUpdated = false;
 
 class FFMainImage extends React.Component {
 
@@ -78,6 +81,15 @@ class FFMainImage extends React.Component {
 
   componentDidUpdate(nextProps, nextState, nextContext) {
     this.log('didUpdate');
+    // http://stackoverflow.com/questions/29133563/facebook-social-plug-in-not-showing-up-when-added-dynamically
+    /*
+    var imageId = this.props && this.props.params && this.props.params.imageId;
+    if (!fbUpdated && imageId) {
+      //FB.XFBML.parse(document.getElementById('main-image-' + imageId));
+      //this.log('called FB XML parse');
+      //fbUpdated = true;
+    }
+    */
   }
 
   componentWillUnmount() {
@@ -118,19 +130,18 @@ class FFMainImage extends React.Component {
     }
     var key = 'main-image-' + image.base;
     return (
-        <Swipable key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
-      onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
-      onSwiping={this.onSwiping}>
+      <Swipable id={key} key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
+        onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
+        onSwiping={this.onSwiping}>
         <div id="main-image-holder">
-           <img id="main-image" src={src}/>
-           <p>{timeStr}<br/>
-              {dateStr}</p>
-            </div>
-            </Swipable>
-           );
-    
+          <img id="main-image" src={src}/>
+          <p>
+            {timeStr}<br/>{dateStr}
+          </p>
+        </div>
+      </Swipable>
+    );
   }
-
   
   onSwipingLeft(event, absX) {
     //console.log('onSwipingLeft(' + absX + ')');
