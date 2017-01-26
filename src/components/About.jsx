@@ -24,7 +24,6 @@ export default class About extends React.Component {
         <h2>When</h2>
         <p>In December, 2016 I quit my job to take some time and figure out what to do next. I had been managing software engineers, and while that is satisfying in a lot of ways, I also started to miss doing hands-on software development myself.</p>
         <h2>What and How</h2>
-        <p></p>
         <hr width="50%"/>
         <p> * On this count, the experiment is a success, at least as far as fruit is concerned. I think she would eat her weight in assorted fruit if left to her own devices.</p>
       </div>

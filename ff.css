@@ -216,11 +216,19 @@ h1, h2, h3, p {
      }
 }
 
-/* iphone 5 */
+/* iphone ??? */
 @media only screen and (min-width: 400px) and (max-width: 629px) and (orientation: landscape) {
     .thumbs {
         width: 510px;
         max-width: 510px;
+    }
+}
+
+/* iphone 5 */
+@media only screen and (min-width: 320px) and (max-width: 320px) and (orientation: portrait) {
+    .thumbs {
+        width: 300px;
+        max-width: 300px;
     }
 }
 

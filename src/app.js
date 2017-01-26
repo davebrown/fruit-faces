@@ -209,7 +209,7 @@ class FFApp extends React.Component {
     return (
         <Router history={hashHistory}>
         <Route path='/' component={FFContainer}>
-            <Route path='/' component={Defalt}/>
+            <Route path='/' component={About}/>
             <Route path='/about' component={About}/>
             <Route path='/filters' component={Filters}/>
             <Route path='/data' component={FFDataVictory}/>

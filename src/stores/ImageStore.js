@@ -116,10 +116,10 @@ const WIDTH_MAP = {
 }
 
 function getMobileMap() {
-  var width = window.innerWidth;
+  var width = document.body.clientWidth;
   var ret = WIDTH_MAP[9];
   for (var key in WIDTH_MAP) {
-    if (WIDTH_MAP.hasOwnProperty(key) && 30 * (key-1) < width) {
+    if (WIDTH_MAP.hasOwnProperty(key) && 30 * (key) <= width) {
       console.debug('getMobileMap() for width=' + width + ', ' + key + '/' + (30*key) + ' is a match');
       ret = WIDTH_MAP[key];
     }

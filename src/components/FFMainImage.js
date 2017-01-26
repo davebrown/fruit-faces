@@ -133,7 +133,7 @@ class FFMainImage extends React.Component {
       <Swipable id={key} key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
         onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
         onSwiping={this.onSwiping}>
-        <div id="main-image-holder">
+        <div id="main-image-holder" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}>
           <img id="main-image" src={src}/>
           <p>
             {timeStr}<br/>{dateStr}
@@ -150,6 +150,14 @@ class FFMainImage extends React.Component {
   onSwipingRight(event, absX) {
     //console.log('onSwipingRight(' + absX + ')');
     this.translateImage(absX);
+  }
+
+  onTouchStart(event) {
+    //console.log('onTouchStart', event);
+  }
+
+  onTouchEnd(event) {
+    //console.log('onTouchEnd', event);
   }
 
   translateImage(delta) {
