@@ -26,7 +26,7 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 public class ImageResource {
 
-    private final Logger log = LoggerFactory.getLogger(ImageResource.class);
+    private static final Logger log = LoggerFactory.getLogger(ImageResource.class);
 
     private final EntityManager entityManager;
     private final FFConfiguration config;

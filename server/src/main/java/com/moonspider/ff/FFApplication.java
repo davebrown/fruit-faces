@@ -64,6 +64,7 @@ public class FFApplication extends Application<FFConfiguration> {
         environment.jersey().register(imgResource);
         environment.jersey().register(new TagResource(entityManagerBundle.getSharedEntityManager()));
         environment.jersey().register(new StatsResource(entityManagerBundle.getSharedEntityManager()));
+        environment.jersey().register(new InfoResource(entityManagerBundle.getSharedEntityManager()));
     }
     public static void main(String[] args) throws Exception {
         // see http://stackoverflow.com/questions/508019/jpa-hibernate-store-date-in-utc-time-zone

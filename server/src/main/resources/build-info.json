@@ -1,0 +1,5 @@
+{
+  "revision": "${git.commit.id}",
+  "revision_timestamp": "${git.commit.time}",
+  "build_timestamp": "${git.build.time}"
+}
