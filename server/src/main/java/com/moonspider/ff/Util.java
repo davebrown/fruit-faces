@@ -20,4 +20,12 @@ public class Util {
             }
         }
     }
+
+    public static Throwable unwindExceptions(Throwable t) {
+        int i = 0;
+        while (t.getCause() != null && t.getCause() != t && ++i < 50) { // sanity check
+            t = t.getCause();
+        }
+        return t;
+    }
 }
