@@ -2,8 +2,6 @@ package com.moonspider.ff;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moonspider.ff.ejb.ImageEJB;
-import com.moonspider.ff.model.ImageDTO;
 import com.moonspider.ff.model.PingDTO;
 import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 import org.slf4j.Logger;
@@ -12,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import static com.moonspider.ff.model.PingDTO.ResourceStatus.*;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -25,11 +22,11 @@ import java.util.Map;
 import static com.moonspider.ff.Util.close;
 
 
-@Path("/api/v1/info")
+@Path("/api/v1")
 @Produces(MediaType.APPLICATION_JSON)
 public class InfoResource {
 
-    private static final Map<String,String> BUILD_INFO = loadBuildInfo();
+    public static final Map<String,String> BUILD_INFO = loadBuildInfo();
     private static final Logger log = LoggerFactory.getLogger(InfoResource.class);
 
     private EntityManager entityManager;
@@ -58,8 +55,14 @@ public class InfoResource {
 
     @GET
     @Path("/build")
-    public Map<String,String> getBuildInfo() {
+    public Map<String,String> getBuild() {
         return BUILD_INFO;
+    }
+
+    @GET
+    @Path("/build/revision")
+    public String getBuildRevision() {
+        return BUILD_INFO.get("revision");
     }
 
     @GET
