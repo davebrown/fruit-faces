@@ -47,11 +47,25 @@ server:
   adminConnectors:
     - type: http
       port: 9081
+  requestLog:
+    type: classic
+    timeZone: UTC
+    appenders:
+      - type: file
+        currentLogFilename: /tmp/logs/access.log
+        threshold: ALL
+        archive: true
+        archivedLogFilenamePattern: /tmp/logs/access-%d.log.gz
+        archivedFileCount: 5
+        timeZone: UTC
 
 logging:
   level: INFO
   appenders:
-    - type: console
+    - type: file
+      currentLogFilename: /tmp/logs/current.log
       threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: /tmp/logs/ff-%d.log.gz
+      archivedFileCount: 5
       timeZone: UTC
-      target: stdout
