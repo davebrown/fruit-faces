@@ -66,6 +66,12 @@ public class InfoResource {
     }
 
     @GET
+    @Path("/build/timestamp")
+    public String getBuildTimestamp() {
+        return BUILD_INFO.get("build_timestamp");
+    }
+
+    @GET
     @Path("/ping")
     @Timed
     @UnitOfWork(transactional = false)

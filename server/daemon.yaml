@@ -48,8 +48,6 @@ server:
     - type: http
       port: 9081
   requestLog:
-    type: classic
-    timeZone: UTC
     appenders:
       - type: file
         currentLogFilename: /tmp/logs/access.log
@@ -58,8 +56,8 @@ server:
         archivedLogFilenamePattern: /tmp/logs/access-%d.log.gz
         archivedFileCount: 5
         timeZone: UTC
-         # https://logback.qos.ch/manual/layouts.html#AccessPatternLayout
-         logFormat: "%a %l \"%u\" [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\""
+        # https://logback.qos.ch/manual/layouts.html#AccessPatternLayout
+        logFormat: "%a %l \"%u\" [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\""
 
 
 logging:

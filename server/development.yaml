@@ -54,9 +54,6 @@ server:
          # https://logback.qos.ch/manual/layouts.html#AccessPatternLayout
          logFormat: "%a %l \"%u\" [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\""
 
-
-
-
 logging:
   level: INFO
   appenders:
