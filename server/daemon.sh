@@ -4,9 +4,11 @@ set -e
 
 DEFAULT_LOG_HOME=$HOME/logs
 DEFAULT_CONFIG_FILE=$HOME/production.yaml
+DEFAULT_URL=http://localhost:8080
 
 LOG_HOME=${FF_LOG_HOME-$DEFAULT_LOG_HOME}
 CONFIG_FILE=${FF_CONFIG_FILE-$DEFAULT_CONFIG_FILE}
+FF_URL=${FF_URL-$DEFAULT_URL}
 
 # PIDFILE env var consumed by the app
 export PIDFILE=$LOG_HOME/ff.pid
@@ -28,7 +30,7 @@ fail() {
 }
 
 do_status() {
-    URL=http://localhost:9080/api/v1/build/revision
+    URL=$FF_URL/api/v1/build/revision
     REVISION=$(curl -sS $URL) || fail service at $URL not responding
     echo service at $URL running revision $REVISION
 }
