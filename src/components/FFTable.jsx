@@ -26,9 +26,9 @@ export default class FFTable extends React.Component {
 
   changeListener(arg) {
     this.setState( {
-      images: imageStore.getImages(),
-      selectedImage: imageStore.getSelectedImage(),
-      filter: imageStore.getFilterTag()
+      images: ImageStore.getImages(),
+      selectedImage: ImageStore.getSelectedImage(),
+      filter: ImageStore.getFilterTag()
     });
     
   }
