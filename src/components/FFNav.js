@@ -12,7 +12,7 @@ class FFNav extends React.Component {
 
     return (
       <div className="nav">
-        <div className="nav-item"><Link to='/about'>About</Link></div>
+        <div className="nav-item"><Link to='/'>About</Link></div>
         <div className="nav-item"><Link to='/filters'>Filters</Link></div>
         {slideShow}
         <div className="nav-item"><Link to='/data'>Data</Link></div>

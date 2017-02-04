@@ -86,6 +86,7 @@ class FFMainImage extends React.Component {
     var imageId = this.props && this.props.params && this.props.params.imageId;
     if (!fbUpdated && imageId) {
       //FB.XFBML.parse(document.getElementById('main-image-' + imageId));
+      //FB.XFBML.parse(document.getElementById('main-image-holder'));
       //this.log('called FB XML parse');
       //fbUpdated = true;
     }
@@ -138,6 +139,7 @@ class FFMainImage extends React.Component {
           <p>
             {timeStr}<br/>{dateStr}
           </p>
+          <FBBlock/>
         </div>
       </Swipable>
     );

@@ -6,6 +6,12 @@ const FB_APP_ID = process.env.FB_APP_ID || 'error-missing-fb-app-id';
 
 // initialize amplitude and facebook
 // FIXME: where to put these so they're 'early'?
+
+var meta = document.createElement('meta');
+meta.property = 'fb:app_id';
+meta.content = FB_APP_ID;
+document.getElementsByTagName('head')[0].appendChild(meta);
+
 amplitude.init(AMPLITUDE_KEY);
 window.fbAsyncInit = function() {
   FB.init({

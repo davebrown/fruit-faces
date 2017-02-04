@@ -1,5 +1,7 @@
 import React, { PropTypes } from 'react';
 
+var fbTimer = null;
+
 export default class FBBlock extends React.Component {
 
   static propTypes = {
@@ -18,13 +20,20 @@ export default class FBBlock extends React.Component {
 
   render() {
     const { like, comments } = this.props;
-    var dataHref = window.location.href;
+    const dataHref = window.location.href;
     var likeDiv = like ? (<div className="fb-like" data-share="true" data-width="450" data-show-faces="true"></div>): null;
     var commentsDiv = comments ? (<div className="fb-comments" data-href={dataHref} data-width="100%" data-numposts="5"></div>): null;
+    if (fbTimer) {
+      clearTimeout(fbTimer);
+    }
+    setTimeout(() => {
+      fbTimer = null;
+      //console.log('timer re-parse woke up on ' + dataHref);
+      FB.XFBML.parse(document.getElementById('ff-fb-block'));
+    }, 200);
     return !likeDiv && !commentsDiv ? null:
            (
-             <div>
-               <b>{dataHref}</b><br/>
+             <div id="ff-fb-block">
                {likeDiv}
                {commentsDiv}
              </div>

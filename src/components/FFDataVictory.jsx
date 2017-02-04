@@ -6,6 +6,7 @@ import {
   VictoryLabel, VictoryTooltip, VictoryGroup, VictoryScatter, Point
 } from 'victory';
 import { amplitude, API_BASE_URL, errToString } from '../util/Util.js';
+import FBBlock from './FBBlock.jsx';
 
 var MONTH_DATA = [{x:'Banana', y: 14, label: 'some fairly long text'}];
 
@@ -37,7 +38,6 @@ class FFChartDOW extends React.Component {
       } else {
         var dowData = JSON.parse(bodyString);
         this.setState({data: dowData});
-        console.debug('loaded DOW data: ' + dowData.length);
       }
     }
         .bind(this)
@@ -110,7 +110,6 @@ class FFChartTOD extends React.Component {
       } else {
         var todData = JSON.parse(bodyString);
         this.setState({data: todData});
-        console.debug('loaded TOD data: ' + todData.length);
       }
     }
     .bind(this)
@@ -199,7 +198,6 @@ class FFChartMonth extends React.Component {
       } else {
         var monthData = JSON.parse(bodyString);
         this.setState({data: monthData});
-        console.debug('loaded month data: ' + monthData.length);
       }
     }
      .bind(this)
@@ -304,6 +302,7 @@ export default class FFDataVictory extends React.Component {
         <p><i>TODO:</i> compute the standard deviation.</p>
         <h2>TODO: Daily Fluctuations?</h2>
         <p>I spent over a year driving to Milpitas every Tuesday, rising and departing earlier than normal. Did fruit faces shift and/or curtail during that year? Tune in to find out!</p>
+        <FBBlock/>
      </div>);
   }
 

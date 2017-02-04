@@ -30,6 +30,13 @@ const Credits = () => (
     </div>
 );
 
+const NotFound = () => (
+  <div>
+    <h1>Not found</h1>
+    <p>Hmmm...why not go <Link to="/">back home?</Link></p>
+  </div>
+);
+
 class FFContainer extends React.Component {
  constructor(props) {
     super(props);
@@ -102,13 +109,13 @@ class FFApp extends React.Component {
     return (
       <Router history={hashHistory}>
         <Route path='/' component={FFContainer}>
-          <Route path='/about' component={About}/>
+          <Route path='/' component={About}/>
           <Route path='/filters' component={Filters}/>
           <Route path='/data' component={FFDataVictory}/>
           <Route path='/tech' component={Tech}/>
           <Route path='/credits' component={Credits}/>
           <Route path='/images/:imageId' component={FFMainImage}/>
-          <Route path='*' component={About}/>
+          <Route path='*' component={NotFound}/>
         </Route>
       </Router>
     );

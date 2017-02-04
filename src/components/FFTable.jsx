@@ -34,15 +34,17 @@ export default class FFTable extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, next) {
+    var ret = false;
     const now = this.state;
     // avoid deep comparison of all images
     if (len(now.images) != len(next.images) ||
         now.selectedImage !== next.selectedImage ||
         now.filter !== next.filter) {
-      return true;
+      ret = true;
     }
-    return false;
+    return ret;
   }
+  
   render() {
     if (!this.state.images || this.state.images.length == 0) {
       return (<b>LOADING...</b>);
