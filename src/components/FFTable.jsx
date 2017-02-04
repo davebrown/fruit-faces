@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import request from 'browser-request';
-
+import { hashHistory } from 'react-router';
 import ImageStore from '../stores/ImageStore.js';
 import { amplitude, API_BASE_URL, errToString, imageHasTag } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
