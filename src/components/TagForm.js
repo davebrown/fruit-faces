@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import ImageStore from '../stores/ImageStore.js';
 import FFCheck from './FFCheck.js';
 
@@ -11,6 +11,15 @@ var TAGS = [ 'blue', 'gray', 'white' ];
 //TAGS = TAGS.concat(FRUITS);
 
 class TagForm extends React.Component {
+
+  static propTypes = {
+    image: PropTypes.object
+  };
+
+  static defaultProps = {
+    image: null
+  };
+  
   constructor(props) {
     super(props);
   }

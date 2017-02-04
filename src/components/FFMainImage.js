@@ -36,7 +36,7 @@ class FFMainImage extends React.Component {
       this.forceUpdate();
       break;
     case IMAGE_CHANGED:
-      this.forceUpdate();
+      //this.forceUpdate();
       break;
     }
   }

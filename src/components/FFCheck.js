@@ -1,18 +1,7 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import request from 'browser-request';
 import ImageStore from '../stores/ImageStore.js';
-
-const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
-
-function imageHasTag(image, tag) {
-  if (image) {
-    if (!image.tags) image.tags = [];
-    for (var i = 0, len = image.tags.length; i < len; i++) {
-      if (tag === image.tags[i]) return true;
-    }
-  }
-  return false;
-}
+import { API_BASE_URL, imageHasTag } from '../util/Util.js';
 
 function imageRemoveTag(image, tag) {
   if (!image.tags) image.tags = [];
@@ -47,10 +36,21 @@ function tagImage(image, verb, tag) {
 
 
 class FFCheck extends React.Component {
- constructor(props) {
+
+  static propTypes = {
+    image: PropTypes.object,
+    fruit: PropTypes.string
+  };
+
+  static defaultProps = {
+    image: null,
+    fruit: null
+  };
+
+  constructor(props) {
    super(props);
    console.log('FFCheck image=' + props.image);
- }
+  }
 
   checkHandler() {
     var image = this.props.image;
@@ -69,8 +69,7 @@ class FFCheck extends React.Component {
 
   render() {
     //console.log('FFCheck(' + this.props.fruit + ').render()');
-    var image = ImageStore.getSelectedImage();
-    var fruit = this.props.fruit;
+    const { image, fruit } = this.props;
     var key = 'checkbox-' + fruit;
     var checked = imageHasTag(image, fruit);
     var checkStr = '';

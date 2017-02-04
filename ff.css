@@ -261,6 +261,10 @@ h1, h2, h3, p {
         opacity: 1.0;
     }
 
+    .thumb-outside-filter img {
+        opacity: 0.2;
+    }
+    
     .thumb-selected {
         border: 2px solid red;
     }

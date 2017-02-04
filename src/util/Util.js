@@ -4,6 +4,7 @@ const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
 const AMPLITUDE_KEY = process.env.AMPLITUDE_API_KEY || 'error-missing-amplitude-key';
 const FB_APP_ID = process.env.FB_APP_ID || 'error-missing-fb-app-id';
 
+// initialize amplitude and facebook
 // FIXME: where to put these so they're 'early'?
 amplitude.init(AMPLITUDE_KEY);
 window.fbAsyncInit = function() {
@@ -23,6 +24,16 @@ window.fbAsyncInit = function() {
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
 
+function imageHasTag(image, tag) {
+  if (image) {
+    if (!image.tags) image.tags = [];
+    for (var i = 0, len = image.tags.length; i < len; i++) {
+      if (tag === image.tags[i]) return true;
+    }
+  }
+  return false;
+}
+
 
 function errToString(input) {
   if (input === null) return 'null';
@@ -35,4 +46,4 @@ function errToString(input) {
   return 'Unknown error';
 }
 
-export { amplitude, API_BASE_URL, errToString };
+export { amplitude, API_BASE_URL, errToString, imageHasTag };

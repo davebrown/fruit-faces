@@ -294,16 +294,17 @@ export default class FFDataVictory extends React.Component {
           neighborhood friends at the bakery, and usually make waffles etc. on Sundays.
         </p>
         <h2>Monthly Frequency</h2>
-        <p>Highly variable:</p>
+        <p>Am I mister consistent-and-reliable, creating fruit art day in and day out?</p>
         <FFChartMonth/>
-        <p>as you can see.</p>
+        <p>Nope, it's highly variable, as you can see. WTF happened in November 2015?</p>
         <h2>Time of Day Frequency</h2>
-        <p>Hectic mornings to sculpt fruit - is there a pattern to time of day?</p>
+        <p>Like most families with young children, mornings are hectic, as a rule. Is there a pattern to the time of day when I can find the time and space to sculpt fruit?</p>
         <FFChartTOD/>
-        <h2>In conclusion</h2>
-        <p>Lorem ipsum.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-      </div>);
+        <p>Yup. That looks like a very standard gaussian distribution, between 7:00 - 7:40 am.</p>
+        <p><i>TODO:</i> compute the standard deviation.</p>
+        <h2>TODO: Daily Fluctuations?</h2>
+        <p>I spent over a year driving to Milpitas every Tuesday, rising and departing earlier than normal. Did fruit faces shift and/or curtail during that year? Tune in to find out!</p>
+     </div>);
   }
 
 }

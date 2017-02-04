@@ -1,10 +1,16 @@
 import { EventEmitter } from 'events';
-import { IMAGE_CHANGED, IMAGES_LOADED, ORIENTATION_CHANGED } from '../constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import bowser from 'bowser';
 import amplitude from 'amplitude-js/amplitude.min';
 
-//import _ from  'loadash';
+// STATE
+// array
+var images = null;
+// key->object map
+var imageMap = null;
+var selectedImage = null;
+var filterTag = null;
 
 class ImageStore extends EventEmitter {
 
@@ -23,6 +29,7 @@ class ImageStore extends EventEmitter {
   haveImages() {
     return images && images.length > 0;
   }
+
   getImage(base) {
     return base && imageMap && imageMap[base];
   }
@@ -47,6 +54,10 @@ class ImageStore extends EventEmitter {
     return ret;
   }
 
+  getFilterTag() {
+    return filterTag;
+  }
+  
   getTaggedImages(tag) {
     return images.filter((img) => { return imageHasTag(img, tag); });
   }
@@ -89,11 +100,6 @@ function indexImages(images) {
   }
   console.log('images indexed (count=' + images.length + ')');
 }
-// array
-var images = null;
-// key->object map
-var imageMap = null;
-var selectedImage = null;
 
 const CHANGE_EVENT = 'change';
 
@@ -128,11 +134,7 @@ function getMobileMap() {
 }
 
 function mix(arrays) {
-  var total = 0;
   var i, j;
-  for (i = 0; i < arrays.length; i++) {
-    total += arrays[i].length;
-  }
   var ret = [];
   for (i = 0; i < arrays.length; i++) {
     for (j = 0; j < arrays[i].length; j++) {
@@ -144,12 +146,32 @@ function mix(arrays) {
   return ret;
 }
 
+function mix2(arrays) {
+  var i, j;
+  var ret = [];
+  var max = 0;
+  for (i = 0; i < arrays.length; i++) {
+    max = max < arrays[i].length ? arrays[i].length : max;
+  }
+
+  for (i = 0; i < max; i++) {
+    for (j = 0; j < arrays.length; j++) {
+      if (i >= arrays[j].length) continue;
+      var img = arrays[j][i];
+      img.index = ret.length;
+      ret.push(img);
+    }
+  }
+  return ret;
+}
+
+
 function imageList(map, images) {
   var blues = imageStore.getBlues();
   var whites = imageStore.getWhites();
   var grays = imageStore.getGrays();
   var nons = imageStore.getNonColors();
-  grays = mix([whites, grays]);
+  grays = mix2([whites, grays]);
   var ret = [];
   var i = 0;
   for (i = 0; blues.length > 0 && grays.length; i++) {
@@ -182,22 +204,31 @@ function imageList(map, images) {
 Dispatcher.register((action) => {
   switch (action.actionType) {
     case IMAGE_CHANGED:
-    selectedImage = action.image;
-    imageStore.emitChange();
-    var base = selectedImage ? selectedImage.base : null;
-    amplitude.logEvent('IMAGE_SELECTED', { imageBase: base });
-    break;
+      selectedImage = action.image;
+      imageStore.emitChange();
+      var base = selectedImage ? selectedImage.base : null;
+      if (base) {
+        // undo filter selection if an image is selected
+        filterTag = null;
+      }
+      amplitude.logEvent('IMAGE_SELECTED', { imageBase: base });
+      break;
     case IMAGES_LOADED:
-    images = action.images;
-    images = imageList(bowser.mobile ? getMobileMap(): HEART_16, images);
-    indexImages(images);
-    imageStore.emitChange();
-    break;
-  case ORIENTATION_CHANGED:
-    console.debug('emitting on orientation change');
-    images = imageList(bowser.mobile ? getMobileMap(): HEART_16, images);
-    imageStore.emitChange();
-    break;
+      images = action.images;
+      images = imageList(bowser.mobile ? getMobileMap(): HEART_16, images);
+      indexImages(images);
+      imageStore.emitChange();
+      break;
+    case ORIENTATION_CHANGED:
+      console.debug('emitting on orientation change');
+      images = imageList(bowser.mobile ? getMobileMap(): HEART_16, images);
+      imageStore.emitChange();
+      break;
+    case FILTER_CHANGED:
+      //console.debug('changing filter ' + filterTag + ' => ' + action.filter);
+      filterTag = action.filter;
+      imageStore.emitChange();
+      break;
   }
 });
 
