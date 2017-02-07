@@ -294,7 +294,7 @@ export default class FFDataVictory extends React.Component {
         <h2>Monthly Frequency</h2>
         <p>Am I mister consistent-and-reliable, creating fruit art day in and day out?</p>
         <FFChartMonth/>
-        <p>Nope, it's highly variable, as you can see. WTF happened in November 2015?</p>
+        <p>Nope, it's highly variable, as you can see. For example, what happened in November 2015? Thanksgiving travels, and I got more responsibility at work.</p>
         <h2>Time of Day Frequency</h2>
         <p>Like most families with young children, mornings are hectic, as a rule. Is there a pattern to the time of day when I can find the time and space to sculpt fruit?</p>
         <FFChartTOD/>

@@ -25,17 +25,29 @@ export default class FFTable extends React.Component {
   }
 
   changeListener(arg) {
+    /*
+    var nowBase = this.state.selectedImage && this.state.selectedImage.base;
+    var sel = ImageStore.getSelectedImage();
+    var nextBase = sel && sel.base;
+    console.log('Table.changeListener() sel going from ' + nowBase + ' to ' + nextBase);
+    */
     this.setState( {
       images: ImageStore.getImages(),
       selectedImage: ImageStore.getSelectedImage(),
       filter: ImageStore.getFilterTag()
     });
-    
   }
 
   shouldComponentUpdate(nextProps, next) {
     var ret = false;
     const now = this.state;
+    /*
+    {
+      var nowBase = now.selectedImage && now.selectedImage.base;
+      var nextBase = next.selectedImage && next.selectedImage.base;
+      console.log('Table.shouldUpdate() now.selected=' + nowBase + ' next=' + nextBase);
+    }
+    */
     // avoid deep comparison of all images
     if (len(now.images) != len(next.images) ||
         now.selectedImage !== next.selectedImage ||
@@ -46,32 +58,22 @@ export default class FFTable extends React.Component {
   }
   
   render() {
-    if (!this.state.images || this.state.images.length == 0) {
+    const { images, selectedImage, filter } = this.state;
+    //if (!this.state.images || this.state.images.length == 0) {
+    if (!images || images.length == 0) {
       return (<b>LOADING...</b>);
     }
-    var nums = [];
-    for (var i = 0; i < 24; i++) {
-      nums.push(i);
-    }
-    var cols = nums.map((num) => {
-      var key = 'cols-' + num;
-      return (<div className="thirty" key={key}>{num}</div>);
-    });
 
     var old = (
       <div className="fixed scrollable thumbs">
         {
           this.state.images.map((image) => {
             var key = 'ff-thumb-' + image.base;
-            return <FFThumb key={key} image={image}/>;
+            return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.base === image.base}/>;
           })
         }
       </div>
     );
-    /*
-       for (var i = 0; i < this.state.images.length; i++) {
-       console.log(i + '/' + this.state.images[i].index);
-       }*/
     return old;
   }
   loadImageDefs() {
@@ -131,7 +133,8 @@ class FFThumb extends React.Component {
     {
       if (ImageStore.getFilterTag() != null && !imageHasTag(this.props.image, ImageStore.getFilterTag())) {
         selClass = 'thumb-outside-filter';
-      } else if (window.location.hash === ('#/images/' + this.props.image.base)) {
+        //} else if (window.location.hash === ('#/images/' + this.props.image.base)) {
+      } else if (this.props.selected) {
         selClass = 'thumb-selected';
       }
     }

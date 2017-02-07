@@ -25,12 +25,29 @@ export default class FBBlock extends React.Component {
     var commentsDiv = comments ? (<div className="fb-comments" data-href={dataHref} data-width="100%" data-numposts="5"></div>): null;
     if (fbTimer) {
       clearTimeout(fbTimer);
+      fbTimer = 0;
     }
-    setTimeout(() => {
+    var fbParseFunc = () => {
       fbTimer = null;
       //console.log('timer re-parse woke up on ' + dataHref);
-      FB.XFBML.parse(document.getElementById('ff-fb-block'));
-    }, 200);
+      // occasionally see 'FB not defined' on first load. If not there yet, just defer
+      if (typeof(FB) === 'undefined') {
+        console.warn('FB not loaded, deferring');
+        fbTimer = setTimeout(fbParseFunc, 1000);
+        return;
+      }
+      // FIXME: figure out a way to check that this element exists, without scanning the whole document
+      var fbIframes = document.getElementsByClassName('fb_iframe_widget');
+      // ask FB to decorate the page iff its 'fb_iframe_widget' isn't on the page already
+      // otherwise, there's a noticeable and annoying flicker
+      if (!fbIframes || fbIframes.length === 0) {
+        FB.XFBML.parse(document.getElementById('ff-fb-block'));
+      } else {
+        // nothing to do
+      }
+      fbTimer = 0;
+    };
+    setTimeout(fbParseFunc, 300);
     return !likeDiv && !commentsDiv ? null:
            (
              <div id="ff-fb-block">

@@ -54,6 +54,44 @@ class ImageStore extends EventEmitter {
     return ret;
   }
 
+  // go up one row
+  getAboveImage() {
+    var ret = null;
+    if (selectedImage) {
+      var newIndex = selectedImage.index - mapWidth;
+      if (newIndex < 0) {
+        // wrap around, and go back (left) one column
+        var newCol = selectedImage.index % mapWidth - 1;
+        if (newCol < 0) newCol = mapWidth - 1;
+        var lastRowLen = images.length % mapWidth;
+        if (newCol < lastRowLen) {
+          newIndex = images.length - (lastRowLen - newCol);
+        } else {
+          newIndex = images.length - lastRowLen - (mapWidth - newCol);
+        }
+      }
+      ret = images[newIndex];
+    }
+    return ret;
+  }
+
+  getBelowImage() {
+    var ret = null;
+    if (selectedImage) {
+      var newIndex = selectedImage.index + mapWidth;
+      if (newIndex < images.length) {
+        ret = images[newIndex];
+      } else {
+        // wrap around, and go forward (right) one column
+        var newCol = selectedImage.index % mapWidth + 1;
+        if (newCol === images.length) newCol = 0;
+        newIndex = newCol;
+        // guard the edge case where mapWidth < images.length
+        ret = newIndex < images.length ? images[newCol] : null;
+      }
+    }
+    return ret;
+  }
   getFilterTag() {
     return filterTag;
   }
@@ -121,13 +159,19 @@ const WIDTH_MAP = {
   21: HEART_21
 }
 
+// number of columns in the image map
+var mapWidth = 16;
+const DEFAULT_THUMB_MAP = HEART_16;
+
+
 function getMobileMap() {
   var width = document.body.clientWidth;
   var ret = WIDTH_MAP[9];
   for (var key in WIDTH_MAP) {
     if (WIDTH_MAP.hasOwnProperty(key) && 30 * (key) <= width) {
-      console.debug('getMobileMap() for width=' + width + ', ' + key + '/' + (30*key) + ' is a match');
+      //console.debug('getMobileMap() for width=' + width + ', ' + key + '/' + (30*key) + ' is a match');
       ret = WIDTH_MAP[key];
+      mapWidth = key;
     }
   }
   return ret;
@@ -215,13 +259,13 @@ Dispatcher.register((action) => {
       break;
     case IMAGES_LOADED:
       images = action.images;
-      images = imageList(bowser.mobile ? getMobileMap(): HEART_16, images);
+      images = imageList(bowser.mobile ? getMobileMap(): DEFAULT_THUMB_MAP, images);
       indexImages(images);
       imageStore.emitChange();
       break;
     case ORIENTATION_CHANGED:
       console.debug('emitting on orientation change');
-      images = imageList(bowser.mobile ? getMobileMap(): HEART_16, images);
+      images = imageList(bowser.mobile ? getMobileMap(): DEFAULT_THUMB_MAP, images);
       imageStore.emitChange();
       break;
     case FILTER_CHANGED:

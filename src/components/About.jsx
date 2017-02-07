@@ -26,10 +26,18 @@ export default class About extends React.Component {
         <p>As it also happens in this age of easy and ubiquitous mobile photography, after a while I had a bunch of these fruit face pics. Hundreds. I kept thinking "I should... do... <i>something</i>... with these." I'd get a vague vision of this or that detail of how I'd like to look at them all together, but then the rest of life kept happening and demanding attention, and the pics kept accumulating.</p>
         <h2>When</h2>
         <p>I started making these little faces circa 2013, and snapping photos of them in 2014. In December, 2016 I quit my job to take some time and figure out what to do next. I had been managing software engineers, and while that is satisfying in a lot of ways, I also started to miss doing hands-on software development myself.</p>
+        <p><Link to="/images/IMG_2128">Each picture</Link> shows the date and time of when it was taken, and the <Link to="/data">data page</Link> has charts for the data nerds: monthly counts, time of day, day of week.</p>
         <h2>What and How</h2>
         <p>The stuff I've played with so far is described on the <Link to="/tech">Tech page</Link>.</p>
+
+        <h2>Credits</h2>
+        <p>Props to <a href="https://github.com/ianwremmel">Ian Remmel</a> for his JS advice and his
+          straightforward <a href="http://ianwremmel.github.io/flexbox-layouts/">tutorial on FlexBox layouts.</a></p>
+        <p>Thanks to <a href="http://aliciachastain.com/">Alica Chastain</a> for her design advice.</p>
+        <p>Hugs to <a href="http://maisybrown.com/">Maisy</a> for eating all the fruit. I ❤ you!</p>
+
         <hr width="50%"/>
-        <p> * On this count, the experiment is a success, at least as far as fruit is concerned. I think she would eat her weight in assorted fruit if left to her own devices.</p>
+        <p className="footnote"> * On this count, getting my kid to eat fruit: the experiment is a success. I think she would eat her weight in assorted fruit if she were left to her own devices.</p>
         <FBBlock/>
       </div>
     );

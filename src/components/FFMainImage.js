@@ -136,10 +136,11 @@ class FFMainImage extends React.Component {
         onSwiping={this.onSwiping}>
         <div id="main-image-holder" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}>
           <img id="main-image" src={src}/>
-          <p>
-            {timeStr}<br/>{dateStr}
+          <p className="sans-font">
+            {timeStr}<br/>
+            {dateStr}
           </p>
-          <FBBlock/>
+          <FBBlock like={true}/>
         </div>
       </Swipable>
     );

@@ -20,16 +20,6 @@ import FFMainImage from './components/FFMainImage.js';
 import { amplitude, API_BASE_URL, errToString, imageHasTag } from './util/Util.js';
 
 
-const Credits = () => (
-  <div>
-    <h1>Credits</h1>
-    <p>Props to <a href="https://github.com/ianwremmel">Ian Remmel</a> for his JS advice and his
-  straightforward <a href="http://ianwremmel.github.io/flexbox-layouts/">tutorial on FlexBox layouts.</a></p>
-    <p>Thanks to <a href="http://aliciachastain.com/">Alica Chastain</a> for her design advice.</p>
-    <p>Hugs to <a href="http://maisybrown.com/">Maisy</a> for eating all the fruit. I ❤ you!</p>
-    </div>
-);
-
 const NotFound = () => (
   <div>
     <h1>Not found</h1>
@@ -51,7 +41,7 @@ class FFContainer extends React.Component {
     var children;
     if (this.props.children) {
       children = this.props.children;
-    } else {
+    } else if (!bowser.mobile) {
       children = (<About/>);
     }
     return (
@@ -66,19 +56,25 @@ class FFContainer extends React.Component {
   }
 }
 
-function keyDownHandler(arg) {
+function keyDownHandler(evt) {
   var newImage = null;
-  switch (arg.keyCode) {
-  case 39: // right arrow
-    newImage = ImageStore.getNextImage();
-    break;
-  case 37: // left
-    newImage = ImageStore.getPreviousImage();
-    break;
-  case 40: // down
-    break;
-  case 38: // up
-    break;
+  switch (evt.keyCode) {
+    case 39: // right arrow
+      newImage = ImageStore.getNextImage();
+      break;
+    case 37: // left
+      newImage = ImageStore.getPreviousImage();
+      break;
+    case 40: // down
+      // squelch arrow key window scroll
+      evt.preventDefault();
+      newImage = ImageStore.getBelowImage();
+      break;
+    case 38: // up
+      // squelch arrow key window scroll
+      evt.preventDefault();
+      newImage = ImageStore.getAboveImage();
+      break;
   }
   if (newImage) {
     FFActions.imageChanged(newImage);
@@ -109,11 +105,10 @@ class FFApp extends React.Component {
     return (
       <Router history={hashHistory}>
         <Route path='/' component={FFContainer}>
-          <Route path='/' component={About}/>
+          <Route path='/about' component={About}/>
           <Route path='/filters' component={Filters}/>
           <Route path='/data' component={FFDataVictory}/>
           <Route path='/tech' component={Tech}/>
-          <Route path='/credits' component={Credits}/>
           <Route path='/images/:imageId' component={FFMainImage}/>
           <Route path='*' component={NotFound}/>
         </Route>

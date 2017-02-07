@@ -4,7 +4,7 @@ html, body, .container {
   margin: 0;
   /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
   /*font-family: -apple-system, Lucida Grande, Helvetica, Arial, sans-serif;*/
-  font-family: Helvetica, Aria, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -13,7 +13,7 @@ h1, h2, h3, p {
 }
 
 
-.block-text p {
+p {
     font-family: "Droid Serif", "Open Sans", Cambria, Georgia, "DejaVu Serif", serif;
     line-height: 1.6;
     font-size: 1.0em;
@@ -96,6 +96,17 @@ h1, h2, h3, p {
     height: 100%;
 }
 
+.filter-cell {
+}
+
+.fruit-filters {
+    height: auto;
+}
+
+.disabled {
+    color: #909090;
+    font-style: italic;
+}
 /*
 .dialog svg {
     border: 1px solid red;
@@ -114,6 +125,20 @@ h1, h2, h3, p {
 .thumbs img {
     width: 30px;
     height: 40px;
+    opacity: 1.0;
+}
+
+.thumb-outside-filter img {
+    opacity: 0.2;
+}
+
+.sans-font {
+    font-family: Helvetica, Arial, sans-serif;
+    line-height: 1.2;
+}
+
+.footnote {
+    font-size: 0.8em;
 }
 /* for some reason, a button in a 'position: fixed' causes hell with webkit,
  * and a span element works just as well with the same styles
@@ -255,15 +280,6 @@ h1, h2, h3, p {
         margin-top: 10px;
     }
 
-
-    /* can't decide if I like opacity < 1.0 for non-selected */
-    .thumbs img {
-        opacity: 1.0;
-    }
-
-    .thumb-outside-filter img {
-        opacity: 0.2;
-    }
     
     .thumb-selected {
         border: 2px solid red;

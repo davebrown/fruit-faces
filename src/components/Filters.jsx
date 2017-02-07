@@ -7,13 +7,17 @@ import TagForm from './TagForm.js';
 
 const TAGS = [ 'blue', 'gray', 'white' ];
 
+const FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloupe', 'cereal', 'cheese',
+                 'clementine', 'googly eyes', 'grape', 'honeydew', 'kiwi', 'mango', 'peach', 'pear', 'pineapple',
+                 'plum', 'raspberry', 'strawberry', 'try harder Dad!', 'watermelon' ];
+
 export default class Filters extends React.Component {
 
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.state = {
-      selectedValue: null
+      selectedValue: ImageStore.getFilterTag()
     }
   }
 
@@ -29,12 +33,23 @@ export default class Filters extends React.Component {
   render() {
     return (
       <div className="filters">
-        <p><b>Check one of the radio buttons</b> to highlight only particular images.</p>
-        <RadioGroup name="fruit" selectedValue={this.state.selectedValue} onChange={this.handleChange}>
+        <h1>Filters</h1>
+        <p className="sans-font"><b>Check one of the radio buttons</b> to highlight only particular images.</p>
+        <h2>Plates</h2>
+        <RadioGroup name="plates" selectedValue={this.state.selectedValue} onChange={this.handleChange}>
           {
             TAGS.map((tag) => {
               const key = 'filter-radio-' + tag;
               return <div key={key}><Radio value={tag}/>{tag.charAt(0).toUpperCase() + tag.slice(1) + ' plates'}<br/></div>
+            })
+          }
+        </RadioGroup>
+        <h2 className="disabled">Fruits - coming soon</h2>
+        <RadioGroup name="fruits" className="disabled">
+          {
+            FRUITS.map((tag) => {
+              const key = 'filter-radio-' + tag;
+              return <div className="filter-cell" key={key}><Radio value={tag} disabled={true}/>{tag}</div>
             })
           }
         </RadioGroup>
