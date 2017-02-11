@@ -1,3 +1,5 @@
+import ClosedCircleIcon from 'react-icons/io/close-circled';
+
 import React from 'react';
 import { hashHistory } from 'react-router';
 import FBBlock from './FBBlock.jsx';
@@ -12,8 +14,6 @@ class Dialog extends React.Component {
 
   render() {
     
-    //console.debug('dialog children: ');
-    //console.debug(this.props.children);
     if (!this.props.children || this.props.children.length === 0) {
       return null;
     }
@@ -21,10 +21,14 @@ class Dialog extends React.Component {
     var closeHandler = this.props.onClose || this.dialogCloseHandler.bind(this);
     var hashLocation = hashHistory.getCurrentLocation();
     var dataHref = 'https://ff.moonspider.com/#' + hashLocation;
+    var closeIconColor = '#000000';
+    //var closeIconColor = '#ffffff';
     return (
-      <div className="column dialog expandable compressible scrollable">
-        <span className="back-button" onClick={closeHandler}>⬅</span>
-        {this.props.children}
+      <div id="ff-dialog" className="column dialog expandable compressible scrollable">
+        <ClosedCircleIcon className="close-icon" size={30} color={closeIconColor} onClick={closeHandler}/>
+        <div className="dialog-content">
+          {this.props.children}
+        </div>
       </div>
     );
   }

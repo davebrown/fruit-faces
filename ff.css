@@ -140,29 +140,13 @@ p {
 .footnote {
     font-size: 0.8em;
 }
-/* for some reason, a button in a 'position: fixed' causes hell with webkit,
- * and a span element works just as well with the same styles
- */
-.back-button {
-    width: 100%;
-    text-align: left;
-    font-weight: bold;
-    font-size: 2.0em;
-    border-width: 0px;
-    padding-right: 4px;
-    padding-left: 6px;
-    padding-bottom: 0px;
-    align-self: flex-start;
-    margin-bottom: -5px;
-    z-order: 10;
-}
 
 #main-image {
     display: block;
     width: auto;
     height: auto;
-    max-height: 80vh;
-    max-width: 90%;
+    /*max-height: 80vh;
+    max-width: 90%;*/
     /* top right bottom left */
     margin: 0px 0px 5px 10px;
 }
@@ -203,6 +187,18 @@ p {
         transform: translateZ(1px);
     }
 
+    .dialog-content {
+        padding-top: 20px;
+    }
+    
+    .close-icon {
+        width: 30px;
+        height: 30px;
+        top: 0px;
+        left: 0px;
+        position: fixed;
+    }
+    
     .tag-form {
         display: none;
     }
@@ -213,6 +209,8 @@ p {
     }
     #main-image-holder {
         position: absolute;
+        top: 0px;
+        z-index: -1;
      }
     .nav {
         position: fixed;
@@ -238,6 +236,7 @@ p {
 @media only screen and (max-width: 799px) and (orientation: portrait) {
    #main-image-holder {
        width: 100%;
+       max-width: 100%;
      }
 }
 
@@ -301,7 +300,7 @@ p {
         margin-left: 6px;
     }
     
-    .dialog .back-button {
+    .dialog .close-icon {
         display: none;
     }
 
