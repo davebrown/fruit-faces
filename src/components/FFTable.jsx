@@ -2,11 +2,20 @@ import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import request from 'browser-request';
 import { hashHistory } from 'react-router';
+import ReactTooltip from 'react-tooltip';
+
 import ImageStore from '../stores/ImageStore.js';
 import { amplitude, API_BASE_URL, errToString, imageHasTag } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
+import Dispatcher from '../dispatcher/AppDispatcher.js';
+import { KEY_NAV_HAPPENED } from '../constants/FFConstants.js';
 
 function len(a) { return a && a.length; }
+
+// track state on whether or not to show tooltips
+var showClickTooltip = true;
+var showKeyTooltip = true;
+var clickCount = 0;
 
 export default class FFTable extends React.Component {
 
@@ -18,12 +27,31 @@ export default class FFTable extends React.Component {
       filter: null
     };
     ImageStore.addChangeListener(this.changeListener.bind(this));
+    this.render.bind(this);
+    this.getTipContent.bind(this);
   }
 
   componentWillMount() {
+    console.log('componentWillMount');
     this.loadImageDefs();
+    this.dispatcherToken = Dispatcher.register((action) => {
+      switch (action.actionType) {
+        case KEY_NAV_HAPPENED:
+          console.log('ff-table: keyNavHappened');
+          showKeyTooltip = false;
+          ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
+          ReactTooltip.hide();
+          ReactTooltip.rebuild();
+          break;
+      }
+    });
   }
 
+  componentWillUnmount() {
+    console.log('componentWillUnmount');
+    Dispatcher.unregister(this.dispatcherToken);
+  }
+  
   changeListener(arg) {
     /*
     var nowBase = this.state.selectedImage && this.state.selectedImage.base;
@@ -56,22 +84,73 @@ export default class FFTable extends React.Component {
     }
     return ret;
   }
-  
+
+  getTipContent() {
+    var up = String.fromCodePoint(0x2B06);
+    var left = String.fromCodePoint(0x2B05);
+    var right = String.fromCodePoint(0x27A1);
+    var down = String.fromCodePoint(0x2B07);
+    const ttClickText = "Click a thumbnail to see it larger";
+    const ttKeyText  = "Save mouse clicks!<br/>You can use the<br/>"
+                     + "left / right / up / down keys<br/>"
+                     + left + ' ' + right + ' ' + up + ' ' + down + '<br/>'
+                     + "to navigate the picutes instead";
+
+    var ttText = null;
+    if (showClickTooltip) {
+      ttText = ttClickText;
+      console.log('ttdisable false tttext=click');
+    } else if (showKeyTooltip && clickCount >= 3) {
+      ttText = ttKeyText;
+      console.log('ttdisable false tttext=key');
+    } else {
+      console.log('ttdisable TRUE');
+    }
+    console.log('getTipContent->' + ttText);
+    return ttText;
+  }
   render() {
+    //console.debug('FFTable.render() clickTip=' + showClickTooltip + ' keyTip=' + showKeyTooltip + ' clickCount=' + clickCount);
     const { images, selectedImage, filter } = this.state;
-    //if (!this.state.images || this.state.images.length == 0) {
     if (!images || images.length == 0) {
       return (<b>LOADING...</b>);
     }
 
+    var up = String.fromCodePoint(0x2B06);
+    var left = String.fromCodePoint(0x2B05);
+    var right = String.fromCodePoint(0x27A1);
+    var down = String.fromCodePoint(0x2B07);
+    const ttClickText = "Click a thumbnail to see it larger";
+    const ttKeyText  = "Save mouse clicks!<br/>You can use the<br/>"
+                     + "left / right / up / down keys<br/>"
+                     + left + ' ' + right + ' ' + up + ' ' + down + '<br/>'
+                     + "to navigate the picutes instead";
+
+    var ttText = null;
+    var ttDisable = true;
+    if (showClickTooltip) {
+      ttText = ttClickText;
+      ttDisable = false;
+      console.log('ttdisable false tttext=click');
+    } else if (showKeyTooltip && clickCount >= 3) {
+      ttText = ttKeyText;
+      ttDisable = false;
+      console.log('ttdisable false tttext=key');
+    } else {
+      console.log('ttdisable TRUE');
+    }
     var old = (
-      <div className="fixed scrollable thumbs">
+      <div ref="ff_table" className="fixed scrollable thumbs" data-for="table-tt"
+      data-html={true} data-multiline={true} data-tip
+      >
         {
           this.state.images.map((image) => {
             var key = 'ff-thumb-' + image.base;
             return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.base === image.base}/>;
           })
         }
+      <ReactTooltip disable={ttDisable} getContent={[ this.getTipContent, 500 ]}
+        id="table-tt" place="right" multiline={true} type="success" effect="float"/>
       </div>
     );
     return old;
@@ -113,8 +192,16 @@ class FFThumb extends React.Component {
   }
 
   clickHandler() {
+    clickCount++;
     FFActions.imageChanged(this.props.image);
     hashHistory.push('/images/' + this.props.image.base);
+    showClickTooltip = false;
+    ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
+    ReactTooltip.hide();
+    ReactTooltip.rebuild();
+    if (clickCount == 3) {
+      //ReactTooltip.show()
+    }
   }
 
   render() {
@@ -125,15 +212,10 @@ class FFThumb extends React.Component {
     }
     var path = '/thumbs/' + this.props.image.base + '_' + dim + '_t.jpg';
     var selClass = '';
-    /* race condition on route load...look at hash instead */
-    //var selImage = ImageStore.getSelectedImage();
-    //if (selImage && selImage.base === this.props.image.base) {
-    //selClass = 'thumb-selected';
-    //}
+    /* race condition on route load...look at hash instead?? */
     {
       if (ImageStore.getFilterTag() != null && !imageHasTag(this.props.image, ImageStore.getFilterTag())) {
         selClass = 'thumb-outside-filter';
-        //} else if (window.location.hash === ('#/images/' + this.props.image.base)) {
       } else if (this.props.selected) {
         selClass = 'thumb-selected';
       }

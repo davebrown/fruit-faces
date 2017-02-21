@@ -77,6 +77,7 @@ function keyDownHandler(evt) {
       break;
   }
   if (newImage) {
+    FFActions.keyNavHappened(evt.keyCode);
     FFActions.imageChanged(newImage);
     // FIXME: will hash history exhaust memory if my kid just hits right arrow for an hour?
     //hashHistory.push('/images/' + newImage.base);
