@@ -141,7 +141,7 @@ export default class FFTable extends React.Component {
     }
     var old = (
       <div ref="ff_table" className="fixed scrollable thumbs" data-for="table-tt"
-      data-html={true} data-multiline={true} data-tip
+      data-multiline={true} data-tip={ttText}
       >
         {
           this.state.images.map((image) => {
@@ -149,7 +149,7 @@ export default class FFTable extends React.Component {
             return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.base === image.base}/>;
           })
         }
-      <ReactTooltip disable={ttDisable} getContent={[ this.getTipContent, 500 ]}
+      <ReactTooltip disable={ttDisable}
         id="table-tt" place="right" multiline={true} type="success" effect="float"/>
       </div>
     );

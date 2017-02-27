@@ -270,8 +270,8 @@ p {
 @media only screen and (min-width: 800px) {
 
     .thumbs {
-        width: 480px;
-        max-width: 480px;
+        width: 496px;
+        max-width: 496px;
         max-height: 95vh;
         cursor: pointer;
         overflow-y: scroll;
