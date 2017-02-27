@@ -255,7 +255,7 @@ Dispatcher.register((action) => {
         // undo filter selection if an image is selected
         filterTag = null;
       }
-      amplitude.logEvent('IMAGE_SELECTED', { imageBase: base });
+      amplitude.logEvent('IMAGE_SELECTED', { imageBase: base, filter: imageStore.getFilterTag() });
       break;
     case IMAGES_LOADED:
       images = action.images;

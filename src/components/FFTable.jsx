@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import request from 'browser-request';
 import { hashHistory } from 'react-router';
+import bowser from 'bowser';
 import ReactTooltip from 'react-tooltip';
 
 import ImageStore from '../stores/ImageStore.js';
@@ -28,16 +29,13 @@ export default class FFTable extends React.Component {
     };
     ImageStore.addChangeListener(this.changeListener.bind(this));
     this.render.bind(this);
-    this.getTipContent.bind(this);
   }
 
   componentWillMount() {
-    console.log('componentWillMount');
     this.loadImageDefs();
     this.dispatcherToken = Dispatcher.register((action) => {
       switch (action.actionType) {
         case KEY_NAV_HAPPENED:
-          console.log('ff-table: keyNavHappened');
           showKeyTooltip = false;
           ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
           ReactTooltip.hide();
@@ -85,30 +83,6 @@ export default class FFTable extends React.Component {
     return ret;
   }
 
-  getTipContent() {
-    var up = String.fromCodePoint(0x2B06);
-    var left = String.fromCodePoint(0x2B05);
-    var right = String.fromCodePoint(0x27A1);
-    var down = String.fromCodePoint(0x2B07);
-    const ttClickText = "Click a thumbnail to see it larger";
-    const ttKeyText  = "Save mouse clicks!<br/>You can use the<br/>"
-                     + "left / right / up / down keys<br/>"
-                     + left + ' ' + right + ' ' + up + ' ' + down + '<br/>'
-                     + "to navigate the picutes instead";
-
-    var ttText = null;
-    if (showClickTooltip) {
-      ttText = ttClickText;
-      console.log('ttdisable false tttext=click');
-    } else if (showKeyTooltip && clickCount >= 3) {
-      ttText = ttKeyText;
-      console.log('ttdisable false tttext=key');
-    } else {
-      console.log('ttdisable TRUE');
-    }
-    console.log('getTipContent->' + ttText);
-    return ttText;
-  }
   render() {
     //console.debug('FFTable.render() clickTip=' + showClickTooltip + ' keyTip=' + showKeyTooltip + ' clickCount=' + clickCount);
     const { images, selectedImage, filter } = this.state;
@@ -128,18 +102,29 @@ export default class FFTable extends React.Component {
 
     var ttText = null;
     var ttDisable = true;
-    if (showClickTooltip) {
+    if (bowser.mobile) {
+      ttDisable = true;
+    } else if (showClickTooltip) {
       ttText = ttClickText;
       ttDisable = false;
-      console.log('ttdisable false tttext=click');
+      //console.log('ttdisable false tttext=click');
     } else if (showKeyTooltip && clickCount >= 3) {
       ttText = ttKeyText;
       ttDisable = false;
-      console.log('ttdisable false tttext=key');
+      //console.log('ttdisable false tttext=key');
     } else {
-      console.log('ttdisable TRUE');
+      //console.log('ttdisable TRUE');
     }
-    var old = (
+
+    const ttShowEvent = () => {
+      if (showClickTooltip) {
+        amplitude.logEvent('SHOWED_CLICK_TOOLTIP', {});
+      } else if (showKeyTooltip) {
+        amplitude.logEvent('SHOWED_KEY_TOOLTIP', { clickCount: clickCount });
+      }
+    };
+
+    var content = (
       <div ref="ff_table" className="fixed scrollable thumbs" data-for="table-tt"
       data-multiline={true} data-tip={ttText}
       >
@@ -149,11 +134,11 @@ export default class FFTable extends React.Component {
             return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.base === image.base}/>;
           })
         }
-      <ReactTooltip disable={ttDisable}
-        id="table-tt" place="right" multiline={true} type="success" effect="float"/>
+        <ReactTooltip disable={ttDisable} id="table-tt" place="right" multiline={true}
+          type="success" effect="float" afterShow={ ttShowEvent } />
       </div>
     );
-    return old;
+    return content;
   }
   loadImageDefs() {
     var startTime = new Date().getTime();

@@ -58,25 +58,31 @@ class FFContainer extends React.Component {
 
 function keyDownHandler(evt) {
   var newImage = null;
+  var direction = null;
   switch (evt.keyCode) {
     case 39: // right arrow
       newImage = ImageStore.getNextImage();
+      direction = 'right';
       break;
     case 37: // left
       newImage = ImageStore.getPreviousImage();
+      direction = 'left';
       break;
     case 40: // down
       // squelch arrow key window scroll
       evt.preventDefault();
       newImage = ImageStore.getBelowImage();
+      direction = 'down';
       break;
     case 38: // up
       // squelch arrow key window scroll
       evt.preventDefault();
       newImage = ImageStore.getAboveImage();
+      direction = 'up';
       break;
   }
   if (newImage) {
+    amplitude.logEvent('KEY_NAV', { direction: direction, image: newImage.base || 'none' });
     FFActions.keyNavHappened(evt.keyCode);
     FFActions.imageChanged(newImage);
     // FIXME: will hash history exhaust memory if my kid just hits right arrow for an hour?

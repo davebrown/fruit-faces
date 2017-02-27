@@ -4,7 +4,7 @@ import { RadioGroup, Radio } from 'react-radio-group';
 import ImageStore from '../stores/ImageStore.js';
 import FFActions from '../actions/FFActions.js';
 import TagForm from './TagForm.js';
-
+import { amplitude } from '../util/Util.js';
 const TAGS = [ 'blue', 'gray', 'white' ];
 
 const FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloupe', 'cereal', 'cheese',
@@ -29,6 +29,12 @@ export default class Filters extends React.Component {
     }
     this.setState({ selectedValue: val });
     FFActions.filterChanged(val);
+    console.log('changing active filter to ' + val);
+    if (val) {
+      amplitude.logEvent('FILTER_SELECTED', { filter: val } );
+    } else {
+      amplitude.logEvent('FILTER_UNSELECTED', { filter: val } );
+    }      
   }
   render() {
     return (
@@ -55,7 +61,6 @@ export default class Filters extends React.Component {
         </RadioGroup>
       </div>
       );
-      
   }
 }
 
