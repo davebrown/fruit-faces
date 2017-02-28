@@ -17,7 +17,8 @@ class FFTech extends React.Component {
     return (
       <div>
         <h1>Tech</h1>
-        <p>Starting at the top of the stack and moving downward:</p>
+        <p>The code&apos;s on <a href="https://github.com/davebrown/fruit-faces" target="_blank">GitHub</a>.</p>
+        <p>The tech I played with to build this little app, starting at the top of the stack and moving downward:</p>
         <h3>ReactJS</h3>
         <p>The front end is written with <a href="https://facebook.github.io/react/" target="_blank">ReactJS</a>, which has good docs and a great supporting ecosystem.</p>
         <p>I spent a fair bit of time grokking CSS - longer than I hoped, but not as long as I feared. Getting things right cross-browser is still a bit like the wild west, but still way better than 10 years ago, the last time I did any serious work on a web UX. I use standard media queries for responsive/mobile layouts, and <a href="https://github.com/ded/bowser" target="_blank">Bowser</a> for feature detection.</p>

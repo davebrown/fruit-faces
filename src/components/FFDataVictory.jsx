@@ -10,8 +10,6 @@ import ReactTooltip from 'react-tooltip';
 import { amplitude, API_BASE_URL, errToString } from '../util/Util.js';
 import FBBlock from './FBBlock.jsx';
 
-var MONTH_DATA = [{x:'Banana', y: 14, label: 'some fairly long text'}];
-
 const chartPadding = {
   top: 20,
   bottom: 30,
@@ -57,7 +55,7 @@ class FFChartDOW extends React.Component {
       // FIXME: loading spinner or something...
       return (
         <div>
-          <p><i>Loading data...</i></p>
+          <p><i>Loading chart data...</i></p>
         </div>
       );
     }
@@ -129,7 +127,7 @@ class FFChartTOD extends React.Component {
       // FIXME: loading spinner or something...
       return (
         <div>
-          <p><i>Loading data...</i></p>
+          <p><i>Loading chart data...</i></p>
         </div>
       );
     }
@@ -217,7 +215,7 @@ class FFChartMonth extends React.Component {
       // FIXME: loading spinner or something...
       return (
         <div>
-          <p><i>Loading data...</i></p>
+          <p><i>Loading chart data...</i></p>
         </div>
       );
     }
@@ -301,7 +299,24 @@ export default class FFDataVictory extends React.Component {
         <p>Like most families with young children, mornings are hectic, as a rule. Is there a pattern to the time of day when I can find the time and space to sculpt fruit?</p>
         <FFChartTOD/>
         <p>Yup. That looks like a very standard gaussian distribution, between 7:00 - 7:40 am.</p>
-        <p><i>TODO:</i> compute the standard deviation.</p>
+        <p>
+          Statistically speaking:<br/>
+          <code>
+            Median: <b>7:21 am</b><br/>
+            Mean: <b>7:20 am</b><br/>
+            Standard deviation: <b>26 minutes, 10 seconds</b><br/>
+          </code>
+        </p>
+        <p>
+        <code>
+          ff=# select stddev_pop(abs_minute) from morning_minute;<br/>
+          stddev_pop<br/>
+          ---------------------<br/>
+          <b>26.1714168522437236</b><br/>
+        </code>
+        <br/>
+        I take an odd comfort in the predictability of the routines of daily life.
+        </p>
         <h2>TODO: Daily Fluctuations</h2>
         <p>I spent over a year driving to Milpitas every Tuesday, rising and departing earlier than normal. Did fruit faces shift and/or curtail during that year? Tune in to find out!</p>
         <FBBlock/>
