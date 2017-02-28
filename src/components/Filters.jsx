@@ -33,7 +33,7 @@ export default class Filters extends React.Component {
     if (val) {
       amplitude.logEvent('FILTER_SELECTED', { filter: val } );
     } else {
-      amplitude.logEvent('FILTER_UNSELECTED', { filter: val } );
+      amplitude.logEvent('FILTER_UNSELECTED', { } );
     }      
   }
   render() {

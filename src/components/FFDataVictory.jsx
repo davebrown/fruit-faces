@@ -283,8 +283,6 @@ export default class FFDataVictory extends React.Component {
       <div>
         <h1>Data</h1>
         <p>When I have a collection of data, I&apos;m curious about it. I&apos;m weird like that. Plus I really like charts.</p>
-        <a href="/foo" data-for='demo-tt' data-tip="this is a<br/>multiline<br/> tooltip">Please oh please hover here...on this link</a>
-        <ReactTooltip id="demo-tt" place="right" multiline={true} type="success" effect="solid"/>
         <h2>Day of Week Frequency</h2>
         <p>I often get up a little bit earlier than my family, to prep breakfast, walk the dog, and have some
           quiet time before the morning rush begins. Still, I don&apos;t always have time/inclination to be 
@@ -304,7 +302,7 @@ export default class FFDataVictory extends React.Component {
         <FFChartTOD/>
         <p>Yup. That looks like a very standard gaussian distribution, between 7:00 - 7:40 am.</p>
         <p><i>TODO:</i> compute the standard deviation.</p>
-        <h2>TODO: Daily Fluctuations?</h2>
+        <h2>TODO: Daily Fluctuations</h2>
         <p>I spent over a year driving to Milpitas every Tuesday, rising and departing earlier than normal. Did fruit faces shift and/or curtail during that year? Tune in to find out!</p>
         <FBBlock/>
      </div>);
