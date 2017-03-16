@@ -11,15 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Path("/api/v1/images")
 @Produces(MediaType.APPLICATION_JSON)
@@ -40,6 +38,27 @@ public class ImageResource {
     public Collection<ImageDTO> getAll() {
         //TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i ORDER BY random()", ImageEJB.class);
         TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i ORDER BY i.tstamp DESC", ImageEJB.class);
+        List<ImageEJB> dbList = query.getResultList();
+        List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
+        dbList.forEach(ejb->dtoList.add(new ImageDTO(ejb)));
+        return dtoList;
+    }
+
+    @GET
+    @Path("/no-plate")
+    @Timed
+    @UnitOfWork(transactional = false)
+    public Collection<ImageDTO> getNoPlateTag() {
+        String qs;
+        /*
+        qs = "SELECT i.tagList from ImageEJB i where i.base = 'IMG_4580'";
+        qs = "SELECT i FROM ImageEJB i where i.base = 'IMG_4580'";
+        qs = "SELECT i FROM ImageEJB i where 'blue' IN (SELECT t.name from TagEJB t)";
+        qs = "SELECT i FROM ImageEJB i where 'blue' = ANY (SELECT t.name from i.tagList t)";
+        */
+        // FIXME: more efficient way to do this query?
+        qs = "SELECT i FROM ImageEJB i where 'blue' NOT MEMBER OF i.tagList and 'white' NOT MEMBER OF i.tagList and 'gray' NOT MEMBER OF i.tagList";
+        TypedQuery<ImageEJB> query = entityManager.createQuery(qs, ImageEJB.class);
         List<ImageEJB> dbList = query.getResultList();
         List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
         dbList.forEach(ejb->dtoList.add(new ImageDTO(ejb)));
@@ -89,7 +108,27 @@ public class ImageResource {
         entityManager.persist(ejb);
     }
 
-    /** associate tag with this image */
+    /** get images with specified tag */
+    @GET
+    @Path("/tags/{tag}")
+    @Timed
+    @UnitOfWork(transactional = false)
+    public Collection<ImageDTO> getByTag(String base, @PathParam("tag") String tag) {
+        TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
+        if (tagEJB == null) {
+            return Collections.EMPTY_LIST;
+        }
+        String qs;
+        qs = "SELECT i FROM ImageEJB i WHERE :tag MEMBER OF i.tagList ORDER BY i.tstamp DESC";
+        TypedQuery<ImageEJB> query = entityManager.createQuery(qs, ImageEJB.class);
+        query.setParameter("tag", tagEJB);
+        List<ImageEJB> dbList = query.getResultList();
+        List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
+        dbList.forEach(ejb->dtoList.add(new ImageDTO(ejb)));
+        return dtoList;
+    }
+
+        /** associate tag with this image */
     @POST
     @Path("/{id}/tags/{tag}")
     @UnitOfWork(transactional = true)
