@@ -47,7 +47,10 @@ export default class FBBlock extends React.Component {
       }
       fbTimer = 0;
     };
-    setTimeout(fbParseFunc, 300);
+    if (fbTimer) {
+      clearTimeout(fbTimer);
+    }
+    fbTimer = setTimeout(fbParseFunc, 300);
     return !likeDiv && !commentsDiv ? null:
            (
              <div id="ff-fb-block">

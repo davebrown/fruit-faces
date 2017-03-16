@@ -1,5 +1,5 @@
 copy (
- select "full" from image where base NOT IN (select image_id from image_tag)
+ select "full" from image where base NOT IN (select image_id from image_tag where tag_id in ('blue', 'gray', 'white'))
 )
 
 to '/tmp/test-plates.csv' (format CSV);

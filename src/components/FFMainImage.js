@@ -120,6 +120,7 @@ class FFMainImage extends React.Component {
     }
     var src = '/thumbs/' + image.full;
     var tagForm = <TagForm className="tag-form" image={image}/>;
+    tagForm = null;
     //var tagForm = '';
     // FIXME: should a component be doing this?
     window.location.hash = '/images/' + image.base;
@@ -134,6 +135,7 @@ class FFMainImage extends React.Component {
       <Swipable id={key} key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
         onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
         onSwiping={this.onSwiping}>
+        {tagForm}
         <div id="main-image-holder" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}>
           <img id="main-image" src={src}/>
           <p className="sans-font">

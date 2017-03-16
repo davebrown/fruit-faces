@@ -34,9 +34,16 @@ class TagForm extends React.Component {
     return (
         <div id="tag-form" className="container tag-form">
         {
-          TAGS.map((fruit) => {
+          FRUITS.map((fruit) => {
             var key = 'ff-checkbox-' + fruit;
             return <FFCheck key={key} image={image} fruit={fruit}/>
+          })
+        }
+          <hr/>
+        {
+          TAGS.map((tag) => {
+            var key = 'ff-checkbox-' + tag;
+            return <FFCheck key={key} image={image} fruit={tag}/>
           })
         }
       </div>

@@ -5,7 +5,7 @@ import ImageStore from '../stores/ImageStore.js';
 import FFActions from '../actions/FFActions.js';
 import TagForm from './TagForm.js';
 import { amplitude } from '../util/Util.js';
-const TAGS = [ 'blue', 'gray', 'white' ];
+const TAGS = [ 'blue', 'gray', 'white', 'strawberry' ];
 
 const FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloupe', 'cereal', 'cheese',
                  'clementine', 'googly eyes', 'grape', 'honeydew', 'kiwi', 'mango', 'peach', 'pear', 'pineapple',
