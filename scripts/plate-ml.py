@@ -8,50 +8,15 @@ import skimage, skimage.data, skimage.transform
 import numpy as np
 import tensorflow as tf
 
-def join(a,b):
-  return os.path.join(a,b)
+# Import helper functions
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, dir_path)
 
-BASEDIR = os.path.abspath(join(os.path.dirname(__file__), '..'))
+import ml_util as u
+from ml_util import n2c, c2n
 
-IMAGEDIR = join(BASEDIR, 'thumbs')
-
-def loadCSV(file):
-  """read CSV as list of lists"""
-  with open(join(BASEDIR, file), 'rb') as f:
-    reader = csv.reader(f)
-    return list(reader)
-
-def loadFileLines(file):
-  """read file as list of lines"""
-  with open(join(BASEDIR, file), 'rb') as f:
-    ret = f.readlines()
-    ret = [ s.rstrip() for s in ret ]
-    return ret
-
-def thumbFile(full):
-  base, ext = os.path.splitext(full)
-  return base + '_60x80_t.jpg';
-
-def slice(array, ind):
-  ret = []
-  for a in array:
-    ret.append(a[ind])
-  return ret
-
-def c2n(c):
-    if c == 'blue': return 2
-    if c == 'white': return 1
-    if c == 'gray': return 0
-    raise ValueError('unknown color: "%s"' % c)
-
-def n2c(n):
-    if n == 2: return 'blue'
-    if n == 1: return 'white'
-    if n == 0: return 'gray'
-    raise ValueError('unknown color numeric: "%d"' % n)
-
-trainedData = loadCSV('trained-plates.csv')
-testData = loadFileLines('test-plates.csv')
+trainedData = u.loadCSV('trained-plates.csv')
+testData = u.loadFileLines('test-plates.csv')
 
 #print trainedData
 print testData
@@ -59,7 +24,7 @@ print testData
 images = []
 for datum in trainedData:
   #print('reading %s:' % datum[0])
-  img = skimage.data.imread(join(IMAGEDIR, thumbFile(datum[0])))
+  img = skimage.data.imread(u.thumbFile(datum[0]))
   #print('shape: %s min: %d max: %d' % (str(img.shape), img.min(), img.max()))
   #datum.append(img)
   images.append(img)
@@ -71,7 +36,7 @@ testImages = []
 print('loading %d test image(s)' % len(testData))
 for file in testData:
   #print('  loading %s:' % file)
-  img = skimage.data.imread(join(IMAGEDIR, thumbFile(datum[0])))
+  img = skimage.data.imread(u.thumbFile(datum[0]))
   testImages.append(img)
 
 testImages_a = np.array(testImages)
