@@ -4,6 +4,7 @@ import csv
 import requests
 from termcolor import cprint
 import numpy as np
+import skimage.data
 
 def join(a,b):
   if len(b) > 0 and b[0] == '/':
@@ -40,7 +41,7 @@ def err(msg):
     sys.stderr.write('\n')
 
 def fail(msg):
-  err('%s : exiting...' % msg)
+  err('%s\nexiting...' % msg)
   sys.exit(1)
   
 def verbose(msg):
@@ -122,6 +123,29 @@ def n2c(n):
     if n == 2: return 'blue'
     raise ValueError('unknown color numeric: "%d"' % n)
 
+def getTags():
+  #ret = getJson('/tags')
+  ret = [ 'blue', 'white', 'gray', 'strawberry' ]
+  return ret
+
+def tag2n(img, tag):
+  if imageHasTag(img, tag):
+    return 1
+  return 0
+
+def loadInputs():
+  json = getJson('/images')
+  tags = getTags()
+  data = np.empty( (len(json), 60 * 80 * 3 ) ) # keep in sync with 60x80 in 'thumbFile'
+  labels = np.empty( (len(json), len(tags) ) ) 
+  for i in range(len(json)):
+    img = json[i]
+    imgData = skimage.data.imread(thumbFile(img['full']))
+    data[i] = np.array(imgData).flatten()
+    labels[i] = np.array([ tag2n(img, t) for t in tags ])
+    
+  return [ img['full'] for img in json ], data, labels
+  
 # make 1-hot array
 # http://stackoverflow.com/questions/29831489/numpy-1-hot-array
 def oneHot(arr, width):

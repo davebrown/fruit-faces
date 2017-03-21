@@ -4,7 +4,6 @@ import argparse
 import sys
 import os
 import sklearn
-import skimage, skimage.data
 import numpy as np
 
 # Import helper functions
@@ -21,35 +20,21 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn import metrics
 from sklearn.multioutput import MultiOutputClassifier
 
-def getTags():
-  ret = u.getJson('/tags')
-  ret = [ 'blue', 'white', 'gray', 'strawberry' ]
-  return ret
-
-def tag2n(img, tag):
-  if u.imageHasTag(img, tag):
-    return 1
-  return 0
-
-def loadInputs():
-  json = u.getJson('/images')
-  tags = getTags()
-  data = np.empty( (len(json), 60 * 80 * 3 ) ) # keep in sync with 60x80 in 'thumbFile'
-  labels = np.empty( (len(json), len(tags) ) ) 
-  for i in range(len(json)):
-    img = json[i]
-    imgData = skimage.data.imread(u.thumbFile(img['full']))
-    data[i] = np.array(imgData).flatten()
-    labels[i] = np.array([ tag2n(img, t) for t in tags ])
-    
-  return [ img['full'] for img in json ], data, labels
-
 def cmd_run(args):
-  imageFiles, imageData, labels = loadInputs()
+  if len(args) == 0:
+    err('error: not enough arguments.')
+    err('usage: run <classify-tag>')
+    sys.exit(1)
+  tag = args[0]
+  tags = u.getTags()
+  if tag not in tags:
+    fail('error: tag "%s" not found.\nKnown tags are: %s' % (tag, str(tags)))
+
+  info('classifying for tag "%s"' % tag)
+  imageFiles, imageData, labels = u.loadInputs()
   # see multi-label learning comment below. for now, slice() to one label
-  TAG_INDEX = 3 # 3 == strawberry
-  labels = u.slice(labels, TAG_INDEX)
-  NO_YES = [ 'NO ' + getTags()[TAG_INDEX], 'YES ' + getTags()[TAG_INDEX] ]
+  labels = u.slice(labels, tags.index(tag))
+  NO_YES = [ 'NO ' + tag, 'YES ' + tag ]
   verbose('data shape: %s labels shape: %s' % (imageData.shape, labels.shape))
   trainedFiles, testFiles = u.split(imageFiles, 326)
   trainedImages, testImages = u.split(imageData, 326)
@@ -63,12 +48,12 @@ def cmd_run(args):
   #classifier = ElasticNet()
   classifier.fit(trainedImages, trainedLabels)
   predicts = classifier.predict(testImages)
-  print 'predicts.shape:', predicts.shape
-  print predicts
+  verbose('predicts.shape: %s' % str(predicts.shape))
+  #print predicts
   probs = classifier.predict_proba(testImages)
-  print 'probs shape:', probs.shape
-  print 'testLabels', testLabels
-  htmlFile = 'strawberry-unclassified.html'
+  verbose('probs shape: %s' % str(probs.shape))
+  verbose('testLabels: %s' % str(testLabels))
+  htmlFile = tag + '-unclassified.html'
   u.outputHtml(htmlFile, testFiles, [ NO_YES[int(p)] for p in predicts ], [ NO_YES[int(i)] for i in testLabels ], None)
   info('saved test results: %s' % htmlFile)
   #probs = classifier.predict_log_proba(testImages)
