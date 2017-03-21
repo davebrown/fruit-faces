@@ -1,13 +1,81 @@
 import os
+import sys
 import csv
+import requests
+from termcolor import cprint
+import numpy as np
 
 def join(a,b):
+  if len(b) > 0 and b[0] == '/':
+    b = b[1:]
   return os.path.join(a,b)
 
 BASEDIR = os.path.abspath(join(os.path.dirname(__file__), '..'))
 
 IMAGEDIR = join(BASEDIR, 'thumbs')
 
+FF_URL = 'http://localhost:9080/api/v1'
+
+TTY = sys.stdout.isatty()
+
+VERBOSE_OUTPUT = False
+
+def info(msg):
+  sys.stdout.write(msg)
+  sys.stdout.write('\n')
+  sys.stdout.flush()
+
+def warn(msg):
+  if TTY:
+    cprint(msg, 'yellow', file=sys.stderr, attrs=['bold'], end='\n')
+  else:
+    sys.stderr.write(msg)
+    sys.stderr.write('\n')
+
+def err(msg):
+  if TTY:
+    cprint(msg, 'red', attrs=['bold'], file=sys.stderr, end='\n')
+  else:
+    sys.stderr.write(msg)
+    sys.stderr.write('\n')
+
+def fail(msg):
+  err('%s : exiting...' % msg)
+  sys.exit(1)
+  
+def verbose(msg):
+  #print('  (...verbose entry "%s"...)' % msg)
+  if not VERBOSE_OUTPUT: return
+  if TTY:
+    cprint(msg, 'grey', attrs=['bold'], end='\n')
+  else:
+    sys.stdout.write(msg)
+    sys.stdout.write('\n')
+    sys.stdout.flush()
+
+def getJson(url):
+  """url can be absolute or relative to FF service"""
+  if not url.startswith('http://') and not url.startswith('https://'):
+    url = join(FF_URL, url)
+  #verbose('getting URL: %s' % url)
+  r = requests.get(url)
+  if r.status_code != 200:
+    raise Exception('non-200 HTTP response %d from %s' % (r.status_code, url))
+  ctype = r.headers['content-type']
+  if ctype is None:
+    raise Exception('no Content-Type on response from %s' % url)
+  elif 'application/json' not in ctype:
+    raise Exception('non-JSON content type "%s" on resource %s' % (ctype, url))
+
+  return r.json()
+
+def imageHasTag(img, tag):
+  if img and img['tags']:
+    for t in img['tags']:
+      if t == tag:
+        return True
+  return False
+    
 def loadCSV(relPath):
   """read CSV as list of lists"""
   with open(join(BASEDIR, relPath), 'rb') as f:
@@ -27,10 +95,20 @@ def thumbFile(relPath):
   return base + '_60x80_t.jpg';
 
 def slice(array, ind):
+  """return a column as array from a 2d array"""
+  # try to match type of caller
   ret = []
-  for a in array:
-    ret.append(a[ind])
+  if type(array) == np.ndarray:
+    return array[:,ind]
+    ret = np.empty(len(array))
+  for i in range(len(array)):
+    ret[i].append(array[i][ind])
   return ret
+
+def split(nparray, ind):
+  a = nparray[:ind]
+  b = nparray[ind:]
+  return a, b
 
 def c2n(c):
     if c == 'blue': return 2
@@ -65,6 +143,7 @@ def outputHtml(filename, imageFiles, predictedColors, actualColors, probs=None):
     </style>
 """)
   html.write('<body>\n<table><tr>\n')
+  correctCount = 0
   for i in range(len(imageFiles)):
     if i > 0 and i % 5 == 0:
       html.write('</tr><tr>\n')
@@ -76,10 +155,14 @@ def outputHtml(filename, imageFiles, predictedColors, actualColors, probs=None):
         verdict = '<span class="wrong">WRONG</span>'
       else:
         verdict = '<b>CORRECT</b>'
+        correctCount = correctCount + 1
     probStr = ''
     if probs is not None:
       probStr = '<br/><code>p(G)=%.3f<br/>p(W)=%.3f<br/> p(B)=%.3f</code>' % (probs[i][0], probs[i][1], probs[i][2])
     html.write('<td><img src="%s/%s"/><br/>predicted: <b>%s</b><br/>actual: <b>%s</b><br/>%s%s</td>\n' % (IMAGEDIR, imageFiles[i], pc, ac, verdict, probStr))
-  html.write('</tr></td></table></html>')
+
+  html.write('</tr></td></table>')
+  html.write('<b>%d of %d correct - %.3f%%</b>' % (correctCount, len(imageFiles), 100 * float(correctCount) / float(len(imageFiles))))
+  html.write('</html>')
   html.flush()
   html.close()
