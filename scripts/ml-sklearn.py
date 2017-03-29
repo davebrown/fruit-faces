@@ -45,6 +45,7 @@ def cmd_run(args):
   verbose('trained data shape: %s trained labels shape: %s' % (trainedImages.shape, trainedLabels.shape))
   classifier = GaussianNB() # 92.6% correct on training data set, wrong between white <-> gray
   #classifier = LogisticRegression() # 100% correct on training, empirically worse on test data tho
+  #classifier = KNeighborsClassifier() # not as good as GaussianNB, particularly false positives/negatives on blue
   #classifier = ElasticNet()
   classifier.fit(trainedImages, trainedLabels)
   predicts = classifier.predict(testImages)
@@ -53,16 +54,12 @@ def cmd_run(args):
   probs = classifier.predict_proba(testImages)
   verbose('probs shape: %s' % str(probs.shape))
   verbose('testLabels: %s' % str(testLabels))
-  htmlFile = tag + '-unclassified.html'
+  htmlFile = tag + '-gaussian-unclassified.html'
   u.outputHtml(htmlFile, testFiles, [ NO_YES[int(p)] for p in predicts ], [ NO_YES[int(i)] for i in testLabels ], None)
   info('saved test results: %s' % htmlFile)
   #probs = classifier.predict_log_proba(testImages)
   #print 'probs log shape:', probs.shape
   #print 'PROBS log', probs
-
-  #u.outputHtml('sklearn-unclassified.html', [ i[0] for i in testData ], [ n2c(p) for p in predicts ], [ c[1] for c in testData ], probs )
-  
-  
   
 def cmd_hack(args):
   info('hack called with args %s' % str(args))
