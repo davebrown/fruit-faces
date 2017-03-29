@@ -55,3 +55,11 @@ CREATE VIEW morning_minute AS  SELECT ((60 * abs_minute.h) + abs_minute.m) AS ab
 update image set import_time='2017-01-01 00:00:00' where import_time is null;
 alter table image alter column import_time set not null;
 
+--changeset dave:16
+alter table image add column original varchar(200);
+update image set original = "full";
+alter table image alter column original set not null;
+alter table image drop column datestr;
+
+--changeset dave:17
+alter table image rename column "full" to full_file;

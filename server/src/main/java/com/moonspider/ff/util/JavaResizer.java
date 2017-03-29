@@ -4,11 +4,12 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 public class JavaResizer extends ImageResizer {
 
     @Override
-    public ResizeResult resize(File full, File outDir, String prefix, int width, int height) throws Exception {
+    public ResizeResult resize(File full, File outDir, String prefix, int width, int height) throws IOException {
         ResizeResult ret = result(full.getName(), width, height);
         ret.thumb = prefix + ret.thumb;
         BufferedImage fullImage = ImageIO.read(full);

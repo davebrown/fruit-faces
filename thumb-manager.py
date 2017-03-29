@@ -125,7 +125,7 @@ def cmd_exif():
   im.close()
 
 def getTimestamp(imgFile):
-  """timestamp and date formatted string"""
+  """timestamp value from EXIF data"""
   d = None
   im = Image.open(imgFile)
   for (k,val) in im._getexif().iteritems():
@@ -136,8 +136,8 @@ def getTimestamp(imgFile):
       break
 
   if d is not None:
-    return  ( int(d.strftime('%s')) , d.strftime('%A, %B %d, %Y %I:%M %p') )
-  return -1, "Unknown"
+    return  int(d.strftime('%s'))
+  return -1
 
   return 
                      
@@ -154,7 +154,7 @@ def cmd_json():
   files = listFiles(ARGS.dir, fullSizeMatch)
   for f in files:
     dirname, fname, base, ext = paths(f)
-    timestamp, dateStr = getTimestamp(os.path.join(dirname, fname))
+    timestamp = getTimestamp(os.path.join(dirname, fname))
     d = {
       'base': base,
       'full': fname
@@ -162,8 +162,6 @@ def cmd_json():
     if timestamp > 0:
       d['timestamp'] = timestamp
       d['tstamp'] = timestamp
-    if dateStr is not None:
-      d['date'] = dateStr
       
     ret.append(d)
     with open(ARGS.args[0], 'w') as f:
@@ -174,7 +172,7 @@ def cmd_json():
   DB = psycopg2.connect("dbname='ff' host='localhost'")
   cur = DB.cursor(cursor_factory=psycopg2.extras.DictCursor)
   for img in ret:
-    imgId = cur.execute("""INSERT INTO image (tstamp, dateStr, base, "full", import_time) values (to_timestamp(%(tstamp)s), %(date)s, %(base)s, %(full)s, NOW());""", img)
+    imgId = cur.execute("""INSERT INTO image (tstamp, base, "full", import_time) values (to_timestamp(%(tstamp)s), %(base)s, %(full)s, NOW());""", img)
   DB.commit()
   DB.close()
   return ret

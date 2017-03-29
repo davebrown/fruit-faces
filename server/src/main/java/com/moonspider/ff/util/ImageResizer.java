@@ -1,19 +1,20 @@
 package com.moonspider.ff.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.io.FilenameUtils.getExtension;
-import static com.moonspider.ff.util.Util.emptyOrNull;
+import static com.moonspider.ff.Util.emptyOrNull;
 
 public abstract class ImageResizer {
 
-    public ResizeResult resize(File full, File outDir, int width, int height) throws Exception {
+    public ResizeResult resize(File full, File outDir, int width, int height) throws IOException {
         return resize(full, outDir, "", width, height);
     }
-    public abstract ResizeResult resize(File full, File outDir, String prefix, int width, int height) throws Exception;
+    public abstract ResizeResult resize(File full, File outDir, String prefix, int width, int height) throws IOException;
 
     protected static String base(String filename) {
         return getBaseName(filename);
@@ -23,7 +24,7 @@ public abstract class ImageResizer {
         return ext(filename);
     }
 
-    protected static final List<String> VALID_EXTS = Arrays.asList("jpg", "png", "jpeg");
+    public static final List<String> VALID_EXTS = Arrays.asList("jpg", "png", "jpeg");
 
     protected static ResizeResult result(String full, int width, int height) {
         String ext = getExtension(full);

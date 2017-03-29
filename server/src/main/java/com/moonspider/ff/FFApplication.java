@@ -5,6 +5,8 @@ import com.robertcboll.dropwizard.daemon.DaemonApplication;
 import com.scottescue.dropwizard.entitymanager.EntityManagerBundle;
 import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
 import com.sun.akuma.Daemon;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.forms.MultiPartBundle;
@@ -42,6 +44,12 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
             };
     @Override
     public void initialize(Bootstrap<FFConfiguration> bootstrap) {
+        // Enable variable substitution with environment variables
+        bootstrap.setConfigurationSourceProvider(
+                new SubstitutingSourceProvider(bootstrap.getConfigurationSourceProvider(),
+                        new EnvironmentVariableSubstitutor()
+                )
+        );
         bootstrap.addBundle(migrationsBundle);
         bootstrap.addBundle(entityManagerBundle);
         bootstrap.addBundle(new MultiPartBundle());

@@ -5,12 +5,13 @@ import org.imgscalr.Scalr;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 public class ScalrResizer extends ImageResizer {
 
     @Override
     public ResizeResult resize(File full, File outDir, String prefix, int width, int height)
-            throws Exception {
+            throws IOException {
         ResizeResult ret = result(full.getName(), width, height);
         ret.thumb = prefix + ret.thumb;
         BufferedImage fullImage = ImageIO.read(full);

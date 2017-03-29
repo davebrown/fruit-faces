@@ -1,6 +1,14 @@
 package com.moonspider.ff.util;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.moonspider.ff.Util;
+
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.apache.commons.io.FilenameUtils.getExtension;
@@ -20,6 +28,17 @@ public class CompareThumbMethods {
     private static void testThumbMethods() throws Exception {
         final int WIDTH = 60, HEIGHT = 80;
         File[] jpgs = getMainJPGS();
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+        //TimeZone.setDefault(
+        for (File jpg : jpgs) {
+            Date d = Util.getEXIFTimestamp(jpg);
+            if (d != null) {
+                cal.setTime(d);
+                d = cal.getTime();
+            }
+            System.out.println(jpg.getName() + ": " + d);
+        }
         final File dir = new File("/tmp/resize");
         dir.mkdirs();
         PrintWriter html = new PrintWriter(new FileWriter(new File(dir, "thumbs-" + WIDTH + "x" + HEIGHT + ".html")));

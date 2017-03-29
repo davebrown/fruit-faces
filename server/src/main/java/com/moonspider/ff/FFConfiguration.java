@@ -6,6 +6,7 @@ import io.dropwizard.db.DataSourceFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.File;
 
 public class FFConfiguration extends Configuration {
 
@@ -23,6 +24,11 @@ public class FFConfiguration extends Configuration {
     @NotNull
     @JsonProperty
     private long maxImageFileSize;
+
+    @Valid
+    @NotNull
+    @JsonProperty("thumbDir")
+    private String thumbDirPath;
 
     public DataSourceFactory getDataSourceFactory() {
         return database;
@@ -42,4 +48,7 @@ public class FFConfiguration extends Configuration {
     public void setMaxImageFileSize(long maxImageFileSize) {
         this.maxImageFileSize = maxImageFileSize;
     }
+
+    public String getThumbDirPath() { return thumbDirPath; }
+    public File getThumbDir() { return new File(thumbDirPath); }
 }

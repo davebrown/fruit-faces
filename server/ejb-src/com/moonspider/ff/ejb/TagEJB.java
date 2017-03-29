@@ -41,7 +41,7 @@ public class TagEJB
       inverseJoinColumns={@JoinColumn(name="image_id")}
     )
     public Collection<ImageEJB> getImageList() {
-        return this.myImageList;
+        return this.myImageList != null ? this.myImageList : Collections.EMPTY_LIST;
     }
     public void setImageList(Collection<ImageEJB> myImageList) {
         this.myImageList = myImageList;

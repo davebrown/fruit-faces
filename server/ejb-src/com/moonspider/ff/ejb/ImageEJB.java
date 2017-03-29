@@ -18,11 +18,13 @@ public class ImageEJB
 
     public ImageEJB() { }
 
+    public ImageEJB(String base) {
+        setBase(base);
+    }
     public ImageEJB(ImageDTO dto) {
         setBase(dto.getBase());
         setFull(dto.getFull());
         setTstamp(new Date(dto.getTimestamp()));
-        setDatestr(dto.getDate());
     }
     // Columns
     
@@ -36,19 +38,19 @@ public class ImageEJB
         this.base = base;
     }
     private String base;
-    
-    @Column(name="datestr", nullable=true)
-    @JsonProperty
-    public String getDatestr() {
-        return this.datestr;
-    }
-    public void setDatestr(String datestr) {
-        this.datestr = datestr;
-    }
-    private String datestr;
 
     @JsonProperty
-    @Column(name="full", nullable=false)
+    @Column(name="original", nullable=false)
+    public String getOriginal() {
+        return this.original;
+    }
+    public void setOriginal(String original) {
+        this.original = original;
+    }
+    private String original;
+
+    @JsonProperty
+    @Column(name="full_file", nullable=false)
     public String getFull() {
         return this.full;
     }
@@ -68,6 +70,11 @@ public class ImageEJB
     }
     private java.util.Date tstamp;
 
+    @JsonProperty
+    @Column(name="import_time", nullable=false)
+    public Date getImportTime() { return importTime; }
+    public void setImportTime(Date importTime) { this.importTime = importTime; }
+    private java.util.Date importTime;
     /* this field should exist in JSON but not JPA - but how to reconcile annotations??
     @Transient
     @JsonProperty
@@ -94,7 +101,7 @@ public class ImageEJB
     )
     @JsonIgnore
     public Collection<TagEJB> getTagList() {
-        return this.myTagList;
+        return this.myTagList != null ? this.myTagList : Collections.EMPTY_LIST;
     }
     public void setTagList(Collection<TagEJB> myTagList) {
         this.myTagList = myTagList;
@@ -106,7 +113,6 @@ public class ImageEJB
         StringBuffer sb = new StringBuffer();
         sb.append(this.getClass().getName() + "|");
         sb.append("base=" + getBase() + "|");
-        sb.append("datestr=" + getDatestr() + "|");
         sb.append("full=" + getFull() + "|");
         sb.append("tstamp=" + getTstamp() + "|");
         

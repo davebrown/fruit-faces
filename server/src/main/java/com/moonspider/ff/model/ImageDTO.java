@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ImageDTO {
 
-    private String base, full, date;
+    private String base, full;
     private long timestamp;
     private String[] tags;
 
@@ -23,7 +23,6 @@ public class ImageDTO {
         Date d = ejb.getTstamp();
         this.timestamp = d != null ? d.getTime() : -1;
         this.full = ejb.getFull();
-        this.date = ejb.getDatestr();
         Collection<TagEJB> tlist = ejb.getTagList();
         this.tags = new String[tlist.size()];
         int i = 0;
@@ -63,16 +62,6 @@ public class ImageDTO {
     }
 
     @JsonProperty
-    public String getDate() {
-        return date;
-    }
-
-    public ImageDTO setDate(String date) {
-        this.date = date;
-        return this;
-    }
-
-    @JsonProperty
     public long getTimestamp() {
         return timestamp;
     }
@@ -87,7 +76,6 @@ public class ImageDTO {
         return "ImageDTO{" +
                 "base='" + base + '\'' +
                 ", full='" + full + '\'' +
-                ", date='" + date + '\'' +
                 ", timestamp=" + timestamp +
                 '}';
     }
