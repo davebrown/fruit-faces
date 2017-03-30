@@ -1,6 +1,7 @@
 server/.idea
 server/ff.iml
 server/target
+server/dependency-reduced-pom.xml
 *classified.html
 node_modules
 index.js
