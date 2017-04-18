@@ -120,7 +120,7 @@ class FFMainImage extends React.Component {
     }
     var src = '/thumbs/' + image.full;
     var tagForm = <TagForm className="tag-form" image={image}/>;
-    tagForm = ''; // not in prod yet
+    //tagForm = ''; // not in prod yet
     // FIXME: should a component be doing this?
     window.location.hash = '/images/' + image.base;
     var dateStr = 'Unknown date...';

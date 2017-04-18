@@ -24,10 +24,16 @@ class TagForm extends React.Component {
   
   constructor(props) {
     super(props);
+    this.deleteClicked = this.deleteClicked.bind(this);
   }
 
   componentWillMount() {
     this.checkBoxes = new Set();
+  }
+
+  deleteClicked() {
+    
+    console.log('delete image: ' + this.props.image.base);
   }
   
   render() {
@@ -36,6 +42,7 @@ class TagForm extends React.Component {
     var i = 0;
     return (
       <div id="tag-form" className="container tag-form column">
+        <button className="ff-button" onClick={this.deleteClicked}>Delete Image</button>
         <table><tbody><tr>
           {
             FRUITS.map((fruit) => {

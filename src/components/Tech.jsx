@@ -1,5 +1,4 @@
 import React from 'react';
-import request from 'browser-request';
 
 import { Link } from 'react-router';
 

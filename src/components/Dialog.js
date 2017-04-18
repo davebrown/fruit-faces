@@ -24,7 +24,7 @@ class Dialog extends React.Component {
     var closeIconColor = '#000000';
     //var closeIconColor = '#ffffff';
     return (
-      <div id="ff-dialog" className="column dialog expandable compressible scrollable">
+      <div id="ff-dialog" className="column dialog expandable compressible scrollable blue-border">
         <ClosedCircleIcon className="close-icon" size={30} color={closeIconColor} onClick={closeHandler}/>
         <div className="dialog-content">
           {this.props.children}

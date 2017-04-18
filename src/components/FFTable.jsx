@@ -87,7 +87,7 @@ export default class FFTable extends React.Component {
     //console.debug('FFTable.render() clickTip=' + showClickTooltip + ' keyTip=' + showKeyTooltip + ' clickCount=' + clickCount);
     const { images, selectedImage, filter } = this.state;
     if (!images || images.length == 0) {
-      return (<b>LOADING...</b>);
+      return (<b className="loading" style={{ color: '#808080', minWidth: '340px' }}>Loading thumbnails</b>);
     }
 
     var up = String.fromCodePoint(0x2B06);
@@ -98,7 +98,7 @@ export default class FFTable extends React.Component {
     const ttKeyText  = "Save mouse clicks!<br/>You can use the<br/>"
                      + "left / right / up / down keys<br/>"
                      + left + ' ' + right + ' ' + up + ' ' + down + '<br/>'
-                     + "to navigate the picutes instead";
+                     + "to navigate the pictures instead";
 
     var ttText = null;
     var ttDisable = true;

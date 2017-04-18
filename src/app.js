@@ -16,9 +16,11 @@ import About from './components/About.jsx';
 import Filters from './components/Filters.jsx';
 import FFTable from './components/FFTable.jsx';
 import FFMainImage from './components/FFMainImage.js';
+import FBLogin from './components/FBLogin.jsx';
+import Upload from './components/Upload.jsx';
 
 import { amplitude, API_BASE_URL, errToString, imageHasTag } from './util/Util.js';
-
+import { authStore, FB_APP_ID } from './stores/AuthStore.js';
 
 const NotFound = () => (
   <div>
@@ -116,6 +118,8 @@ class FFApp extends React.Component {
           <Route path='/filters' component={Filters}/>
           <Route path='/data' component={FFDataVictory}/>
           <Route path='/tech' component={Tech}/>
+          <Route path='/login' component={FBLogin}/>
+          <Route path='/upload' component={Upload}/>
           <Route path='/images/:imageId' component={FFMainImage}/>
           <Route path='*' component={NotFound}/>
         </Route>
@@ -126,6 +130,7 @@ class FFApp extends React.Component {
 if (process.env.NODE_ENV != 'production') {
   // debug niceties
   window.imageStore = ImageStore;
+  window.authStore = authStore;
   window.hashHistory = hashHistory;
   window.bowser = bowser;
   window.amplitude = amplitude;

@@ -4,43 +4,48 @@ import FacebookLogin from 'react-facebook-login';
 import request from 'browser-request';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import { FB_INITIALIZED, FB_AUTH_CHANGED } from '../constants/FFConstants.js';
-import { AuthStore, FB_APP_ID } from '../stores/AuthStore.js';
+import { authStore, FB_APP_ID, fbLoginCallback } from '../stores/AuthStore.js';
 
 export default class FBLogin extends React.Component {
 
   constructor(props) {
     super(props);
-    var _fb = null;
-    if (typeof(FB) != 'undefined')
-      _fb = FB;
-    this.state = {
-      FB: _fb,
-      login: null,
-      fullName: null
-    };
     this.dispatchHandler = this.dispatchHandler.bind(this);
-    this.fbLoginCallback = this.fbLoginCallback.bind(this);
+    this.authChanged = this.authChanged.bind(this);
   }
 
   componentWillMount() {
+    authStore.addChangeListener(this.authChanged);
+    this.authChanged();
+    return;
     if (typeof(FB) !== 'undefined') {
-      FB.getLoginStatus(this.fbLoginCallback);
+      //FB.getLoginStatus(this.fbLoginCallback);
     } else {
-      this.dispatcherToken = Dispatcher.register(this.dispatchHandler);
+      //this.dispatcherToken = Dispatcher.register(this.dispatchHandler);
       console.log('FBLogin componentWillMount - dispatch token is ' + this.dispatcherToken);
     }      
   }
 
   componentWillUnmount() {
     console.log('FBLogin - will unmount');
+    authStore.removeChangeListener(this.authChanged);
     if (this.dispatcherToken) {
       Dispatcher.unregister(this.dispatcherToken);
     }
     this.dipatcherToken = null;
   }
 
+  authChanged() {
+    console.log('FBLogin.authChanged');
+    this.setState({
+      userId: authStore.getUserID(),
+      name: authStore.getFullName(),
+      profilePicUrl: authStore.getProfilePicUrl()
+    });
+  }    
+  
   dispatchHandler(action) {
-    console.log('FBLogin.dispatchCallback', action, action.actionType == FB_INITIALIZED, typeof(action.actionType), typeof(FB_INITIALIZED), 'this==', this);
+    if (true) return;
     switch (action.actionType) {
       case FB_INITIALIZED:
         console.log('FBLogin event callback - FB init done');
@@ -51,25 +56,29 @@ export default class FBLogin extends React.Component {
         break;
     }
   }
+
+  /*
   fbLoginCallback(response) {
-    console.log('fbLoginCallback()', response);
+    console.log(' ----- fbLoginCallback()', response);
     this.setState({login: response});
     if (response.status === 'connected') {
       FB.api('/me', (rsp) => {
         if (!rsp || rsp.error) {
-          console.warn('FB api error', rsp);
+          console.warn('FBLogin.jsx: FB api error', rsp);
           return;
         }
         this.setState({fullName: rsp.name});
       });
     }
   }
+  */
   
   render() {
     console.log('FBLogin.render', this.state);
-    if (!this.state.FB || !this.state.login) {
+    if (typeof(FB) === 'undefined') {
       return (<div className="loading">Loading Facebook auth form</div>);
     }
+    /*
     console.log('calling timeout to reparse');
     setTimeout(() => {
       console.log('re-parse running');
@@ -77,22 +86,27 @@ export default class FBLogin extends React.Component {
       FB.XFBML.parse();
     }, 1000);
     console.log('login form, status=' + this.state.login.status);
-    if (this.state.login.status !== 'connected' || this.state.login.userID) {
+    */
+    const { userId, name, profilePicUrl } = this.state;
+    
+    if (!userId) {
       //return (<div id="fb-login-div" style={{ minHeight: '200px' }} className="red-border" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="true"></div>);
-      console.log('login form for appID=' + FB_APP_ID);
+      //console.log('login form for appID=' + FB_APP_ID);
       return (
         <div className="fb-login-parent fill-area">
         <FacebookLogin
           appId={FB_APP_ID}
           autoLoad={true}
-          callback={this.fbLoginCallback} />
+          fields="name,email,picture"
+          callback={fbLoginCallback} />
         </div>
       );
     }
+    
     return (
       <div>
-        Logged in as ID {this.state.login.authResponse.userID}<br/>
-        with name {this.state.fullName || 'Name unknown'}
+        Logged in as ID {userId}<br/>
+        with name {name || 'Name unknown'}
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { IMAGE_CHANGED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED, KEY_NAV_HAPPENED } from '../constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED, KEY_NAV_HAPPENED, FB_INITIALIZED, FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 //import { * } from '../constants/FFConstants.js'; can't do this :-/
 
 class FFActions {
@@ -36,7 +36,19 @@ class FFActions {
       actionType: KEY_NAV_HAPPENED,
       keyCode: keyCode
     });
-  }    
+  }
+
+  fbInitialized() {
+    Dispatcher.dispatch({
+      actionType: FB_INITIALIZED
+    });
+  }
+
+  fbAuthChanged() {
+    Dispatcher.dispatch({
+      actionType: FB_AUTH_CHANGED
+    });
+  }
 }
 
 export default new FFActions();
