@@ -223,10 +223,11 @@ public class ImageResource extends BaseResource {
         // step 1: do some validation
         String fname = contentDispositionHeader != null ? contentDispositionHeader.getFileName() : System.currentTimeMillis() + ".jpg";
         log.info("received new image POST: len=" + contentLength + "/" + contentDispositionHeader + "/" + fname);
-        log.info("fb-token is: " + fbToken);
         if (!config.isAllowWriteOperations()) {
             log.warn("attempted tag operation when disallowed!");
             return _400("no write operations allowed");
+        } else if (fbToken == null || "null".equals(fbToken)) {
+            return error(401, "You must login to post");
         } else if (contentLength <= 0 || contentLength > config.getMaxImageFileSize()) {
             log.warn("image POST for " + fname + " exceeded or absent content-length " + contentLength);
             return _400("invalid content-length");

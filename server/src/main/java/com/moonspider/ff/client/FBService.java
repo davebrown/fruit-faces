@@ -66,12 +66,20 @@ public interface FBService {
 
         FBService fb = retrofit.create(FBService.class);
 
-        String accessToken = "EAAXZAbuB1ingBABIkemAoYyGZC7eWSaZAhQZCwMfzKKz9ZA4xbrnJcBFTSYMc4cQHsBDKnssPgtomUgZCBWTjZBLtwFb88sBnaMAxYRx2ANjoJxRKR12lZCRLKQZCNpTTczHm3rt3rHCrdidoSeONkaiKVSVl06yZAZB4LqtDENkZAKQjcDcJAAgZB844iEJU6d9d9UcZD";
+        String accessToken;
+        accessToken = "xxx";
+        if (args.length > 0)
+            accessToken = args[0];
         Call<Me> call = fb.me(accessToken);
         System.out.println("call: " + call);
         Response<Me> rsp = call.execute();
         System.out.println("response: " + rsp);
         System.out.println("code: " + rsp.code());
-        System.out.println("you are: " + rsp.body());
+        if (rsp.code() != 200) {
+            System.out.println("error message: " + rsp.message());
+            System.out.println("error body: " + rsp.errorBody());
+        } else {
+            System.out.println("you are: " + rsp.body());
+        }
     }
 }

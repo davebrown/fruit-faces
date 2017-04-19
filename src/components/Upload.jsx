@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import request from 'browser-request';
 import FileUpload from 'react-fileupload';
 import FFActions from '../actions/FFActions.js';
-import { API_BASE_URL, reportError } from '../util/Util.js';
+import { API_BASE_URL, reportError, errToString } from '../util/Util.js';
 import { authStore } from '../stores/AuthStore.js';
 
 export default class Upload extends React.Component {
@@ -42,6 +42,9 @@ export default class Upload extends React.Component {
     this.uploadStopped();
     console.error('Upload.uploadError', err);
     reportError(err);
+    this.setState({
+      error: err
+    });
   }
 
   uploading(progress) {
@@ -67,6 +70,13 @@ export default class Upload extends React.Component {
 
     if (this.state.uploading) {
       return (<div className="loading">Uploading</div>);
+    } else if (this.state.error) {
+      const err = this.state.error;
+      const msg = errToString(err);
+      setTimeout(function() {
+        this.setState({error: null});
+      }.bind(this), 3000);
+      return (<div className="error">{msg}</div>);
     }
     return (
       <FileUpload options={options}>
