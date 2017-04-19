@@ -1,6 +1,11 @@
 import React, { PropTypes } from 'react';
+import request from 'browser-request';
+
 import ImageStore from '../stores/ImageStore.js';
 import FFCheck from './FFCheck.js';
+import { API_BASE_URL, reportError } from '../util/Util.js';
+import FFActions from '../actions/FFActions.js';
+
 
 var FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloupe', 'cereal', 'cheese', 'clementine',
                'googly eyes', 'grape', 'honeydew', 'kiwi', 'mango',
@@ -32,8 +37,26 @@ class TagForm extends React.Component {
   }
 
   deleteClicked() {
-    
-    console.log('delete image: ' + this.props.image.base);
+    const image = this.props.image;
+    var next = ImageStore.getNextImage();
+    if (next && next.base === image.base) {
+      // special case the last image
+      next = null;
+    }
+    console.log('delete image: ' + image.base);
+    request({
+      method: 'DELETE',
+      url: API_BASE_URL + '/api/v1/images/' + image.base
+    }, function(er, response, bodyString) {
+      if (er) {
+        console.log('delete image problem: ' + er);
+        reportError(er);
+        return;
+      } else {
+        console.log('delete image OK? code=' + response.statusCode);
+        FFActions.imageDeleted(image, next);
+      }
+    });
   }
   
   render() {

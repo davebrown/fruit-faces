@@ -1,7 +1,7 @@
 allowWriteOperations: true
 maxImageFileSize: 10000000
-#thumbDir: ${HOME}/code/fruit-faces/thumbs
-thumbDir: /tmp/dev-thumbs
+thumbDir: ${HOME}/code/fruit-faces/thumbs-qa
+#thumbDir: /tmp/dev-thumbs
 
 database:
   # the name of your JDBC driver

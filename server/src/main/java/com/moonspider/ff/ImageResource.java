@@ -217,17 +217,21 @@ public class ImageResource extends BaseResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response addImage(@FormDataParam("imagefile") InputStream inputStream,
                              @FormDataParam("imagefile") FormDataContentDisposition contentDispositionHeader,
+                             @FormDataParam("fbToken") String fbToken,
                              @HeaderParam("Content-Length") long contentLength
                          ) throws IOException {
         // step 1: do some validation
         String fname = contentDispositionHeader != null ? contentDispositionHeader.getFileName() : System.currentTimeMillis() + ".jpg";
         log.info("received new image POST: len=" + contentLength + "/" + contentDispositionHeader + "/" + fname);
+        log.info("fb-token is: " + fbToken);
         if (!config.isAllowWriteOperations()) {
             log.warn("attempted tag operation when disallowed!");
             return _400("no write operations allowed");
         } else if (contentLength <= 0 || contentLength > config.getMaxImageFileSize()) {
             log.warn("image POST for " + fname + " exceeded or absent content-length " + contentLength);
             return _400("invalid content-length");
+        } else if (inputStream == null) {
+            return _400("no image file posted");
         }
 
         // step 2: receive upload input of original image into tmpdir

@@ -21,7 +21,7 @@ class FFNav extends React.Component {
   }
   
   authChanged() {
-    console.log('FFNav.authChanged()->' + authStore.getUserID());
+    //console.log('FFNav.authChanged()->' + authStore.getUserID());
     this.setState({
       userId: authStore.getUserID(),
       name: authStore.getFullName(),
@@ -39,7 +39,6 @@ class FFNav extends React.Component {
   
   render() {
     const { userId, name, profilePicUrl } = this.state;
-    console.log('FFNav.render: userId=' + userId);
     var slideShow = (<div className="nav-item">Slideshow</div>);
     slideShow = '';
 
@@ -53,6 +52,7 @@ class FFNav extends React.Component {
         <div className="nav-item"><Link to="/login" onClick={this.onClick}>{authText}</Link></div>
         <div className="nav-item"><Link to={aboutRef} onClick={this.onClick}>About</Link></div>
         <div className="nav-item"><Link to='/filters' onClick={this.onClick}>Filters</Link></div>
+        <div className="nav-item"><Link to='/upload' onClick={this.onClick}>Upload</Link></div>
         {slideShow}
         <div className="nav-item"><Link to='/data' onClick={this.onClick}>Data</Link></div>
         <div className="nav-item"><Link to='/tech' onClick={this.onClick}>Tech</Link></div>

@@ -1,39 +1,78 @@
 import React from 'react';
 import { Link } from 'react-router';
 import request from 'browser-request';
-//import Dispatcher from '../dispatcher/AppDispatcher.js';
-//import { FB_INITIALIZED } from '../constants/FFConstants.js';
-import { API_BASE_URL } from '../util/Util.js';
+import FileUpload from 'react-fileupload';
+import FFActions from '../actions/FFActions.js';
+import { API_BASE_URL, reportError } from '../util/Util.js';
+import { authStore } from '../stores/AuthStore.js';
 
 export default class Upload extends React.Component {
 
   constructor(props) {
     super(props);
+    this.uploadSuccess = this.uploadSuccess.bind(this);
+    this.uploadError = this.uploadError.bind(this);
+    this.uploading = this.uploading.bind(this);
     this.doUpload = this.doUpload.bind(this);
+    this.uploadStopped = this.uploadStopped.bind(this);
   }
 
-  doUpload(evt) {
-    console.log('doUpload');
+  componentWillMount() {
+    this.uploadStopped();
   }
+
+  uploadStopped() {
+    this.setState({
+      uploading: false
+    });
+  }
+  doUpload(files, mill, xhrID) {
+    this.setState({
+      uploading: true
+    });
+  }
+  uploadSuccess(response) {
+    this.uploadStopped();
+    console.log('uploadSuccess', response);
+    FFActions.imageAdded(response);
+    FFActions.imageChanged(response);
+  }
+  
+  uploadError(err) {
+    this.uploadStopped();
+    console.error('Upload.uploadError', err);
+    reportError(err);
+  }
+
+  uploading(progress) {
+    console.log('uploading progress', progress);
+  }
+  
   render() {
-    console.log('Upload.render', this.state);
     const target = API_BASE_URL + "/api/v1/images";
+
+    const options = {
+      baseUrl: target,
+      fileFieldName: 'imagefile',
+      chooseAndUpload: true,
+      paramAddToField: {
+        fbToken: authStore.getAccessToken()
+      },
+      uploadSuccess: this.uploadSuccess,
+      uploadError: this.uploadError,
+      uploadFail: this.uploadError,
+      uploading: this.uploading,
+      doUpload: this.doUpload
+    };
+
+    if (this.state.uploading) {
+      return (<div className="loading">Uploading</div>);
+    }
     return (
-      <form action={target}
-        encType="multipart/form-data" method="post">
-        <p>
-          Type some text (if you like):<br/>
-          <input type="text" name="textline" size="30"/>
-        </p>
-        <p>
-          Please specify a file, or a set of files:<br/>
-          <input type="file" name="imagefile" size="40"/>
-        </p>
-        <div>
-          <button onClick={this.doUpload}>Upload</button>
-        </div>
-      </form>    
-    );      
+      <FileUpload options={options}>
+        <button className="ff-button" ref="chooseAndUpload">Choose photos</button>
+      </FileUpload>
+      );
   }
   
 }

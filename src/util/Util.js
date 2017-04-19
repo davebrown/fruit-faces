@@ -38,4 +38,12 @@ function errToString(input) {
   return 'Unknown error';
 }
 
-export { amplitude, API_BASE_URL, errToString, imageHasTag };
+function reportError(input) {
+  const msg = errToString(input) || 'Unknown error occurred';
+  // FIXME: find nicer place for this in the UI
+  alert('oops: ' + msg);
+}
+
+amplitude.logEvent = function() { }
+
+export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError };

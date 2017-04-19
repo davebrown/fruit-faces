@@ -1,7 +1,7 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
 import ImageStore from '../stores/ImageStore.js';
-import { IMAGE_CHANGED, IMAGES_LOADED } from '../constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGES_LOADED, IMAGE_DELETED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import FFActions from '../actions/FFActions.js';
 import TagForm from './TagForm.js';
@@ -18,7 +18,7 @@ class FFMainImage extends React.Component {
     //Dispatcher.register(this.changeListener.bind(this));
     this.log('CTOR');
     this.mounted = false;
-    this.actionListener = this.actionListener.bind(this);
+    this.mainImageActionListener = this.mainImageActionListener.bind(this);
     this.swipeLeft = this.swipeLeft.bind(this);
     this.swipeRight = this.swipeRight.bind(this);
     this.onSwiping = this.onSwiping.bind(this);
@@ -27,31 +27,38 @@ class FFMainImage extends React.Component {
     //this.log = this.log.bind(this);
   }
 
-  actionListener(action) {
+  mainImageActionListener(action) {
     //console.log('FFMainImage.action: ' + action.actionType);
     switch (action.actionType) {
-    case IMAGES_LOADED:
-      // FIXME: necessary for when we arrive with an image route selected,
-      // but the images are not loaded yet...
-      this.forceUpdate();
-      break;
-    case IMAGE_CHANGED:
-      //this.forceUpdate();
-      break;
+      case IMAGES_LOADED:
+        // FIXME: necessary for when we arrive with an image route selected,
+        // but the images are not loaded yet...
+        this.forceUpdate();
+        break;
+      case IMAGE_CHANGED:
+        console.log('FFMainImage action ' + action.actionType + ' to', action.image, ' mounted?' + this.mounted);
+        if (this.mounted) {
+          console.log('FFMainImage mounted, setting state');
+          this.setState( { image: action.image } );
+          this.props = { }; // clear out router state
+          console.log('FFMainImage mounted, set state');
+        }
+        break;
+      case IMAGE_DELETED:
+        console.log('FFMainImage action ' + action.actionType + ' from ', action.image, ' to ', action.newImage, ' mounted?' + this.mounted);
+        if (this.mounted) {
+          this.setState( { image: action.newImage } );
+          this.props = { }; // clear out router state
+        }
+        break;
     }
   }
 
-  /*
-    changeListener(action) {
-    this.log('changeListener mounted=' + this.mounted);
-    this.setState( { image: ImageStore.getSelectedImage() } );
-  }
-  */
-
   componentWillMount() {
     this.log('willMount');
-    this.dispatcherToken = Dispatcher.register(this.actionListener);
-    //ImageStore.addChangeListener(this.changeListener.bind(this));
+    this.dispatcherToken = Dispatcher.register(this.mainImageActionListener);
+    this.log('dispatcherToken', '"' + this.dispatcherToken + '"');
+    this.setState( { image: ImageStore.getSelectedImage() } );
   }
 
   componentDidMount() {
@@ -98,25 +105,26 @@ class FFMainImage extends React.Component {
     this.mounted = false;
     var tmpToken = this.dispatcherToken;
     this.dispatcherToken = null;
-    if (tmpToken)
+    if (tmpToken) {
+      this.log('unregistering token "' + tmpToken + '"');
       Dispatcher.unregister(tmpToken);
+    }
     //ImageStore.removeChangeListener(this.changeListener.bind(this));
   }
   
   render() {
-    var imageId = this.props && this.props.params && this.props.params.imageId;
-    this.log('render: imageId=' + imageId);
-    var image = null;
-    /*image = this.state.image;
-    if (!this.state || !this.state.image) {
-      this.log('nothing selected, returning NULL');
-      return null;
-    }
-    */
-    image = ImageStore.getImage(imageId);
-    if (image === null) {
-      this.log('no image or not found, returning null');
-      return null;
+    var image = this.state.image;
+    if (!image) {
+      // if image to render is not set in the state, we can also receive it from
+      // the router as a property
+      var imageId = this.props && this.props.params && this.props.params.imageId;
+      this.log('render: imageId=' + imageId);
+      image = ImageStore.getImage(imageId);
+      if (!image) {
+        this.log('no image or not found, returning null');
+        hashHistory.replace('/');
+        return (<div>no image</div>);
+      }
     }
     var src = '/thumbs/' + image.full;
     var tagForm = <TagForm className="tag-form" image={image}/>;
@@ -192,7 +200,7 @@ class FFMainImage extends React.Component {
   }
   
   log(msg) {
-    //console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
+    console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
   }
 }
 

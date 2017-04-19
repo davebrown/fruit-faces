@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import request from 'browser-request';
-import { hashHistory } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import bowser from 'bowser';
 import ReactTooltip from 'react-tooltip';
 
@@ -9,7 +9,7 @@ import ImageStore from '../stores/ImageStore.js';
 import { amplitude, API_BASE_URL, errToString, imageHasTag } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { KEY_NAV_HAPPENED } from '../constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, KEY_NAV_HAPPENED } from '../constants/FFConstants.js';
 
 function len(a) { return a && a.length; }
 
@@ -41,6 +41,12 @@ export default class FFTable extends React.Component {
           ReactTooltip.hide();
           ReactTooltip.rebuild();
           break;
+        case IMAGE_CHANGED:
+        case IMAGE_ADDED:
+        case IMAGE_DELETED:
+          console.log('FFTable: grokking image change event: ' + action.actionType);
+          this.changeListener(null);
+          break;
       }
     });
   }
@@ -56,12 +62,14 @@ export default class FFTable extends React.Component {
     var sel = ImageStore.getSelectedImage();
     var nextBase = sel && sel.base;
     console.log('Table.changeListener() sel going from ' + nowBase + ' to ' + nextBase);
-    */
+     */
+    const images = ImageStore.getImages();
     this.setState( {
-      images: ImageStore.getImages(),
+      images: images,
       selectedImage: ImageStore.getSelectedImage(),
       filter: ImageStore.getFilterTag()
     });
+    this.forceUpdate();
   }
 
   shouldComponentUpdate(nextProps, next) {
@@ -86,8 +94,10 @@ export default class FFTable extends React.Component {
   render() {
     //console.debug('FFTable.render() clickTip=' + showClickTooltip + ' keyTip=' + showKeyTooltip + ' clickCount=' + clickCount);
     const { images, selectedImage, filter } = this.state;
-    if (!images || images.length == 0) {
+    if (!images) {
       return (<b className="loading" style={{ color: '#808080', minWidth: '340px' }}>Loading thumbnails</b>);
+    } else if (images.length == 0) {
+      return (<div className="thumbs">No fruit faces yet! Why not&nbsp;<Link to="/upload"> upload some?</Link></div>);
     }
 
     var up = String.fromCodePoint(0x2B06);

@@ -8,9 +8,9 @@ public abstract class BaseResource {
 
     public static class JsonError {
         @JsonProperty
-        public String error;
+        public String message;
         public JsonError(String msg) {
-            error = msg;
+            message = msg;
         }
     }
 

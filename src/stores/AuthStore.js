@@ -36,7 +36,7 @@ class AuthStore extends EventEmitter {
 
   getUserID() {
     var ret = login.userID;
-    console.log('AuthStore.getUserID()->' + ret);
+    //console.log('AuthStore.getUserID()->' + ret);
     return ret;
   }
   

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { IMAGE_CHANGED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import bowser from 'bowser';
 import amplitude from 'amplitude-js/amplitude.min';
@@ -44,7 +44,7 @@ class ImageStore extends EventEmitter {
 
   getNextImage() {
     var ret = selectedImage ? images[(selectedImage.index + 1) % images.length]: null;
-    //console.log('selected, next index=' + selectedImage.index + '/' + (ret && ret.index));
+    console.log('ImageStore.getNext() selected, next index=' + selectedImage.index + '/' + (ret && ret.index));
     return ret;
   }
 
@@ -135,6 +135,7 @@ function indexImages(images) {
   for (var i = 0; i < images.length; i++) {
     var image = images[i];
     imageMap[image.base] = image;
+    image.index = i;
   }
   console.log('images indexed (count=' + images.length + ')');
 }
@@ -256,6 +257,34 @@ Dispatcher.register((action) => {
         filterTag = null;
       }
       amplitude.logEvent('IMAGE_SELECTED', { imageBase: base, filter: imageStore.getFilterTag() || 'none' });
+      break;
+    case IMAGE_ADDED:
+      console.log('imageStore adding image', action.image);
+      if (!images) images = [];
+      images = images.slice();
+      images.push(action.image);
+      imageMap[action.image.base] = action.image;
+      indexImages(images);
+      imageStore.emitChange();
+      break;
+    case IMAGE_DELETED:
+      console.log('imageStore deleting image');
+      const del = action.image;
+      delete imageMap[del.base];
+      var ind = 0;
+      while (ind < images.length) {
+        if (images[ind].base === del.base) {
+          break;
+        }
+        ind++;
+      }
+      if (ind < images.length) {
+        images.splice(ind,1);
+        images = images.slice();
+      }
+      indexImages(images);
+      selectedImage = action.newImage;
+      imageStore.emitChange();
       break;
     case IMAGES_LOADED:
       images = action.images;

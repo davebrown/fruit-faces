@@ -112,16 +112,23 @@ def split(nparray, ind):
   return a, b
 
 def c2n(c):
-    if c == 'blue': return 2
-    if c == 'white': return 1
-    if c == 'gray': return 0
+    if c == 'white': return 2
+    if c == 'gray': return 1
+    if c == 'blue': return 0
     raise ValueError('unknown color: "%s"' % c)
 
 def n2c(n):
-    if n == 0: return 'gray'
-    if n == 1: return 'white'
-    if n == 2: return 'blue'
-    raise ValueError('unknown color numeric: "%d"' % n)
+  if isinstance(n, (np.ndarray)):
+    # assume a 1-hot output
+    a = np.nonzero(n)
+    if len(a[0]) > 0:
+      n = a[0][0]
+    else:
+      raise ValueError('no non-zero value in numpy array? %s' % str(n))
+  if n == 2: return 'white'
+  if n == 1: return 'gray'
+  if n == 0: return 'blue'
+  raise ValueError('unknown color numeric: "%d"' % n)
 
 def getTags():
   #ret = getJson('/tags')
@@ -133,18 +140,26 @@ def tag2n(img, tag):
     return 1
   return 0
 
-def loadInputs():
+def loadInputs(flatten=True):
   json = getJson('/images')
   tags = getTags()
-  data = np.empty( (len(json), 60 * 80 * 3 ) ) # keep in sync with 60x80 in 'thumbFile'
+  if (flatten):
+    data = np.empty( (len(json), 80 * 60 * 3 ) ) # keep in sync with 60x80 in 'thumbFile'
+  else:
+    data = np.empty( ( len(json), 80, 60, 3 ) )
   labels = np.empty( (len(json), len(tags) ) ) 
   for i in range(len(json)):
     img = json[i]
     imgData = skimage.data.imread(thumbFile(img['full']))
-    data[i] = np.array(imgData).flatten()
+    print('imgData shape', imgData.shape, 'type', type(imgData))
+    
+    if flatten:
+      data[i] = np.array(imgData).flatten()
+    else:
+      data[i] = imgData
     labels[i] = np.array([ tag2n(img, t) for t in tags ])
     
-  return [ img['full'] for img in json ], data, labels
+  return [ img['full'] for img in json ], data, labels, json
   
 # make 1-hot array
 # http://stackoverflow.com/questions/29831489/numpy-1-hot-array

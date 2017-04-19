@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import request from 'browser-request';
 import ImageStore from '../stores/ImageStore.js';
-import { API_BASE_URL, imageHasTag } from '../util/Util.js';
+import { API_BASE_URL, imageHasTag, reportError } from '../util/Util.js';
 
 function imageRemoveTag(image, tag) {
   if (!image.tags) image.tags = [];
@@ -28,6 +28,7 @@ function tagImage(image, verb, tag) {
   }, function(er, response, bodyString) {
     if (er) {
       console.log('update tags problem: ' + er);
+      reportError(er);
       throw er;
     }
     console.log('updateTag OK? code=' + response.statusCode);
