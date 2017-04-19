@@ -6,7 +6,7 @@ import bowser from 'bowser';
 import ReactTooltip from 'react-tooltip';
 
 import ImageStore from '../stores/ImageStore.js';
-import { amplitude, API_BASE_URL, errToString, imageHasTag } from '../util/Util.js';
+import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, KEY_NAV_HAPPENED } from '../constants/FFConstants.js';
@@ -57,12 +57,6 @@ export default class FFTable extends React.Component {
   }
   
   changeListener(arg) {
-    /*
-    var nowBase = this.state.selectedImage && this.state.selectedImage.base;
-    var sel = ImageStore.getSelectedImage();
-    var nextBase = sel && sel.base;
-    console.log('Table.changeListener() sel going from ' + nowBase + ' to ' + nextBase);
-     */
     const images = ImageStore.getImages();
     this.setState( {
       images: images,
@@ -75,13 +69,6 @@ export default class FFTable extends React.Component {
   shouldComponentUpdate(nextProps, next) {
     var ret = false;
     const now = this.state;
-    /*
-    {
-      var nowBase = now.selectedImage && now.selectedImage.base;
-      var nextBase = next.selectedImage && next.selectedImage.base;
-      console.log('Table.shouldUpdate() now.selected=' + nowBase + ' next=' + nextBase);
-    }
-    */
     // avoid deep comparison of all images
     if (len(now.images) != len(next.images) ||
         now.selectedImage !== next.selectedImage ||
@@ -92,7 +79,6 @@ export default class FFTable extends React.Component {
   }
 
   render() {
-    //console.debug('FFTable.render() clickTip=' + showClickTooltip + ' keyTip=' + showKeyTooltip + ' clickCount=' + clickCount);
     const { images, selectedImage, filter } = this.state;
     if (!images) {
       return (<b className="loading" style={{ color: '#808080', minWidth: '340px' }}>Loading thumbnails</b>);
@@ -153,11 +139,13 @@ export default class FFTable extends React.Component {
   loadImageDefs() {
     var startTime = new Date().getTime();
     request(API_BASE_URL + '/api/v1/images', function(err, response, bodyString) {
+      if (!err && response.statusCode != 200) {
+        err = JSON.parse(bodyString);
+      }
       if (err) {
-        amplitude.logEvent('IMAGE_CATALOG_LOAD_ERROR', { errMsg: '' + err });
-        // BIG FIXME: swallowing error, need an error state and to render
-        //throw err;
-        return;
+        const errMsg = errToString(err);
+        amplitude.logEvent('IMAGE_CATALOG_LOAD_ERROR', { errMsg: errMsg });
+        reportError(errMsg);
       }
       var body = JSON.parse(bodyString);
       var duration = new Date().getTime() - startTime;

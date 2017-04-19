@@ -200,7 +200,7 @@ class FFMainImage extends React.Component {
   }
   
   log(msg) {
-    console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
+    //console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
   }
 }
 

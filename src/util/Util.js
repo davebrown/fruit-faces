@@ -44,6 +44,4 @@ function reportError(input) {
   alert('oops: ' + msg);
 }
 
-amplitude.logEvent = function() { }
-
 export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError };
