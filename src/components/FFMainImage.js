@@ -36,16 +36,14 @@ class FFMainImage extends React.Component {
         this.forceUpdate();
         break;
       case IMAGE_CHANGED:
-        console.log('FFMainImage action ' + action.actionType + ' to', action.image, ' mounted?' + this.mounted);
+        //console.log('FFMainImage action ' + action.actionType + ' to', action.image, ' mounted?' + this.mounted);
         if (this.mounted) {
-          console.log('FFMainImage mounted, setting state');
           this.setState( { image: action.image } );
           this.props = { }; // clear out router state
-          console.log('FFMainImage mounted, set state');
         }
         break;
       case IMAGE_DELETED:
-        console.log('FFMainImage action ' + action.actionType + ' from ', action.image, ' to ', action.newImage, ' mounted?' + this.mounted);
+        //console.log('FFMainImage action ' + action.actionType + ' from ', action.image, ' to ', action.newImage, ' mounted?' + this.mounted);
         if (this.mounted) {
           this.setState( { image: action.newImage } );
           this.props = { }; // clear out router state
@@ -88,16 +86,6 @@ class FFMainImage extends React.Component {
 
   componentDidUpdate(nextProps, nextState, nextContext) {
     this.log('didUpdate');
-    // http://stackoverflow.com/questions/29133563/facebook-social-plug-in-not-showing-up-when-added-dynamically
-    /*
-    var imageId = this.props && this.props.params && this.props.params.imageId;
-    if (!fbUpdated && imageId) {
-      //FB.XFBML.parse(document.getElementById('main-image-' + imageId));
-      //FB.XFBML.parse(document.getElementById('main-image-holder'));
-      //this.log('called FB XML parse');
-      //fbUpdated = true;
-    }
-    */
   }
 
   componentWillUnmount() {
@@ -109,7 +97,6 @@ class FFMainImage extends React.Component {
       this.log('unregistering token "' + tmpToken + '"');
       Dispatcher.unregister(tmpToken);
     }
-    //ImageStore.removeChangeListener(this.changeListener.bind(this));
   }
   
   render() {

@@ -29,7 +29,6 @@ export default class Filters extends React.Component {
     }
     this.setState({ selectedValue: val });
     FFActions.filterChanged(val);
-    console.log('changing active filter to ' + val);
     if (val) {
       amplitude.logEvent('FILTER_SELECTED', { filter: val } );
     } else {

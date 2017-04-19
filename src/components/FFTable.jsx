@@ -44,7 +44,6 @@ export default class FFTable extends React.Component {
         case IMAGE_CHANGED:
         case IMAGE_ADDED:
         case IMAGE_DELETED:
-          console.log('FFTable: grokking image change event: ' + action.actionType);
           this.changeListener(null);
           break;
       }

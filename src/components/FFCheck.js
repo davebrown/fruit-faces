@@ -18,7 +18,7 @@ function imageAddTag(image, tag) {
 }
 
 function tagImage(image, verb, tag) {
-  console.log('calling ' + verb + ' tag=' + tag + ' on ' + image.base);
+  //console.log('calling ' + verb + ' tag=' + tag + ' on ' + image.base);
   request({
     method:verb,
     url: API_BASE_URL + '/api/v1/images/' + image.base + '/tags/' + tag,
@@ -31,7 +31,7 @@ function tagImage(image, verb, tag) {
       reportError(er);
       throw er;
     }
-    console.log('updateTag OK? code=' + response.statusCode);
+    //console.log('updateTag OK? code=' + response.statusCode);
   });
 }
 
@@ -50,21 +50,16 @@ class FFCheck extends React.Component {
 
   constructor(props) {
    super(props);
-   console.log('FFCheck image=' + props.image);
   }
 
   checkHandler() {
     var image = this.props.image;
     var fruit = this.props.fruit;
-    console.log('checkhandler(' + image.base + ',' + fruit + ')');
     if (imageHasTag(image, fruit)) {
-      console.log('removing tag');
       imageRemoveTag(image, fruit);
     } else {
-      console.log('adding tag');
       imageAddTag(image, fruit);
     }
-    //console.log('after handling tags are ' + JSON.stringify(image.tags));
     this.forceUpdate();
   }
 
