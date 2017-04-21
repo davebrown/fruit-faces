@@ -15,6 +15,7 @@ import javax.persistence.Query;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -26,14 +27,14 @@ import static com.moonspider.ff.Util.close;
 
 @Path("/api/v1")
 @Produces(MediaType.APPLICATION_JSON)
-public class InfoResource {
+public class InfoResource extends BaseResource {
 
     public static final Map<String,String> BUILD_INFO = loadBuildInfo();
     private static final Logger log = LoggerFactory.getLogger(InfoResource.class);
 
-    private EntityManager entityManager;
-    public InfoResource(EntityManager entityManager) {
-        this.entityManager = entityManager;
+
+    public InfoResource(EntityManager entityManager, FFConfiguration config) {
+        super(entityManager, config);
     }
 
     private static Map<String,String> loadBuildInfo() {
@@ -81,6 +82,12 @@ public class InfoResource {
         return new PingDTO()
         .addResource(checkPostgres())
         ;
+    }
+
+    @GET
+    @Path("/401")
+    public String do401() {
+        throw new WebApplicationException("you need auth", 401);
     }
 
     private PingDTO.Resource checkPostgres() {

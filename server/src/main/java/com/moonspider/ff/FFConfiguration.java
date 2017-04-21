@@ -30,6 +30,10 @@ public class FFConfiguration extends Configuration {
     @JsonProperty("thumbDir")
     private String thumbDirPath;
 
+    @Valid
+    @NotNull
+    @JsonProperty
+    private String rootUserId;
     public DataSourceFactory getDataSourceFactory() {
         return database;
     }
@@ -51,4 +55,5 @@ public class FFConfiguration extends Configuration {
 
     public String getThumbDirPath() { return thumbDirPath; }
     public File getThumbDir() { return new File(thumbDirPath); }
+    public String getRootUserId() { return rootUserId; }
 }

@@ -5,6 +5,8 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,5 +94,14 @@ public class Util {
     }
 
     private final static File TMPDIR = initTmpDir();
+
+    public static final ObjectMapper JSON = new ObjectMapper();
+    public static String toJSON(Object o) throws JsonProcessingException {
+        return JSON.writeValueAsString(o);
+    }
+
+    public static <T> T fromJSON(String s, Class<T> c) throws IOException {
+        return JSON.readValue(s, c);
+    }
 
 }

@@ -1,7 +1,7 @@
 allowWriteOperations: true
 maxImageFileSize: 10000000
 thumbDir: ${HOME}/code/fruit-faces/thumbs-qa
-#thumbDir: /tmp/dev-thumbs
+rootUserId: 1563589003653025 # facebook@moonspider.com
 
 database:
   # the name of your JDBC driver

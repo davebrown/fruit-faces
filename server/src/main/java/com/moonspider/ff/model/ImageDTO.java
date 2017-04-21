@@ -1,5 +1,6 @@
 package com.moonspider.ff.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.moonspider.ff.ejb.ImageEJB;
 import com.moonspider.ff.ejb.TagEJB;
@@ -8,11 +9,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ImageDTO {
 
     private String base, full;
     private long timestamp;
     private String[] tags;
+    private UserDTO user;
 
     public ImageDTO() {
         // jackson de-serialization
@@ -29,6 +32,8 @@ public class ImageDTO {
         for (TagEJB t : tlist) {
             tags[i++] = t.getName();
         }
+        user = new UserDTO(ejb.getUser());
+        user.setEmail(null);
     }
 
     @JsonProperty
@@ -69,6 +74,15 @@ public class ImageDTO {
     public ImageDTO setTimestamp(long timestamp) {
         this.timestamp = timestamp;
         return this;
+    }
+
+    @JsonProperty
+    public UserDTO getUser() {
+        return user;
+    }
+
+    public void setUser(UserDTO user) {
+        this.user = user;
     }
 
     @Override

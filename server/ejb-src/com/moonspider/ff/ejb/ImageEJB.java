@@ -75,6 +75,16 @@ public class ImageEJB
     public Date getImportTime() { return importTime; }
     public void setImportTime(Date importTime) { this.importTime = importTime; }
     private java.util.Date importTime;
+
+    /*
+    @JsonProperty
+    @Column(name="user_id", nullable = false)
+    public String getUserId() {
+        return userId;
+    }
+    public void setUserId(String u) { userId = u; }
+    private String userId;
+    */
     /* this field should exist in JSON but not JPA - but how to reconcile annotations??
     @Transient
     @JsonProperty
@@ -86,8 +96,25 @@ public class ImageEJB
     }
     */
 
+
     // Relations
-    
+    @ManyToOne(
+            cascade = {},
+            fetch = FetchType.EAGER
+    )
+    @JoinColumn(
+            name = "user_id",
+            referencedColumnName = "fb_id"
+    )
+    public UserEJB getUser() {
+        return user;
+    }
+
+    public void setUser(UserEJB user) {
+        this.user = user;
+    }
+    private UserEJB user;
+
     // Relation name: base-tag
     @ManyToMany(
         // not mapped by

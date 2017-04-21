@@ -13,13 +13,11 @@ import java.util.*;
 
 @Path("/api/v1/stats")
 @Produces(MediaType.APPLICATION_JSON)
-public class StatsResource {
+public class StatsResource extends BaseResource {
 
-    private final EntityManager entityManager;
-    public StatsResource(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    public StatsResource(EntityManager entityManager, FFConfiguration config) {
+        super(entityManager, config);
     }
-
 
     @GET
     @Path("/day-of-week")

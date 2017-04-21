@@ -1,5 +1,6 @@
 package com.moonspider.ff.client;
 
+import com.moonspider.ff.model.UserDTO;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -9,54 +10,8 @@ import retrofit2.http.Query;
 
 public interface FBService {
 
-    @GET("https://graph.facebook.com/me")
-    Call<Me> me(@Query("access_token")String accessToken);
-
-    public static class Me {
-        private String name, id;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        @Override
-        public String toString() {
-            return "Me{" +
-                    "name='" + name + '\'' +
-                    ", id='" + id + '\'' +
-                    '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Me me = (Me) o;
-
-            if (name != null ? !name.equals(me.name) : me.name != null) return false;
-            return id != null ? id.equals(me.id) : me.id == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = name != null ? name.hashCode() : 0;
-            result = 31 * result + (id != null ? id.hashCode() : 0);
-            return result;
-        }
-    }
+    @GET("https://graph.facebook.com/me?fields=name,email")
+    Call<UserDTO> me(@Query("access_token")String accessToken);
 
     public static void main(String[] args) throws Exception {
         Retrofit retrofit = new Retrofit.Builder()
@@ -70,9 +25,9 @@ public interface FBService {
         accessToken = "xxx";
         if (args.length > 0)
             accessToken = args[0];
-        Call<Me> call = fb.me(accessToken);
+        Call<UserDTO> call = fb.me(accessToken);
         System.out.println("call: " + call);
-        Response<Me> rsp = call.execute();
+        Response<UserDTO> rsp = call.execute();
         System.out.println("response: " + rsp);
         System.out.println("code: " + rsp.code());
         if (rsp.code() != 200) {

@@ -1,10 +1,11 @@
 package com.moonspider.ff;
 
+import com.moonspider.ff.commands.EJBCommand;
 import com.moonspider.ff.commands.VersionCommand;
 import com.robertcboll.dropwizard.daemon.DaemonApplication;
 import com.scottescue.dropwizard.entitymanager.EntityManagerBundle;
 import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
-import com.sun.akuma.Daemon;
+
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
@@ -54,10 +55,11 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
         bootstrap.addBundle(entityManagerBundle);
         bootstrap.addBundle(new MultiPartBundle());
         bootstrap.addCommand(new VersionCommand());
+        bootstrap.addCommand(new EJBCommand());
     }
 
     @Override
-    public void run(FFConfiguration configuration,
+    public void run(FFConfiguration config,
                     Environment environment) {
         /* set up CORS to help our browser friends */
         {
@@ -65,14 +67,15 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
                     .addFilter("crossOriginRequests", CrossOriginFilter.class);
             cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
             cors.setInitParameter("allowedOrigins", "*");
-            cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin");
+            cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,X-FF-Auth");
             cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
         }
-        final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager(), configuration);
+        final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager(), config);
         environment.jersey().register(imgResource);
-        environment.jersey().register(new TagResource(entityManagerBundle.getSharedEntityManager()));
-        environment.jersey().register(new StatsResource(entityManagerBundle.getSharedEntityManager()));
-        environment.jersey().register(new InfoResource(entityManagerBundle.getSharedEntityManager()));
+        environment.jersey().register(new TagResource(entityManagerBundle.getSharedEntityManager(), config));
+        environment.jersey().register(new StatsResource(entityManagerBundle.getSharedEntityManager(), config));
+        environment.jersey().register(new InfoResource(entityManagerBundle.getSharedEntityManager(), config));
+        environment.jersey().register(new UserResource(entityManagerBundle.getSharedEntityManager(), config));
     }
 
     public static void main(String[] args) throws Exception {

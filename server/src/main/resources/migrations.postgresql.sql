@@ -63,3 +63,21 @@ alter table image drop column datestr;
 
 --changeset dave:17
 alter table image rename column "full" to full_file;
+
+-- changeset dave:18
+CREATE TABLE ff_user (
+    fb_id varchar(128) PRIMARY KEY NOT NULL UNIQUE,
+    email varchar(325),
+    name varchar(512)
+);
+
+INSERT INTO ff_user (name, email, fb_id) values ('Dave Brown', 'facebook@moonspider.com', '1563589003653025');
+
+ALTER TABLE image ADD COLUMN user_id varchar(128);
+
+UPDATE image set user_id='1563589003653025';
+
+ALTER TABLE image ALTER COLUMN user_id SET NOT NULL;
+ALTER TABLE image ADD CONSTRAINT image_user_fkey FOREIGN KEY (user_id) REFERENCES ff_user (fb_id) ON UPDATE NO ACTION ON DELETE CASCADE;
+
+

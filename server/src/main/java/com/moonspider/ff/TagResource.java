@@ -17,11 +17,10 @@ import java.util.List;
 
 @Path("/api/v1/tags")
 @Produces(MediaType.APPLICATION_JSON)
-public class TagResource {
+public class TagResource extends BaseResource {
 
-    private final EntityManager entityManager;
-    public TagResource(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    public TagResource(EntityManager entityManager, FFConfiguration configuration) {
+        super(entityManager, configuration);
     }
 
     private static Collection<String> COLOR_TAGS = new ArrayList();

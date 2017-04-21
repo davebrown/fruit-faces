@@ -27,6 +27,7 @@ public class VersionCommand extends ConfiguredCommand<FFConfiguration> {
         System.out.println(String.format("revision timestamp: %s", buildInfo.get("revision_timestamp")));
         System.out.println(String.format("build timestamp: %s", buildInfo.get("build_timestamp")));
         System.out.println(String.format("thumb directory: %s", ffConfig.getThumbDir().getAbsolutePath()));
+
     }
 
 }

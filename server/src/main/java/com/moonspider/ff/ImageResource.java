@@ -4,11 +4,12 @@ import com.codahale.metrics.annotation.Timed;
 import com.moonspider.ff.ejb.ImageEJB;
 import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.model.ImageDTO;
+import com.moonspider.ff.model.UserDTO;
 import com.moonspider.ff.util.ImageResizer;
 import com.moonspider.ff.util.ResizeResult;
 import com.moonspider.ff.util.ThumbnailatorResizer;
 import com.scottescue.dropwizard.entitymanager.UnitOfWork;
-import org.apache.commons.io.FileUtils;
+
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -38,11 +39,8 @@ public class ImageResource extends BaseResource {
 
     private static final Logger log = LoggerFactory.getLogger(ImageResource.class);
 
-    private final EntityManager entityManager;
-    private final FFConfiguration config;
     public ImageResource(EntityManager entityManager, FFConfiguration config) {
-        this.entityManager = entityManager;
-        this.config = config;
+        super(entityManager, config);
     }
 
     @GET
@@ -95,7 +93,7 @@ public class ImageResource extends BaseResource {
     @Path("/{id}")
     @Timed
     @UnitOfWork(transactional = true)
-    public Response deleteImage(@PathParam("id") String base) {
+    public Response deleteImage(@HeaderParam("X-FF-Auth") String authToken, @PathParam("id") String base) {
         if (!config.isAllowWriteOperations()) {
             log.warn("attempted tag DELETE when disallowed!");
             return error(403, "data mutation operations disabled");
@@ -105,6 +103,8 @@ public class ImageResource extends BaseResource {
             return error(404, "not found");
         }
 
+        checkAuth(authToken, ejb.getUser());
+
         ImageDTO dto = new ImageDTO(ejb);
         final File thumbDir = config.getThumbDir();
         // FIXME: hack to infer thumb name
@@ -112,36 +112,6 @@ public class ImageResource extends BaseResource {
         deleteFiles(thumbDir, ejb.getFull(), ejb.getOriginal(), thumbName);
         entityManager.remove(ejb);
         return Response.ok(dto).build();
-    }
-
-    /* FIXME: this bulk update endpoint has concurrency problems.
-       Remove in favor or per-tag PUT/DELETE.
-      */
-    @PUT
-    @Path("/{id}/tags")
-    @UnitOfWork(transactional = true)
-    public void updateTags(@PathParam("id") String base, Collection<String> tags) {
-        log.info("received tag update: /" + base + " " + tags);
-        if (!config.isAllowWriteOperations()) {
-            log.warn("attempted tag operation when disallowed!");
-            throw new WebApplicationException(401);
-        }
-        ImageEJB ejb = entityManager.find(ImageEJB.class, base);
-        if (ejb == null) {
-            log.warn("image not found: " + base);
-            throw new WebApplicationException(404);
-        }
-        List<TagEJB> tagEJBs = new ArrayList<>();
-        for (String tag : tags) {
-            TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
-            if (tagEJB == null) {
-                log.warn("tag not found: " + tag);
-                throw new WebApplicationException(404);
-            }
-            tagEJBs.add(tagEJB);
-        }
-        ejb.setTagList(tagEJBs);
-        entityManager.persist(ejb);
     }
 
     /** get images with specified tag */
@@ -168,7 +138,8 @@ public class ImageResource extends BaseResource {
     @POST
     @Path("/{id}/tags/{tag}")
     @UnitOfWork(transactional = true)
-    public void addTag(@PathParam("id") String base, @PathParam("tag") String tag) {
+    public void addTag(@HeaderParam("X-FF-Auth") String accessToken, @PathParam("id") String base,
+                       @PathParam("tag") String tag) {
         log.info("received tag POST: /" + base + " " + tag);
         if (!config.isAllowWriteOperations()) {
             log.warn("attempted tag operation when disallowed!");
@@ -178,6 +149,7 @@ public class ImageResource extends BaseResource {
         if (ejb == null) {
             throw new WebApplicationException(404);
         }
+        checkAuth(accessToken, ejb.getUser());
         TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
         if (tagEJB == null) {
             /* FIXME: allow create new tags from client? At least need auth */
@@ -194,7 +166,8 @@ public class ImageResource extends BaseResource {
     @DELETE
     @Path("/{id}/tags/{tag}")
     @UnitOfWork(transactional = true)
-    public Response deleteTag(@PathParam("id") String base, @PathParam("tag") String tag) {
+    public Response deleteTag(@HeaderParam("X-FF-Auth") String accessToken, @PathParam("id") String base,
+                              @PathParam("tag") String tag) {
         if (!config.isAllowWriteOperations()) {
             log.warn("attempted tag DELETE when disallowed!");
             return error(403, "data mutation operations disabled");
@@ -203,6 +176,7 @@ public class ImageResource extends BaseResource {
         if (ejb == null) {
             return error(404, "not found");
         }
+        checkAuth(accessToken, ejb.getUser());
         TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
         if (tagEJB != null) {
             ejb.getTagList().remove(tagEJB);
@@ -217,16 +191,17 @@ public class ImageResource extends BaseResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response addImage(@FormDataParam("imagefile") InputStream inputStream,
                              @FormDataParam("imagefile") FormDataContentDisposition contentDispositionHeader,
-                             @FormDataParam("fbToken") String fbToken,
+                             @HeaderParam("X-FF-Auth") String accessToken,
                              @HeaderParam("Content-Length") long contentLength
                          ) throws IOException {
         // step 1: do some validation
+        UserDTO userDTO = user(accessToken);
         String fname = contentDispositionHeader != null ? contentDispositionHeader.getFileName() : System.currentTimeMillis() + ".jpg";
         log.info("received new image POST: len=" + contentLength + "/" + contentDispositionHeader + "/" + fname);
         if (!config.isAllowWriteOperations()) {
             log.warn("attempted tag operation when disallowed!");
             return _400("no write operations allowed");
-        } else if (fbToken == null || "null".equals(fbToken)) {
+        } else if (userDTO == null) {
             return error(401, "You must login to post");
         } else if (contentLength <= 0 || contentLength > config.getMaxImageFileSize()) {
             log.warn("image POST for " + fname + " exceeded or absent content-length " + contentLength);
@@ -234,6 +209,8 @@ public class ImageResource extends BaseResource {
         } else if (inputStream == null) {
             return _400("no image file posted");
         }
+
+
 
         // step 2: receive upload input of original image into tmpdir
         final File TMPDIR = getTmpdir();
@@ -275,6 +252,7 @@ public class ImageResource extends BaseResource {
             }
         }
         // step 5: make scaled versions, main size and thumb size
+        // FIXME: parameterize filename or dir on userId to avoid conflicting file names
         final File thumbDir = config.getThumbDir();
         thumbDir.mkdirs();
         ImageResizer resizer = new ThumbnailatorResizer();
@@ -285,6 +263,7 @@ public class ImageResource extends BaseResource {
         // extract timestamp from EXIF for step 7
         Date timestamp = Util.getEXIFTimestamp(localFile);
         // step 6: copy images from temp to permanent dir
+        // FIXME: use the "force overwrite" variant of these methods
         Util.copyFileToDirectory(localFile, thumbDir);
         Util.copyFileToDirectory(mainFile, thumbDir);
         Util.copyFileToDirectory(thumbFile, thumbDir);
@@ -297,6 +276,7 @@ public class ImageResource extends BaseResource {
         record.setFull(mainSize.thumb);
         record.setTstamp(timestamp);
         record.setImportTime(new Date());
+        record.setUser(findOrCreateUser(userDTO));
         entityManager.persist(record);
         // FIXME: return JSON of newly uploaded image
         log.info("successfully uploaded and persisted " + record);
