@@ -15,7 +15,7 @@ public interface FBService {
 
     public static void main(String[] args) throws Exception {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://graph.facebook.com/")
+                .baseUrl("http://foo.bar/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

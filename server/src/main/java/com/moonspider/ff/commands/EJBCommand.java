@@ -8,14 +8,17 @@ import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
+import org.apache.commons.io.FileUtils;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.context.internal.ThreadLocalSessionContext;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
+import java.io.File;
 import java.util.List;
 
 public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
@@ -27,6 +30,17 @@ public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
     @Override
     public void configure(Subparser subparser) {
         super.configure(subparser);
+        MutuallyExclusiveGroup grp = subparser.addMutuallyExclusiveGroup()
+                .required(true);
+
+        grp.addArgument("-q", "--query")
+                .dest("query")
+                .type(String.class)
+                .help("EJB-QL query string");
+        grp.addArgument("-f", "--file")
+                .dest("queryFile")
+                .type(String.class)
+                .help("read query from a file");
     }
 
         @Override
@@ -49,11 +63,15 @@ public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
                             bootstrap.getClassLoader()));
 
             EntityManager em = entityManagerBundle.getEntityManagerFactory().createEntityManager();
-            System.out.println("got em: " + em);
-
+            String query = namespace.getString("query");
+            if (query == null) {
+                query = FileUtils.readFileToString(new File(namespace.getString("queryFile")), "utf8");
+            }
+            System.out.println("executing '" + query + "'");
             EntityTransaction tx = em.getTransaction();
             tx.begin();
-            Query q = em.createQuery("SELECT i from ImageEJB i");
+            //Query q = em.createQuery("SELECT i from ImageEJB i");
+            Query q = em.createQuery(query);
             List l = q.getResultList();
             System.out.println("got " + l.size() + " result(s):");
             for (Object o : l) {
