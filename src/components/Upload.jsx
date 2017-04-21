@@ -58,8 +58,8 @@ export default class Upload extends React.Component {
       baseUrl: target,
       fileFieldName: 'imagefile',
       chooseAndUpload: true,
-      paramAddToField: {
-        fbToken: authStore.getAccessToken()
+      requestHeaders: {
+        'X-FF-Auth': authStore.getAccessToken()
       },
       uploadSuccess: this.uploadSuccess,
       uploadError: this.uploadError,

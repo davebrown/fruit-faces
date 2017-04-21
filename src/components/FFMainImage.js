@@ -124,7 +124,8 @@ class FFMainImage extends React.Component {
       dateStr = dateformat(new Date(image.timestamp), 'dddd mmmm d, yyyy');
       timeStr = dateformat(new Date(image.timestamp), 'h:MM TT');
     }
-    var key = 'main-image-' + image.base;
+    const key = 'main-image-' + image.base;
+    const userLink = 'https://facebook.com/' + image.user.id;
     return (
       <Swipable id={key} key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
         onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
@@ -134,7 +135,8 @@ class FFMainImage extends React.Component {
           <img id="main-image" src={src}/>
           <p className="sans-font">
             {timeStr}<br/>
-            {dateStr}
+            {dateStr}<br/>
+            <a href={userLink}>{image.user.name}</a>
           </p>
           <FBBlock like={true}/>
         </div>

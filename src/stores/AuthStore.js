@@ -1,8 +1,9 @@
 import { EventEmitter } from 'events';
+import request from 'browser-request';
 import { FB_INITIALIZED, FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import FFActions from '../actions/FFActions.js';
-import { amplitude, errToString } from '../util/Util.js';
+import { amplitude, errToString, API_BASE_URL } from '../util/Util.js';
 
 // initial mirror
 const UNKNOWN_LOGIN = {
@@ -57,6 +58,23 @@ class AuthStore extends EventEmitter {
     console.log('AuthStore._setLogin', l);
     login = l;
     this.emitChange();
+    if (login.accessToken) {
+      request({
+        method: 'POST',
+        url: API_BASE_URL + '/api/v1/users/register',
+        headers: {
+          'X-FF-Auth': authStore.getAccessToken()
+        }
+      }, (er, response, bodyString) => {
+        if (er) {
+          amplitude.logEvent('REGISTER_ERROR', errToString(er));
+        } else if (response.statusCode < 200 || response.statusCode > 299) {
+          var errObj = JSON.parse(bodyString);
+          amplitude.logEvent('REGISTER_ERROR', errToString(errObj));
+        }
+      });
+      
+    }
   }
 
   _setName(n) {
