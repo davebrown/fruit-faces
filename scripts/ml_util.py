@@ -130,12 +130,10 @@ def c2n(c):
 
 def n2c(n):
   if isinstance(n, (np.ndarray)):
-    # assume a 1-hot output
-    a = np.nonzero(n)
-    if len(a[0]) > 0:
-      n = a[0][0]
-    else:
-      raise ValueError('no non-zero value in numpy array? %s' % str(n))
+    # assume a 1-hot output, with only one dimension on input
+    if len(n.shape) > 1:
+      raise ValueError('cannot n2c multi-dimension array, shape=%s' % str(n.shape))
+    n = n.argmax()
   if n == 2: return 'white'
   if n == 1: return 'gray'
   if n == 0: return 'blue'

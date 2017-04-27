@@ -20,7 +20,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn import metrics
 from sklearn.multioutput import MultiOutputClassifier
 
-def cmd_run(args):
+def cmd_train(args):
   if len(args) == 0:
     err('error: not enough arguments.')
     err('usage: run <classify-tag>')
@@ -60,7 +60,7 @@ def cmd_run(args):
   #probs = classifier.predict_log_proba(testImages)
   #print 'probs log shape:', probs.shape
   #print 'PROBS log', probs
-  
+
 def cmd_hack(args):
   info('hack called with args %s' % str(args))
   warn('this is a warning')
