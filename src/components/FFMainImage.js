@@ -27,6 +27,10 @@ class FFMainImage extends React.Component {
   }
 
   mainImageActionListener(action) {
+    // hack?
+    if (this.dispatching) {
+      return;
+    }
     //console.log('FFMainImage.action: ' + action.actionType);
     switch (action.actionType) {
       case IMAGES_LOADED:
@@ -115,7 +119,12 @@ class FFMainImage extends React.Component {
       }
     } else if (imageId && imageId !== image.base) {
       image = ImageStore.getImage(imageId);
-      FFActions.imageChanged(image);
+      this.dispatching = true;
+      try {
+        FFActions.imageChanged(image);
+      } finally {
+        this.dispatching = false;
+      }
     }
     var src = '/thumbs/' + image.full;
     var tagForm = <TagForm className="tag-form" image={image}/>;
