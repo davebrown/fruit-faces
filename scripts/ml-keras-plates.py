@@ -25,7 +25,7 @@ def getPlateColor(img):
       return c
   raise Exception('image %s has no plate color tag' % img['base'])
 
-NUM_CLASSES = 2
+NUM_CLASSES = 3
 
 def make_model_simple(width=80, height=60):
   iShape = (width * height * 3,)
@@ -70,13 +70,15 @@ def make_model_mnist(width=80, height=60):
   init = RandomUniform(minval=-0.1, maxval=.1)
   model.add(Conv2D(32, kernel_size=(3, 3),
                    activation='relu',
-                   kernel_initializer=init,
+                   #kernel_initializer=init,
                    input_shape=input_shape))
   model.add(Conv2D(64, (3, 3), activation='relu', data_format='channels_last'))
   model.add(MaxPooling2D(pool_size=(2, 2)))
   model.add(Dropout(0.25))
   model.add(Flatten())
-  model.add(Dense(128, activation='relu', kernel_initializer=init))
+  model.add(Dense(128,
+                  #kernel_initializer=init,
+                  activation='relu'))
   model.add(Dropout(0.5))
   
   model.add(Dense(NUM_CLASSES, activation='softmax'))
@@ -137,6 +139,10 @@ def cmd_run(args):
   #   model = make_model_mnist2(width, height)
   
   imageFiles, imageData, labels, imgJson = u.loadInputs(FLAT_DATA, ARGS.size)
+
+  # sanity check!
+  if len(labels[0]) != NUM_CLASSES:
+    raise Exception('labels length (%d) != expected num_classes (%d)' % (len(labels[0]), NUM_CLASSES))
   verbose('data shape: %s labels shape: %s' % (imageData.shape, labels.shape))
 
   plates = [ c2n(getPlateColor(i)) for i in imgJson ]

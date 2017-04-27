@@ -5,6 +5,7 @@ import requests
 from termcolor import cprint
 import numpy as np
 import skimage.data
+from sklearn.preprocessing import LabelBinarizer
 
 def join(a,b):
   if len(b) > 0 and b[0] == '/':
@@ -80,9 +81,10 @@ def catSummary(preds):
     
 def imageHasTag(img, tag):
   if img and img['tags']:
-    for t in img['tags']:
-      if t == tag:
-        return True
+#    for t in img['tags']:
+#      if t == tag:
+#        return True
+    return tag in img['tags']
   return False
     
 def loadCSV(relPath):
@@ -120,9 +122,9 @@ def split(nparray, ind):
   return a, b
 
 def c2n(c):
-    #if c == 'white': return 2
-    #if c == 'gray': return 1
-    if c == 'white' or c == 'gray': return 1
+    if c == 'white': return 2
+    if c == 'gray': return 1
+    #if c == 'white' or c == 'gray': return 1
     if c == 'blue': return 0
     raise ValueError('unknown color: "%s"' % c)
 
@@ -151,7 +153,7 @@ def decodeSize(sz):
 
 def getTags():
   #ret = getJson('/tags')
-  ret = [ 'blue', 'white', 'gray', 'strawberry' ]
+  ret = [ 'white', 'gray', 'blue' ]
   return ret
 
 def tag2n(img, tag):
@@ -185,12 +187,21 @@ def loadInputs(flatten=True, imageDim='60x80'):
   
 # make 1-hot array
 # http://stackoverflow.com/questions/29831489/numpy-1-hot-array
-def oneHot(arr, width):
-  # note: I think width needs to be max value in 'arr'
-  a = np.array(arr)
-  b = np.zeros((len(arr), width))
-  b[np.arange(len(arr)), a] = 1
-  return b
+#def oneHot(arr, width):
+#  # note: I think width needs to be max value in 'arr'
+#  a = np.array(arr)
+#  b = np.zeros((len(arr), width))
+#  b[np.arange(len(arr)), a] = 1
+#  return b
+
+def oneHot(textLabels, textData):
+  """one-hot encoding of a list of unique labels, and 1-dim list of data"""
+  lb = LabelBinarizer()
+  a = lb.fit(textLabels)
+  #print 'One-hot classes:', lb.classes_
+  yhot = lb.fit_transform(textData)
+  #print 'yhot', type(yhot), '\n', yhot
+  return yhot
 
 def outputHtml(filename, imageFiles, predictedColors, actualColors, probs=None):
   html = open(filename, 'w')
