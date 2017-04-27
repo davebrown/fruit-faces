@@ -44,7 +44,7 @@ class ImageStore extends EventEmitter {
 
   getNextImage() {
     var ret = selectedImage ? images[(selectedImage.index + 1) % images.length]: null;
-    console.log('ImageStore.getNext() selected, next index=' + selectedImage.index + '/' + (ret && ret.index));
+    //console.log('ImageStore.getNext() selected, next index=' + selectedImage.index + '/' + (ret && ret.index));
     return ret;
   }
 
@@ -259,7 +259,7 @@ Dispatcher.register((action) => {
       amplitude.logEvent('IMAGE_SELECTED', { imageBase: base, filter: imageStore.getFilterTag() || 'none' });
       break;
     case IMAGE_ADDED:
-      console.log('imageStore adding image', action.image);
+      //console.log('imageStore adding image', action.image);
       if (!images) images = [];
       images = images.slice();
       images.push(action.image);
@@ -268,7 +268,7 @@ Dispatcher.register((action) => {
       imageStore.emitChange();
       break;
     case IMAGE_DELETED:
-      console.log('imageStore deleting image');
+      //console.log('imageStore deleting image');
       const del = action.image;
       delete imageMap[del.base];
       var ind = 0;

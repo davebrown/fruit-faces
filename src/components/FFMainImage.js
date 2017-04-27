@@ -120,10 +120,12 @@ class FFMainImage extends React.Component {
     } else if (imageId && imageId !== image.base) {
       image = ImageStore.getImage(imageId);
       this.dispatching = true;
-      try {
-        FFActions.imageChanged(image);
-      } finally {
-        this.dispatching = false;
+      if (!this.dispatching) {
+        try {
+          FFActions.imageChanged(image);
+        } finally {
+          this.dispatching = false;
+        }
       }
     }
     var src = '/thumbs/' + image.full;
