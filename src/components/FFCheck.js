@@ -23,7 +23,8 @@ function tagImage(image, verb, tag) {
     method:verb,
     url: API_BASE_URL + '/api/v1/images/' + image.base + '/tags/' + tag,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-FF-Auth': authStore.getAccessToken()
     }
   }, (er, response, bodyString) => {
     if (er) {
