@@ -1,6 +1,6 @@
 allowWriteOperations: true
 maxImageFileSize: 10000000
-thumbDir: ${HOME}/code/fruit-faces/thumbs-qa
+thumbDir: ${HOME}/code/fruit-faces/thumbs
 rootUserId: 1563589003653025 # facebook@moonspider.com
 
 database:
@@ -14,7 +14,7 @@ database:
   password: na
 
   # the JDBC URL
-  url: jdbc:postgresql://localhost/ff-qa
+  url: jdbc:postgresql://localhost/ff
 
   # any properties specific to your JDBC driver:
   properties:

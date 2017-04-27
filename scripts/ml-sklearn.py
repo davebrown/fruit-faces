@@ -31,7 +31,7 @@ def cmd_run(args):
     fail('error: tag "%s" not found.\nKnown tags are: %s' % (tag, str(tags)))
 
   info('classifying for tag "%s"' % tag)
-  imageFiles, imageData, labels = u.loadInputs()
+  imageFiles, imageData, labels, imageJson = u.loadInputs()
   # see multi-label learning comment below. for now, slice() to one label
   labels = u.slice(labels, tags.index(tag))
   NO_YES = [ 'NO ' + tag, 'YES ' + tag ]

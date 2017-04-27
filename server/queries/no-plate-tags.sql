@@ -1,8 +1,4 @@
-copy (
- select "full" from image where base NOT IN (select image_id from image_tag where tag_id in ('blue', 'gray', 'white'))
-)
-
-to '/tmp/test-plates.csv' (format CSV);
+ select "full_file" from image where base NOT IN (select image_id from image_tag where tag_id in ('blue', 'gray', 'white'));
 
 -- select "full",coalesce(tag_id,null) from image as im, image_tag as it
 -- where im.base = it.image_id

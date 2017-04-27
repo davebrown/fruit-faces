@@ -70,6 +70,14 @@ def getJson(url):
 
   return r.json()
 
+def catSummary(preds):
+  """plate color prediction text summary"""
+  counts = np.count_nonzero(preds, 0)
+  ret = ''
+  for i in range(len(counts)):
+    ret = ret + '%d %s ' % (counts[i], n2c(i))
+  return ret
+    
 def imageHasTag(img, tag):
   if img and img['tags']:
     for t in img['tags']:
@@ -90,10 +98,10 @@ def loadFileLines(relPath):
     ret = [ s.rstrip() for s in ret ]
     return ret
 
-def thumbFile(relPath):
+def thumbFile(relPath, imageDim):
   full = join(IMAGEDIR, relPath)
   base, ext = os.path.splitext(full)
-  return base + '_60x80_t.jpg';
+  return base + '_' + imageDim + '_t.jpg';
 
 def slice(array, ind):
   """return a column as array from a 2d array"""
@@ -112,8 +120,9 @@ def split(nparray, ind):
   return a, b
 
 def c2n(c):
-    if c == 'white': return 2
-    if c == 'gray': return 1
+    #if c == 'white': return 2
+    #if c == 'gray': return 1
+    if c == 'white' or c == 'gray': return 1
     if c == 'blue': return 0
     raise ValueError('unknown color: "%s"' % c)
 
@@ -130,6 +139,16 @@ def n2c(n):
   if n == 0: return 'blue'
   raise ValueError('unknown color numeric: "%d"' % n)
 
+def decodeSize(sz):
+  """from '60x80' return (60, 80)"""
+  try:
+    w,h = sz.split('x', 2)
+    w = int(w)
+    h = int(h)
+    return w, h
+  except ValueError as ve:
+    fail('invalid dimension "%s"' % sz)
+
 def getTags():
   #ret = getJson('/tags')
   ret = [ 'blue', 'white', 'gray', 'strawberry' ]
@@ -140,18 +159,21 @@ def tag2n(img, tag):
     return 1
   return 0
 
-def loadInputs(flatten=True):
+def loadInputs(flatten=True, imageDim='60x80'):
   json = getJson('/images')
   tags = getTags()
+  width, height = decodeSize(imageDim)
+
   if (flatten):
-    data = np.empty( (len(json), 80 * 60 * 3 ) ) # keep in sync with 60x80 in 'thumbFile'
+    data = np.empty( (len(json), width * height * 3 ) )
   else:
-    data = np.empty( ( len(json), 80, 60, 3 ) )
+    data = np.empty( ( len(json), width, height, 3 ) )
+
   labels = np.empty( (len(json), len(tags) ) ) 
   for i in range(len(json)):
     img = json[i]
-    imgData = skimage.data.imread(thumbFile(img['full']))
-    print('imgData shape', imgData.shape, 'type', type(imgData))
+    imgData = skimage.data.imread(thumbFile(img['full'], imageDim))
+    #print('imgData shape', imgData.shape, 'type', type(imgData))
     
     if flatten:
       data[i] = np.array(imgData).flatten()
@@ -205,3 +227,19 @@ def outputHtml(filename, imageFiles, predictedColors, actualColors, probs=None):
   html.write('</html>')
   html.flush()
   html.close()
+
+def sample(lists, percent):
+  if percent <= 0.0 or percent >= 1.0:
+    raise Exception('percent must be > 0.0 and < 1.0, not %f' % percent)
+
+  listlen = len(lists[0])
+  for l in lists[1:]:
+    if len(l) != listlen:
+      raise Exception('lists must all be equal length, got %d != %d' % (listlen, len(l)))
+
+  
+def tupleTest():
+  return range(3)
+if __name__ == '__main__':
+  a,b,c = tupleTest()
+  print a, b, c
