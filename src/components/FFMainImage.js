@@ -15,7 +15,6 @@ class FFMainImage extends React.Component {
 
   constructor(props) {
     super(props);
-    //Dispatcher.register(this.changeListener.bind(this));
     this.log('CTOR');
     this.mounted = false;
     this.mainImageActionListener = this.mainImageActionListener.bind(this);
@@ -101,17 +100,22 @@ class FFMainImage extends React.Component {
   
   render() {
     var image = this.state.image;
+    var imageId = this.props && this.props.params && this.props.params.imageId;
+    // when we have both image from state and imageId from props, we prefer props
+    // since this occurs when user manually changes the hash line in address bar
     if (!image) {
       // if image to render is not set in the state, we can also receive it from
       // the router as a property
-      var imageId = this.props && this.props.params && this.props.params.imageId;
       this.log('render: imageId=' + imageId);
       image = ImageStore.getImage(imageId);
       if (!image) {
-        this.log('no image or not found, returning null');
-        hashHistory.replace('/');
-        return (<div>no image</div>);
+        this.log('no image or not found, returning loading div');
+        //hashHistory.replace('/');
+        return (<div className="loading">loading image</div>);
       }
+    } else if (imageId && imageId !== image.base) {
+      image = ImageStore.getImage(imageId);
+      FFActions.imageChanged(image);
     }
     var src = '/thumbs/' + image.full;
     var tagForm = <TagForm className="tag-form" image={image}/>;

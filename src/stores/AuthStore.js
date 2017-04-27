@@ -50,12 +50,12 @@ class AuthStore extends EventEmitter {
   }
 
   getProfilePicUrl() {
-    console.log('getprofilepic, login is', login);
+    //console.log('getprofilepic, login is', login);
     return login.picture.data && login.picture.data.url;
   }
   
   _setLogin(l) {
-    console.log('AuthStore._setLogin', l);
+    //console.log('AuthStore._setLogin', l);
     login = l;
     this.emitChange();
     if (login.accessToken) {
@@ -112,7 +112,7 @@ window.fbAsyncInit = function() {
     console.log('****** auth.authResponseChange:', response);
     fbStatusCallback(response);
   });
-  console.log('AuthStore: fbInitialized');
+  //console.log('AuthStore: fbInitialized');
   FFActions.fbInitialized();
 };
 
@@ -126,7 +126,7 @@ window.fbAsyncInit = function() {
 
 /* receives callback from FB.getLoginStatus() */
 function fbStatusCallback(response) {
-  console.log('AuthStore.fbStatusCallback', response, response.status === 'connected');
+  //console.log('AuthStore.fbStatusCallback', response, response.status === 'connected');
   // compose an object that looks like the 'login' prototype above
   const ar = response.authResponse;
   var login = {

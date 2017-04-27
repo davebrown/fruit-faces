@@ -104,6 +104,7 @@ function routeLocationDidUpdate(location) {
 }
 
 //hashHistory.listen(location => routeLocationDidUpdate(location));
+hashHistory.listen(location => function(location) { console.log('hashHistory changed', location); });
 
 class FFApp extends React.Component {
   constructor(props) {

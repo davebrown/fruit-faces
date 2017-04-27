@@ -27,7 +27,7 @@ export default class FFTable extends React.Component {
       selectedImage: null,
       filter: null
     };
-    ImageStore.addChangeListener(this.changeListener.bind(this));
+    ImageStore.addChangeListener(this.tableChangeListener.bind(this));
     this.render.bind(this);
   }
 
@@ -44,7 +44,7 @@ export default class FFTable extends React.Component {
         case IMAGE_CHANGED:
         case IMAGE_ADDED:
         case IMAGE_DELETED:
-          this.changeListener(null);
+          this.tableChangeListener(null);
           break;
       }
     });
@@ -55,7 +55,7 @@ export default class FFTable extends React.Component {
     Dispatcher.unregister(this.dispatcherToken);
   }
   
-  changeListener(arg) {
+  tableChangeListener(arg) {
     const images = ImageStore.getImages();
     this.setState( {
       images: images,
