@@ -14,7 +14,7 @@ import ml_util as u
 from ml_util import n2c, c2n, info, warn, err, fail, verbose
 
 import keras.utils
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout, Flatten, Conv2D, MaxPooling2D
 from keras.optimizers import RMSprop, SGD, Adam
 from keras.initializers import RandomNormal, RandomUniform
@@ -119,8 +119,37 @@ def make_model(mname, width, height):
 
   return func(width, height)
 
-def cmd_run(args):
+def cmd_predict(args):
+  if ARGS.file is None:
+    fail('need file argument with -f | --file to load trained model (and perhaps run "train" first?)')
 
+  if args is None or len(args) == 0:
+    fail('must specify image(s) to make predictions on!')
+  
+  model = load_model(ARGS.file)
+  print('model loaded from %s' % ARGS.file)
+
+  FLAT_DATA = True
+  # FIXME: hack
+  if ARGS.model == 'mnist':
+    FLAT_DATA = False
+  
+  for imgId in args:
+    print('predict on %s' % imgId)
+    # FIXME: parameterize dimension, or attach to persisted model somehow?
+    files, data, labels, json = u.loadInputs(FLAT_DATA, '28x28', imgId)
+    print 'labels', labels
+    predicts = model.predict(data)
+    predictedPlate = n2c(predicts[0])
+    truePlate = n2c(labels[0])
+    print 'predicted', predicts
+    print('%s: predicted %s truth %s' % (imgId, predictedPlate, truePlate))
+  
+def cmd_train(args):
+
+  if ARGS.file is None:
+    fail('need file argument with -f | --file to save trained model')
+    
   # fix seed for reproducibility
   np.random.seed(8)
 
@@ -128,21 +157,16 @@ def cmd_run(args):
   
   width, height = u.decodeSize(ARGS.size)
   model = make_model(ARGS.model, width, height)
+  # FIXME: hack
   if ARGS.model == 'mnist':
     FLAT_DATA = False
-    
-  # if not USE_MNIST:
-  #   model = make_model_iris(width, height)
-  # elif False:
-  #   model = make_model_mnist2(width, height)
-  # else:
-  #   model = make_model_mnist2(width, height)
-  
+
   imageFiles, imageData, labels, imgJson = u.loadInputs(FLAT_DATA, ARGS.size)
 
   # sanity check!
   if len(labels[0]) != NUM_CLASSES:
     raise Exception('labels length (%d) != expected num_classes (%d)' % (len(labels[0]), NUM_CLASSES))
+  
   verbose('data shape: %s labels shape: %s' % (imageData.shape, labels.shape))
 
   plates = [ c2n(getPlateColor(i)) for i in imgJson ]
@@ -161,10 +185,6 @@ def cmd_run(args):
   verbose('model summary:')
   model.summary()
     
-  # Convert labels to categorical one-hot encoding
-  # think I've done the equivalent of this in the slice() above (?)
-  #binaryTrainedLabels = keras.utils.to_categorical(labels, num_classes=10)
-  #model.fit(trainedImages, trainedLabels, epochs=10, batch_size=splitIndex)
   print 'before fit(), trainedImages.shape', trainedImages.shape, 'trainedY.shape', trainedY.shape
   model.fit(trainedImages, trainedY, epochs=ARGS.epochs, batch_size=100)
 
@@ -196,14 +216,14 @@ def cmd_run(args):
   info('saved trained verify results: %s' % htmlFile)
   print 'trained truth summary:', u.catSummary(trainedY)
   print 'trained prediction summary:', u.catSummary(predicts)
-  
+
+  model.save(ARGS.file)
+  print('trained model saved to %s' % ARGS.file)
   #probs = classifier.predict_log_proba(testImages)
   #print 'probs log shape:', probs.shape
   #print 'PROBS log', probs
 
   #u.outputHtml('sklearn-unclassified.html', [ i[0] for i in testData ], [ n2c(p) for p in predicts ], [ c[1] for c in testData ], probs )
-  
-  
   
 def cmd_hack(args):
   info('hack called with args %s' % str(args))
@@ -230,6 +250,7 @@ if __name__ == '__main__':
   parser.add_argument('-s', '--size', help='image size to work with', default='60x80')
   parser.add_argument('-m', '--model', help='mnist, mnist2, iris', required=True)
   parser.add_argument('-e', '--epochs', help='# epochs to run', type=int, default=5)
+  parser.add_argument('-f', '--file', help='save/load model from file')
   #parser.add_argument('-s', '--size', help='"WxH" dimension', default=None)
   #parser.add_argument('-d', '--dir', help='directory for scan or output', default=None)
   parser.add_argument('command', help='hack | train')

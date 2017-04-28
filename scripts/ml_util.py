@@ -121,10 +121,16 @@ def split(nparray, ind):
   b = nparray[ind:]
   return a, b
 
+# FIXME: madness ensues if the order of tags in getTags(), n2c(), c2n(), change
+# Fix this with one DRY copy of tags and their indices
+def getTags():
+  #ret = getJson('/tags')
+  ret = [ 'blue', 'gray', 'white' ]
+  return ret
+
 def c2n(c):
     if c == 'white': return 2
     if c == 'gray': return 1
-    #if c == 'white' or c == 'gray': return 1
     if c == 'blue': return 0
     raise ValueError('unknown color: "%s"' % c)
 
@@ -149,18 +155,18 @@ def decodeSize(sz):
   except ValueError as ve:
     fail('invalid dimension "%s"' % sz)
 
-def getTags():
-  #ret = getJson('/tags')
-  ret = [ 'white', 'gray', 'blue' ]
-  return ret
 
 def tag2n(img, tag):
   if imageHasTag(img, tag):
     return 1
   return 0
 
-def loadInputs(flatten=True, imageDim='60x80'):
-  json = getJson('/images')
+def loadInputs(flatten=True, imageDim='60x80', imgId=None):
+  if imgId is None:
+    json = getJson('/images')
+  else:
+    json = [ getJson('/images/%s' % imgId) ]
+    
   tags = getTags()
   width, height = decodeSize(imageDim)
 
