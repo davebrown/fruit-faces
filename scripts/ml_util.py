@@ -22,30 +22,35 @@ TTY = sys.stdout.isatty()
 
 VERBOSE_OUTPUT = False
 
-def info(msg):
+def info(*args):
+  msg = ' '.join([str(e) for e in args])
   sys.stdout.write(msg)
   sys.stdout.write('\n')
   sys.stdout.flush()
 
-def warn(msg):
+def warn(*args):
+  msg = ' '.join([str(e) for e in args])
   if TTY:
     cprint(msg, 'yellow', file=sys.stderr, attrs=['bold'], end='\n')
   else:
     sys.stderr.write(msg)
     sys.stderr.write('\n')
 
-def err(msg):
+def err(*args):
+  msg = ' '.join([str(e) for e in args])
   if TTY:
     cprint(msg, 'red', attrs=['bold'], file=sys.stderr, end='\n')
   else:
     sys.stderr.write(msg)
     sys.stderr.write('\n')
 
-def fail(msg):
+def fail(*args):
+  msg = ' '.join([str(e) for e in args])
   err('%s\nexiting...' % msg)
   sys.exit(1)
   
-def verbose(msg):
+def verbose(*args):
+  msg = ' '.join([str(e) for e in args])
   #print('  (...verbose entry "%s"...)' % msg)
   if not VERBOSE_OUTPUT: return
   if TTY:

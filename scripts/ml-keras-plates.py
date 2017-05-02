@@ -18,6 +18,9 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout, Flatten, Conv2D, MaxPooling2D
 from keras.optimizers import RMSprop, SGD, Adam
 from keras.initializers import RandomNormal, RandomUniform
+from keras import backend as K
+
+import tensorflow as tf
 
 def getPlateColor(img):
   for c in ['blue', 'gray', 'white']:
@@ -138,11 +141,10 @@ def cmd_predict(args):
     print('predict on %s' % imgId)
     # FIXME: parameterize dimension, or attach to persisted model somehow?
     files, data, labels, json = u.loadInputs(FLAT_DATA, '28x28', imgId)
-    print 'labels', labels
+    print 'predicting on shape %s' % str(data.shape)
     predicts = model.predict(data)
     predictedPlate = n2c(predicts[0])
     truePlate = n2c(labels[0])
-    print 'predicted', predicts
     print('%s: predicted %s truth %s' % (imgId, predictedPlate, truePlate))
   
 def cmd_train(args):
@@ -156,6 +158,10 @@ def cmd_train(args):
   FLAT_DATA = True
   
   width, height = u.decodeSize(ARGS.size)
+
+  # wrap all keras ops in a know TF session
+  sess = tf.Session()
+  K.set_session(sess)
   model = make_model(ARGS.model, width, height)
   # FIXME: hack
   if ARGS.model == 'mnist':
@@ -188,7 +194,8 @@ def cmd_train(args):
   print 'before fit(), trainedImages.shape', trainedImages.shape, 'trainedY.shape', trainedY.shape
   model.fit(trainedImages, trainedY, epochs=ARGS.epochs, batch_size=100)
 
-
+  #K.set_learning_phase(0) # all new operations will be in test mode from now on
+  
   #verbose('model.get_config()')
   #print(model.get_config())
   weights = model.get_weights()
@@ -219,6 +226,68 @@ def cmd_train(args):
 
   model.save(ARGS.file)
   print('trained model saved to %s' % ARGS.file)
+  
+  # try save/load of only tf graph
+  saver = tf.train.Saver()
+  savePath = saver.save(sess, '/tmp/my-model.ckpt')
+  print('saved tf session to %s' % savePath)
+  
+def cmd_load(args):
+  # wrap all keras ops in a know TF session
+  with tf.Session() as sess:
+    K.set_session(sess)
+    width, height = u.decodeSize(ARGS.size)
+    model = make_model(ARGS.model, width, height)
+    print 'initializing session'
+    saver = tf.train.Saver()
+    saver.restore(sess, '/tmp/my-model.ckpt')
+    print 'loaded session!', sess, 'with graph', sess.graph
+
+    vars = tf.global_variables()
+    print 'session global variables', vars
+    for v in vars:
+      print v.name, type(v)
+
+    vars = tf.local_variables()
+    print 'session local variables', vars
+    for v in vars:
+      print v.name, type(v)
+
+    
+    #prediction = tf.argmax(y, 1)
+    
+    
+  
+def _abort_this():  
+  # save the tf graph as 'predict-only'
+  # https://blog.keras.io/keras-as-a-simplified-interface-to-tensorflow-tutorial.html#exporting-a-model-with-tensorflow-serving
+  previous_model = model
+  K.set_learning_phase(0)  # all new operations will be in test mode from now on
+
+  # serialize the model and get its weights, for quick re-building
+  config = previous_model.get_config()
+  print ('config is', config)
+  weights = previous_model.get_weights()
+
+  # re-build a model where the learning phase is now hard-coded to 0
+  from keras.models import model_from_config
+  #new_model = model_from_config(config)
+  new_model = Sequential.from_config(config)
+  new_model.set_weights(weights)  
+
+  from tensorflow_serving.session_bundle import exporter
+
+  export_path = '/tmp/my-model.ckpt' # where to save the exported graph
+  export_version = 1 # version number (integer)
+
+  saver = tf.train.Saver(sharded=True)
+  model_exporter = exporter.Exporter(saver)
+  signature = exporter.classification_signature(input_tensor=model.input,
+                                                scores_tensor=model.output)
+  model_exporter.init(sess.graph.as_graph_def(),
+                      default_graph_signature=signature)
+  model_exporter.export(export_path, tf.constant(export_version), sess)
+  
   #probs = classifier.predict_log_proba(testImages)
   #print 'probs log shape:', probs.shape
   #print 'PROBS log', probs
