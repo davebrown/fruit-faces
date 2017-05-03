@@ -9,7 +9,8 @@ import java.io.IOException;
 public class JavaResizer extends ImageResizer {
 
     @Override
-    public ResizeResult resize(File full, File outDir, String prefix, int width, int height) throws IOException {
+    public ResizeResult resize(File full, File outDir, String prefix, int width, int height,
+                               boolean preserveAspectRatio) throws IOException {
         ResizeResult ret = result(full.getName(), width, height);
         ret.thumb = prefix + ret.thumb;
         BufferedImage fullImage = ImageIO.read(full);

@@ -7,9 +7,12 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moonspider.ff.client.TagService;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.awt.*;
 import java.io.Closeable;
@@ -17,6 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.TimeZone;
+
+import static org.apache.commons.io.FilenameUtils.getExtension;
+import static org.apache.commons.io.FilenameUtils.getBaseName;
 
 public class Util {
 
@@ -51,6 +57,7 @@ public class Util {
 
     public static final Dimension MAIN_SIZE = new Dimension(480, 640);
     public static final Dimension THUMB_SIZE = new Dimension(60, 80);
+    public static final Dimension ML_SIZE = new Dimension(28, 28);
 
     private static File initTmpDir() {
         File ret = new File(System.getProperty("java.io.tmpdir", "/tmp"), "ff-tmp");
@@ -93,6 +100,11 @@ public class Util {
         return ret;
     }
 
+    public static String thumbName(String base, Dimension dim, String fullName) {
+        String thumbName = base + "_" + dim.width + "x" + dim.height + "_t." + getExtension(fullName).toLowerCase();
+        return thumbName;
+    }
+
     private final static File TMPDIR = initTmpDir();
 
     public static final ObjectMapper JSON = new ObjectMapper();
@@ -104,4 +116,14 @@ public class Util {
         return JSON.readValue(s, c);
     }
 
+    public static TagService createTagService(FFConfiguration config) {
+        Retrofit retrofit = new Retrofit.Builder()
+                //.baseUrl("http://127.0.0.1:5000/api/v1/")
+                .baseUrl(config.getTagServiceUrl())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        return retrofit.create(TagService.class);
+
+    }
 }

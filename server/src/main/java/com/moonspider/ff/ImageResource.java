@@ -1,19 +1,24 @@
 package com.moonspider.ff;
 
 import com.codahale.metrics.annotation.Timed;
+import com.moonspider.ff.client.TagService;
 import com.moonspider.ff.ejb.ImageEJB;
 import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.model.ImageDTO;
+import com.moonspider.ff.model.TagsDTO;
 import com.moonspider.ff.model.UserDTO;
 import com.moonspider.ff.util.ImageResizer;
 import com.moonspider.ff.util.ResizeResult;
 import com.moonspider.ff.util.ThumbnailatorResizer;
 import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import retrofit2.Call;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -29,7 +34,9 @@ import static com.moonspider.ff.Util.getTmpdir;
 import static com.moonspider.ff.Util.emptyOrNull;
 import static com.moonspider.ff.Util.MAIN_SIZE;
 import static com.moonspider.ff.Util.THUMB_SIZE;
+import static com.moonspider.ff.Util.ML_SIZE;
 import static com.moonspider.ff.Util.deleteFiles;
+import static com.moonspider.ff.Util.thumbName;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 
@@ -38,9 +45,11 @@ import static org.apache.commons.io.FilenameUtils.getBaseName;
 public class ImageResource extends BaseResource {
 
     private static final Logger log = LoggerFactory.getLogger(ImageResource.class);
+    private TagService tagService;
 
     public ImageResource(EntityManager entityManager, FFConfiguration config) {
         super(entityManager, config);
+        this.tagService = Util.createTagService(config);
     }
 
     @GET
@@ -108,8 +117,11 @@ public class ImageResource extends BaseResource {
         ImageDTO dto = new ImageDTO(ejb);
         final File thumbDir = config.getThumbDir();
         // FIXME: hack to infer thumb name
-        String thumbName = ejb.getBase() + "_" + THUMB_SIZE.width + "x" + THUMB_SIZE.height + "_t." + getExtension(ejb.getFull()).toLowerCase();
-        deleteFiles(thumbDir, ejb.getFull(), ejb.getOriginal(), thumbName);
+
+        deleteFiles(thumbDir, ejb.getFull(), ejb.getOriginal(),
+                thumbName(ejb.getBase(), THUMB_SIZE, ejb.getFull()),
+                thumbName(ejb.getBase(), ML_SIZE, ejb.getFull())
+        );
         entityManager.remove(ejb);
         return Response.ok(dto).build();
     }
@@ -258,20 +270,52 @@ public class ImageResource extends BaseResource {
         ImageResizer resizer = new ThumbnailatorResizer();
         ResizeResult mainSize = resizer.resize(localFile, TMPDIR, MAIN_SIZE.width, MAIN_SIZE.height);
         ResizeResult thumbSize = resizer.resize(localFile, TMPDIR, THUMB_SIZE.width, THUMB_SIZE.height);
+        ResizeResult mlSize = resizer.resize(localFile, TMPDIR, ML_SIZE.width, ML_SIZE.height, false);
         File mainFile = new File(TMPDIR, mainSize.thumb);
         File thumbFile = new File(TMPDIR, thumbSize.thumb);
+        File mlFile = new File(TMPDIR, mlSize.thumb);
         // extract timestamp from EXIF for step 7
         Date timestamp = Util.getEXIFTimestamp(localFile);
-        // step 6: copy images from temp to permanent dir
+
+        Collection<TagEJB> tags = Collections.EMPTY_LIST;
+        // step 6: get some tag info
+        {
+            RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("image/jpeg"), mlFile);
+            MultipartBody.Part thumbPart = null;
+
+            thumbPart = MultipartBody.Part.createFormData("imagefile", mlFile.getName(), requestBody);
+            Call<TagsDTO> call = tagService.getTags(thumbPart);
+            retrofit2.Response<TagsDTO> tagResponse = call.execute();
+            if (tagResponse.code() != 200) {
+                log.error("tagger service call failed code=" + tagResponse.code() + " msg='" + tagResponse.message()
+                        + "' body='" + tagResponse.errorBody().string() + "'");
+                // don't fail file upload here
+            } else {
+                TagsDTO tagsDTO = tagResponse.body();
+                log.info("got tags for '" + basename + "': " + Arrays.toString(tagsDTO.getTags()));
+                tags = new ArrayList<>();
+                for (String tag : tagsDTO.getTags()) {
+                    TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
+                    if (tagEJB != null)
+                        tags.add(tagEJB);
+                }
+            }
+        }
+
+        // step 7: copy images from temp to permanent dir
         // FIXME: use the "force overwrite" variant of these methods
         Util.copyFileToDirectory(localFile, thumbDir);
         Util.copyFileToDirectory(mainFile, thumbDir);
         Util.copyFileToDirectory(thumbFile, thumbDir);
+        Util.copyFileToDirectory(mlFile, thumbDir);
         localFile.delete();
         mainFile.delete();
         thumbFile.delete();
-        // step 7: update DB
+        mlFile.delete();
+
+        // step 8: update DB
         ImageEJB record = new ImageEJB(basename);
+        record.setTagList(tags);
         record.setOriginal(localFile.getName());
         record.setFull(mainSize.thumb);
         record.setTstamp(timestamp);

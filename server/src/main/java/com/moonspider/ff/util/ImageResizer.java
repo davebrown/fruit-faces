@@ -14,7 +14,16 @@ public abstract class ImageResizer {
     public ResizeResult resize(File full, File outDir, int width, int height) throws IOException {
         return resize(full, outDir, "", width, height);
     }
-    public abstract ResizeResult resize(File full, File outDir, String prefix, int width, int height) throws IOException;
+    public ResizeResult resize(File full, File outDir, int width, int height,
+                               boolean preserveAspectRatio) throws IOException {
+        return resize(full, outDir, "", width, height, preserveAspectRatio);
+    }
+    public ResizeResult resize(File full, File outDir, String prefix, int width, int height)
+            throws IOException {
+        return resize(full, outDir, prefix, width, height, true);
+    }
+    public abstract ResizeResult resize(File full, File outDir, String prefix, int width,
+                                        int height, boolean preserveAspectRatio) throws IOException;
 
     protected static String base(String filename) {
         return getBaseName(filename);

@@ -10,7 +10,7 @@ import java.io.IOException;
 public class ScalrResizer extends ImageResizer {
 
     @Override
-    public ResizeResult resize(File full, File outDir, String prefix, int width, int height)
+    public ResizeResult resize(File full, File outDir, String prefix, int width, int height, boolean preserveAspect)
             throws IOException {
         ResizeResult ret = result(full.getName(), width, height);
         ret.thumb = prefix + ret.thumb;

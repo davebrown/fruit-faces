@@ -2,6 +2,7 @@ allowWriteOperations: true
 maxImageFileSize: 10000000
 thumbDir: ${HOME}/code/fruit-faces/thumbs
 rootUserId: 1563589003653025 # facebook@moonspider.com
+tagServiceUrl: http://127.0.0.1:5000/api/v1/ # must end with '/', because retrofit2
 
 database:
   # the name of your JDBC driver
@@ -14,7 +15,7 @@ database:
   password: na
 
   # the JDBC URL
-  url: jdbc:postgresql://localhost/ff
+  url: jdbc:postgresql://localhost/ff-qa
 
   # any properties specific to your JDBC driver:
   properties:

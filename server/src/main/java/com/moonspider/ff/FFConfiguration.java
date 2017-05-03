@@ -34,6 +34,12 @@ public class FFConfiguration extends Configuration {
     @NotNull
     @JsonProperty
     private String rootUserId;
+
+    @Valid
+    @NotNull
+    @JsonProperty
+    private String tagServiceUrl;
+
     public DataSourceFactory getDataSourceFactory() {
         return database;
     }
@@ -56,4 +62,12 @@ public class FFConfiguration extends Configuration {
     public String getThumbDirPath() { return thumbDirPath; }
     public File getThumbDir() { return new File(thumbDirPath); }
     public String getRootUserId() { return rootUserId; }
+
+    public String getTagServiceUrl() {
+        return tagServiceUrl;
+    }
+
+    public void setTagServiceUrl(String tagServiceUrl) {
+        this.tagServiceUrl = tagServiceUrl;
+    }
 }
