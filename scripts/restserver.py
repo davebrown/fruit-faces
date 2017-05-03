@@ -6,9 +6,11 @@ import threading
 import os
 import tempfile
 import traceback
+import logging
 from gunicorn.errors import HaltServer
 from gunicorn.app.base import BaseApplication
-from wsgiref import simple_server
+#from wsgiref import simple_server
+
 
 #import faulthandler, signal
 #faulthandler.register(signal.SIGUSR1)
@@ -19,18 +21,20 @@ import skimage.data
 import numpy as np
 from keras.models import Sequential, load_model
 import sklearn
-from keras.layers import Dense, Activation, Dropout, Flatten, Conv2D, MaxPooling2D
-from keras.optimizers import RMSprop, SGD, Adam
-from keras.initializers import RandomNormal, RandomUniform
+#from keras.layers import Dense, Activation, Dropout, Flatten, Conv2D, MaxPooling2D
+#from keras.optimizers import RMSprop, SGD, Adam
+#from keras.initializers import RandomNormal, RandomUniform
 from keras import backend as K
 import tensorflow as tf
+
+logger = logging.getLogger('tagservice')
 
 def say(*args):
   name = threading.currentThread().name
   if name is None:
     name = '_no-thread-name_'
   suffix = ' '.join([str(e) for e in args])
-  print('<%d-%s> %s' % (os.getpid(), name, suffix))
+  logger.info('<%d-%s> %s' % (os.getpid(), name, suffix))
   
 
 # Import helper functions
@@ -41,7 +45,7 @@ try:
   import ml_util as u
   from ml_util import n2c, c2n, info, warn, err, fail, verbose, decodeSize
 except:
-  sys.stderr.write('EXCEPTION')
+  logger.exception('EXCEPTION importing ML')
   traceback.print_exc()
   sys.exit(1)
 
@@ -65,13 +69,14 @@ def loadModel():
     say('default session, POST - with %s' % str(tf.get_default_session()))
     for f in sys.argv[1:]:
       if '.h5' in f:
-        info('loading keras model from %s' % f)
+        logger.info('loading keras model from %s' % f)
         model = load_model(f)
     if model is None and os.environ.get('FF_MODEL', None) is not None:
+      logger.info('loading keras model from %s' % os.environ['FF_MODEL'])
       model = load_model(os.environ['FF_MODEL'])
     else:
       msg = 'cannot find model file in sys.argv or in environment var "FF_MODEL"'
-      err(msg)
+      logger.error(msg)
       raise HaltServer(msg)
 
   # necessary for multi-threads, for some reason
@@ -150,9 +155,10 @@ class TagResource:
     # verify the shape of the data
     # FIXME: this assumes unflattened data for 'mnist' model from ml-keras-plates.py
     # If it ever tries to run on flattened data, the below will need to be smarter
-    if len(data) != 4 or self.width != d.shape[1] or self.height != d.shape[2] or d.shape[3] != 3:
+    if len(data.shape) != 4 or self.width != data.shape[1] or self.height != data.shape[2] or data.shape[3] != 3:
+      logger.debug('data dimensions', len(data.shape), data.shape[1], data.shape[2], data.shape[3])
       msg = 'expect %dx%d image size, got shape %s' % (self.width, self.height, str(data.shape))
-      err('tag resource post:', msg)
+      logger.error('tag resource post:', msg)
       raise falcon.HTTPError(falcon.HTTP_400, msg)
     
     try:
@@ -192,8 +198,6 @@ class GunicornApp(BaseApplication):
         for key, value in self.options.items():
             self.cfg.set(key.lower(), value)
 
-        #self.cfg.set('worker_class', 'example.__main__.CustomWorker')
-
     def load(self):
         return self.application
 
@@ -215,7 +219,7 @@ if __name__ == '__main__':
   try:
     main()
   except:
-    print('EXCEPTION in main')
+    logger.exception('EXCEPTION in main')
     traceback.print_exc()
     
   
