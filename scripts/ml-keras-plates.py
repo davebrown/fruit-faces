@@ -9,9 +9,14 @@ import numpy as np
 # Import helper functions
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, dir_path)
+dir_path = os.path.join(dir_path, '../tagger')
+sys.path.insert(0, dir_path)
 
 import ml_util as u
-from ml_util import n2c, c2n, info, warn, err, fail, verbose
+from ml_util import info, warn, err, fail, verbose
+import tag_util as tu
+from tag_util import n2c, c2n
+from imread import imread
 
 import keras.utils
 from keras.models import Sequential, load_model
@@ -157,7 +162,7 @@ def cmd_train(args):
 
   FLAT_DATA = True
   
-  width, height = u.decodeSize(ARGS.size)
+  width, height = tu.decodeSize(ARGS.size)
 
   # wrap all keras ops in a know TF session
   sess = tf.Session()

@@ -16,14 +16,8 @@ from gunicorn.app.base import BaseApplication
 #faulthandler.register(signal.SIGUSR1)
 #print '\n\n\nfaulthandler enabled?', faulthandler.is_enabled(), '\n\n\n'
 
-import skimage.data
-
 import numpy as np
-from keras.models import Sequential, load_model
-import sklearn
-#from keras.layers import Dense, Activation, Dropout, Flatten, Conv2D, MaxPooling2D
-#from keras.optimizers import RMSprop, SGD, Adam
-#from keras.initializers import RandomNormal, RandomUniform
+from keras.models import load_model
 from keras import backend as K
 import tensorflow as tf
 
@@ -42,8 +36,8 @@ try:
   say('restserver executing!!! put %s in lib path' % os.path.dirname(__file__))
   dir_path = os.path.dirname(os.path.realpath(__file__))
   sys.path.insert(0, dir_path)
-  import ml_util as u
-  from ml_util import n2c, c2n, info, warn, err, fail, verbose, decodeSize
+  from tag_util import n2c, decodeSize
+  from imread import imread
 except:
   logger.exception('EXCEPTION importing ML')
   traceback.print_exc()
@@ -143,7 +137,8 @@ class TagResource:
     with open(tmpfile, 'wb') as tmp:
       tmp.write(raw)
       tmp.close()
-      data = np.array([ skimage.data.imread(tmpfile) ])
+      #data = np.array([ skimage.data.imread(tmpfile) ])
+      data = np.array([ imread(tmpfile) ])
       say('upload numpy shape: %s' % str(data.shape))
       os.remove(tmpfile)
 

@@ -7,6 +7,15 @@ import numpy as np
 import skimage.data
 from sklearn.preprocessing import LabelBinarizer
 
+# Import helper functions from '../tagger'
+dir_path = os.path.dirname(os.path.realpath(__file__))
+#sys.path.insert(0, dir_path)
+dir_path = os.path.join(dir_path, '../tagger')
+sys.path.insert(0, dir_path)
+
+from tag_util import n2c, c2n, getTags, decodeSize
+from imread import imread
+
 def join(a,b):
   if len(b) > 0 and b[0] == '/':
     b = b[1:]
@@ -126,40 +135,6 @@ def split(nparray, ind):
   b = nparray[ind:]
   return a, b
 
-# FIXME: madness ensues if the order of tags in getTags(), n2c(), c2n(), change
-# Fix this with one DRY copy of tags and their indices
-def getTags():
-  #ret = getJson('/tags')
-  ret = [ 'blue', 'gray', 'white' ]
-  return ret
-
-def c2n(c):
-    if c == 'white': return 2
-    if c == 'gray': return 1
-    if c == 'blue': return 0
-    raise ValueError('unknown color: "%s"' % c)
-
-def n2c(n):
-  if isinstance(n, (np.ndarray)):
-    # assume a 1-hot output, with only one dimension on input
-    if len(n.shape) > 1:
-      raise ValueError('cannot n2c multi-dimension array, shape=%s' % str(n.shape))
-    n = n.argmax()
-  if n == 2: return 'white'
-  if n == 1: return 'gray'
-  if n == 0: return 'blue'
-  raise ValueError('unknown color numeric: "%d"' % n)
-
-def decodeSize(sz):
-  """from '60x80' return (60, 80)"""
-  try:
-    w,h = sz.split('x', 2)
-    w = int(w)
-    h = int(h)
-    return w, h
-  except ValueError as ve:
-    fail('invalid dimension "%s"' % sz)
-
 
 def tag2n(img, tag):
   if imageHasTag(img, tag):
@@ -183,7 +158,7 @@ def loadInputs(flatten=True, imageDim='60x80', imgId=None):
   labels = np.empty( (len(json), len(tags) ) ) 
   for i in range(len(json)):
     img = json[i]
-    imgData = skimage.data.imread(thumbFile(img['full'], imageDim))
+    imgData = imread(thumbFile(img['full'], imageDim))
     #print('imgData shape', imgData.shape, 'type', type(imgData))
     
     if flatten:
@@ -247,6 +222,8 @@ def outputHtml(filename, imageFiles, predictedColors, actualColors, probs=None):
   html.write('</html>')
   html.flush()
   html.close()
+
+
 
 def sample(lists, percent):
   if percent <= 0.0 or percent >= 1.0:
