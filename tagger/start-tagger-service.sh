@@ -17,6 +17,5 @@ export PYTHONFAULTHANDLER=true
 gunicorn -b 0.0.0.0:5000 --preload restserver:app \
          --access-logfile=/tmp/tagger/access.log \
          --error-logfile=/tmp/tagger/error.log \
-         -c tag-config.py \
          -R
 

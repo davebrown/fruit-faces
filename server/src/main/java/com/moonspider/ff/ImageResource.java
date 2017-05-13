@@ -285,20 +285,24 @@ public class ImageResource extends BaseResource {
 
             thumbPart = MultipartBody.Part.createFormData("imagefile", mlFile.getName(), requestBody);
             Call<TagsDTO> call = tagService.getTags(thumbPart);
-            retrofit2.Response<TagsDTO> tagResponse = call.execute();
-            if (tagResponse.code() != 200) {
-                log.error("tagger service call failed code=" + tagResponse.code() + " msg='" + tagResponse.message()
-                        + "' body='" + tagResponse.errorBody().string() + "'");
-                // don't fail file upload here
-            } else {
-                TagsDTO tagsDTO = tagResponse.body();
-                log.info("got tags for '" + basename + "': " + Arrays.toString(tagsDTO.getTags()));
-                tags = new ArrayList<>();
-                for (String tag : tagsDTO.getTags()) {
-                    TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
-                    if (tagEJB != null)
-                        tags.add(tagEJB);
+            try {
+                retrofit2.Response<TagsDTO> tagResponse = call.execute();
+                if (tagResponse.code() != 200) {
+                    log.error("tagger service call failed code=" + tagResponse.code() + " msg='" + tagResponse.message()
+                            + "' body='" + tagResponse.errorBody().string() + "'");
+                    // don't fail file upload here
+                } else {
+                    TagsDTO tagsDTO = tagResponse.body();
+                    log.info("got tags for '" + basename + "': " + Arrays.toString(tagsDTO.getTags()));
+                    tags = new ArrayList<>();
+                    for (String tag : tagsDTO.getTags()) {
+                        TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
+                        if (tagEJB != null)
+                            tags.add(tagEJB);
+                    }
                 }
+            } catch (IOException ioe) {
+                log.error("call to tagger service at " + config.getTagServiceUrl() + " failed:", ioe);
             }
         }
 

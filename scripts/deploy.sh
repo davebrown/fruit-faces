@@ -2,6 +2,32 @@
 
 set -e
 
+REMOTE_USER=ff@ff.moonspider.com
+
+# sync and build tagger service
+echo '============ SYNC TAGGER SERVICE AND DEPENDENCIES ================'
+ssh $REMOTE_USER mkdir -p tagger
+cd tagger
+rsync -av *.py requirements.txt model_mnist-28x28.h5 tagger-prod.sh $REMOTE_USER:tagger/
+cd ..
+# assume here that deploy machine already provisioned with:
+# 1) python 2.7
+# 2) python-pip
+# 3) virtualenv
+# 4) a virtualenv called 'tagger' already exists and is sourced from .bashrc
+ssh $REMOTE_USER '. venvs/tagger/bin/activate && pip install -r tagger/requirements.txt'
+
+echo '============ RESTART TAGGER SERVICE ================'
+ssh $REMOTE_USER 'tagger/tagger-prod.sh stop || true'
+sleep 1
+#ssh $REMOTE_USER '. venvs/tagger/bin/activate && echo $PATH && which gunicorn'
+
+ssh $REMOTE_USER 'cd tagger && ./tagger-prod.sh start'
+echo waiting 15s for tagger to start: && sleep 15
+ssh $REMOTE_USER '(curl -s http://localhost:5000/api/v1/ping | grep OK) || (echo ERROR tagger not OK && exit 1)'
+
+echo '============ RESTARTED TAGGER SERVICE ================'
+
 # fail prod build if any local edits to working copy
 # with -Dmaven.buildNumber.doCheck=true
 cd server
@@ -34,8 +60,6 @@ echo FB is $FB_APP_ID
 npm run build
 
 echo 'ARTIFACTS BUILT, syncing backend to prod'
-
-REMOTE_USER=ff@ff.moonspider.com
 
 rsync -av \
       server/target/ff-1.0.0.jar \
