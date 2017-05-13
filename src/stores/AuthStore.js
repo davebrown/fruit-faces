@@ -58,6 +58,11 @@ class AuthStore extends EventEmitter {
     //console.log('AuthStore._setLogin', l);
     login = l;
     this.emitChange();
+    if (login.userID) {
+      amplitude.setUserId(login.userID);
+    } else {
+      amplitude.setUserId(null);
+    }
     if (login.accessToken) {
       request({
         method: 'POST',

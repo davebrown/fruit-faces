@@ -42,16 +42,17 @@ class FFTech extends React.Component {
         <hr/>
         <h3>TO-DO</h3>
         <ul>
-          <li>Auth via <code>{openBrace}Facebook | Google | Twitter{closeBrace}</code></li>
-          <li>Upload <i>(currently images are ingested outside the app)</i></li>
+          <li><span className="strike">Auth via <code>{openBrace}Facebook | Google | Twitter{closeBrace}</code></span></li>
+          <li><span className="strike">Upload <i>(currently images are ingested outside the app)</i></span></li>
           <li>Favorite voting</li>
+          <li><span className="strike">Machine learning standalong service</span></li>
           <li>Improve ML for image categorization - identify particular fruits</li>
           <li>Use <a href="https://aws.amazon.com/rds/postgresql/" target="_blank">Amazon RDS for Postgres</a> instead of local</li>
-          <li>Produce, deploy Docker containers</li>
           <li>Deploy via <a href="https://skyliner.io" target="_blank">Skyliner</a>.</li>
           <li><span className="strike">Logging,</span> monitoring, alerting</li>
           <li><span className="strike">Version-controlled and automated database migrations</span></li>
           <li><span className="strike"><a href="https://letsencrypt.org/" target="_blank">Let&apos;s Encrypt</a> for TLS</span></li>
+          <li><span className="strike">Structured error and status reporting UI</span></li>
           <li>At least a modicum of tests :-)</li>
         </ul>
         <FBBlock like={false}/>
