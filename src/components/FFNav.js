@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router';
 import bowser from 'bowser';
+
 import { FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 import { authStore } from '../stores/AuthStore.js';
+import { amplitude } from '../util/Util.js';
 
 class FFNav extends React.Component {
 

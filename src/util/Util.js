@@ -3,7 +3,10 @@ import FFActions from '../actions/FFActions.js';
 
 const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
 const AMPLITUDE_KEY = process.env.AMPLITUDE_API_KEY || 'error-missing-amplitude-key';
-
+var REDIRECT_URI = 'http://localhost:3000/'
+if (process.env.NODE_ENV === 'production') {
+  REDIRECT_URI = 'https://ff.moonspider.com/';
+}
 // initialize amplitude
 // FIXME: where to put these so they're 'early'?
 
@@ -58,4 +61,4 @@ function reportError(input, title) {
   //alert('oops: ' + msg);
 }
 
-export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportSuccess, reportInfo, reportWarning };
+export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportSuccess, reportInfo, reportWarning, REDIRECT_URI };
