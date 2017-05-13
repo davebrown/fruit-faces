@@ -3,9 +3,9 @@ import FFActions from '../actions/FFActions.js';
 
 const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
 const AMPLITUDE_KEY = process.env.AMPLITUDE_API_KEY || 'error-missing-amplitude-key';
-var REDIRECT_URI = 'http://localhost:3000/'
+var REDIRECT_URI = 'http://localhost:3000/#/login'
 if (process.env.NODE_ENV === 'production') {
-  REDIRECT_URI = 'https://ff.moonspider.com/';
+  REDIRECT_URI = 'https://ff.moonspider.com/#/login';
 }
 // initialize amplitude
 // FIXME: where to put these so they're 'early'?
