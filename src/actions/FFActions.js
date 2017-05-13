@@ -1,5 +1,5 @@
 import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED, KEY_NAV_HAPPENED, FB_INITIALIZED, FB_AUTH_CHANGED } from '../constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED, KEY_NAV_HAPPENED, FB_INITIALIZED, FB_AUTH_CHANGED, STATUS_REPORT } from '../constants/FFConstants.js';
 //import { * } from '../constants/FFConstants.js'; can't do this :-/
 
 class FFActions {
@@ -62,6 +62,17 @@ class FFActions {
   fbAuthChanged() {
     Dispatcher.dispatch({
       actionType: FB_AUTH_CHANGED
+    });
+  }
+
+  // type: error | success | info | warning
+  statusReport(msg, title, statusType) {
+    statusType = statusType || 'error';
+    Dispatcher.dispatch({
+      actionType: STATUS_REPORT,
+      statusType: statusType,
+      title: title,
+      message: msg
     });
   }
 }

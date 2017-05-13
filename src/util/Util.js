@@ -1,8 +1,8 @@
 import amplitude from 'amplitude-js/amplitude.min';
+import FFActions from '../actions/FFActions.js';
 
 const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
 const AMPLITUDE_KEY = process.env.AMPLITUDE_API_KEY || 'error-missing-amplitude-key';
-
 
 // initialize amplitude
 // FIXME: where to put these so they're 'early'?
@@ -38,10 +38,24 @@ function errToString(input) {
   return 'Unknown error';
 }
 
-function reportError(input) {
-  const msg = errToString(input) || 'Unknown error occurred';
-  // FIXME: find nicer place for this in the UI
-  alert('oops: ' + msg);
+function reportSuccess(message, title) {
+  FFActions.statusReport(message, title || '', 'success');
 }
 
-export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError };
+function reportInfo(message, title) {
+  FFActions.statusReport(message, title || '', 'info');
+}
+
+function reportWarning(message, title) {
+  FFActions.statusReport(message, title || '', 'warning');
+}
+
+function reportError(input, title) {
+  const msg = errToString(input) || 'Unknown error occurred';
+  title = title || '';
+  FFActions.statusReport(msg, title, 'error');
+  // FIXME: find nicer place for this in the UI
+  //alert('oops: ' + msg);
+}
+
+export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportSuccess, reportInfo, reportWarning };

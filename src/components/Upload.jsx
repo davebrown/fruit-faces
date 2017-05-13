@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import request from 'browser-request';
 import FileUpload from 'react-fileupload';
 import FFActions from '../actions/FFActions.js';
-import { API_BASE_URL, reportError, errToString } from '../util/Util.js';
+import { API_BASE_URL, reportError, reportSuccess, errToString } from '../util/Util.js';
 import { authStore } from '../stores/AuthStore.js';
 
 export default class Upload extends React.Component {
@@ -36,12 +36,13 @@ export default class Upload extends React.Component {
     console.log('uploadSuccess', response);
     FFActions.imageAdded(response);
     FFActions.imageChanged(response);
+    reportSuccess(response.base || '', 'Uploaded image');
   }
   
   uploadError(err) {
     this.uploadStopped();
     console.error('Upload.uploadError', err);
-    reportError(err);
+    reportError(err, 'problem uploading image');
     this.setState({
       error: err
     });

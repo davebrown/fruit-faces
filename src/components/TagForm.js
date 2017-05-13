@@ -54,12 +54,12 @@ class TagForm extends React.Component {
     }, (er, response, bodyString) => {
       if (er) {
         console.log('delete image problem: ' + er);
-        reportError(er);
+        reportError(er, 'problem deleting image');
         this.setState({ error: er });
         return;
       } else if (response.statusCode < 200 || response.statusCode > 299) {
         var errObj = JSON.parse(bodyString);
-        reportError(errObj);
+        reportError(errObj, 'problem deleting image');
         this.setState({ error: errObj });
       } else {
         console.log('delete image OK? code=' + response.statusCode);

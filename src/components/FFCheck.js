@@ -29,11 +29,11 @@ function tagImage(image, verb, tag) {
   }, (er, response, bodyString) => {
     if (er) {
       console.log('update tags problem: ' + er);
-      reportError(er);
+      reportError(er, 'problem changing tags');
     } else if (response.statusCode < 200 || response.statusCode > 299) {
       // FIXME: need to undo local check state in ImageStore and in UI when this happens
       var errObj = JSON.parse(bodyString);
-      reportError(errObj);
+      reportError(errObj, 'problem changing tags');
     }
     //console.log('updateTag OK? code=' + response.statusCode);
   });

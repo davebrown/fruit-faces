@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom';
 import { Router, Route, Link, IndexRoute, hashHistory, browserHistory } from 'react-router';
 import request from 'browser-request';
 import bowser from 'bowser';
+import { ToastContainer, ToastMessage } from 'react-toastr';
 
 import Dispatcher from './dispatcher/AppDispatcher.js';
-import { IMAGE_CHANGED, IMAGES_LOADED } from './constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGES_LOADED, STATUS_REPORT } from './constants/FFConstants.js';
 import FFActions from './actions/FFActions.js';
 import ImageStore from './stores/ImageStore.js';
 import Dialog from './components/Dialog.js';
@@ -18,8 +19,9 @@ import FFTable from './components/FFTable.jsx';
 import FFMainImage from './components/FFMainImage.js';
 import FBLogin from './components/FBLogin.jsx';
 import Upload from './components/Upload.jsx';
+import Toastr from './components/Toastr.jsx';
 
-import { amplitude, API_BASE_URL, errToString, imageHasTag } from './util/Util.js';
+import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportWarning, reportSuccess, reportInfo } from './util/Util.js';
 import { authStore, FB_APP_ID } from './stores/AuthStore.js';
 
 const NotFound = () => (
@@ -29,11 +31,43 @@ const NotFound = () => (
   </div>
 );
 
+const ToastMessageFactory = React.createFactory(ToastMessage.animation);
+
 class FFContainer extends React.Component {
  constructor(props) {
     super(props);
-    //Dispatcher.register(this.changeListener.bind(this));
+    Dispatcher.register(this.statusListener.bind(this));
     //ImageStore.addChangeListener(this.changeListener.bind(this));
+ }
+
+  statusListener(action) {
+    switch (action.actionType) {
+        case STATUS_REPORT:
+        console.log('FFContainer.status', action);
+        const opts =  {
+          timeOut: 3000,
+          extendedTimeOut: 10000,
+          preventDuplicates: true,
+          closeButton: true
+        };
+        const cont = this.refs.container;
+        
+        switch (action.statusType) {
+          case 'success':
+            cont.success(action.message, action.title, opts);
+            break;
+          case 'warning':
+            cont.warning(action.message, action.title, opts);
+            break;
+          case 'info':
+            cont.info(action.message, action.title, opts);
+            break;
+          case 'error':
+          default:
+            cont.error(action.message, action.title, opts);
+            break;
+        }
+    }
   }
 
   render() {
@@ -46,8 +80,21 @@ class FFContainer extends React.Component {
     } else if (!bowser.mobile) {
       children = (<About/>);
     }
+    
+    var toastTest = null;
+    /*
+    toastTest = (<div>
+    <button onClick={() => reportError('bad thing happened', 'oops', 'error')}>Error Button</button>
+    <button onClick={() => reportSuccess('good thing happened', 'GREAT!', 'success')}>Success Button</button>
+    <button onClick={() => reportWarning('might be bad', 'WARNING', 'warning')}>Warning Button</button>
+    <button onClick={() => reportInfo('very neutral something', 'FYI', 'info')}>Info Button</button>
+    </div>);
+    */
     return (
         <div className="container">
+          <ToastContainer ref="container"
+            toastMessageFactory={ToastMessageFactory}
+            className="toast-top-right" />
         <FFTable/>
         <Dialog>
         {children}
@@ -121,6 +168,7 @@ class FFApp extends React.Component {
           <Route path='/tech' component={Tech}/>
           <Route path='/login' component={FBLogin}/>
           <Route path='/upload' component={Upload}/>
+          <Route path='/toastr' component={Toastr}/>
           <Route path='/images/:imageId' component={FFMainImage}/>
           <Route path='*' component={NotFound}/>
         </Route>

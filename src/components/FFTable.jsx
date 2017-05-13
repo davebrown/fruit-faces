@@ -144,7 +144,7 @@ export default class FFTable extends React.Component {
       if (err) {
         const errMsg = errToString(err);
         amplitude.logEvent('IMAGE_CATALOG_LOAD_ERROR', { errMsg: errMsg });
-        reportError(errMsg);
+        reportError(errMsg, 'problem loading images');
       }
       var body = JSON.parse(bodyString);
       var duration = new Date().getTime() - startTime;

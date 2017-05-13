@@ -126,7 +126,7 @@ window.fbAsyncInit = function() {
 
 /* receives callback from FB.getLoginStatus() */
 function fbStatusCallback(response) {
-  //console.log('AuthStore.fbStatusCallback', response, response.status === 'connected');
+  console.log('AuthStore.fbStatusCallback', response, response.status === 'connected');
   // compose an object that looks like the 'login' prototype above
   const ar = response.authResponse;
   var login = {
