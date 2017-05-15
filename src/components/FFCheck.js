@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import request from 'browser-request';
 import ImageStore from '../stores/ImageStore.js';
 import { API_BASE_URL, imageHasTag, reportError } from '../util/Util.js';
+import { authStore } from '../stores/AuthStore.js';
 
 function imageRemoveTag(image, tag) {
   if (!image.tags) image.tags = [];
