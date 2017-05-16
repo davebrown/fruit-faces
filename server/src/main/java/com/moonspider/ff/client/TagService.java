@@ -1,5 +1,6 @@
 package com.moonspider.ff.client;
 
+import com.moonspider.ff.model.PingDTO;
 import com.moonspider.ff.model.TagsDTO;
 import com.moonspider.ff.model.UserDTO;
 import okhttp3.MediaType;
@@ -9,6 +10,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
@@ -21,6 +23,9 @@ public interface TagService {
     @POST("tags")
     Call<TagsDTO> getTags(@Part MultipartBody.Part thumbFile);
 
+    @GET("ping")
+    Call<PingDTO> ping();
+
     public static void main(String[] args) throws Exception {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://127.0.0.1:5000/api/v1/")
@@ -28,7 +33,16 @@ public interface TagService {
                 .build();
 
         TagService ts = retrofit.create(TagService.class);
-        File f = new File("../thumbs/IMG_3110_28x28_t.jpg");
+
+        Call<PingDTO> pingCall = ts.ping();
+        Response<PingDTO> pingRsp = pingCall.execute();
+        if (pingRsp.code() == 200) {
+            PingDTO ping = pingRsp.body();
+            System.out.println("PING OK(?) " + ping.getStatus() + " // " + ping);
+        } else {
+            System.err.println("non-200 from tagger service: " + pingRsp.code());
+        }
+        File f = new File("../thumbs-orig/IMG_3110_28x28_t.jpg");
         RequestBody requestBody = RequestBody.create(MediaType.parse("image/jpeg"), f);
         MultipartBody.Part thumbPart = null;
 

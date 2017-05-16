@@ -1,12 +1,13 @@
 package com.moonspider.ff;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moonspider.ff.client.TagService;
 import com.moonspider.ff.model.PingDTO;
 import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import retrofit2.Call;
 
 import static com.moonspider.ff.model.PingDTO.ResourceStatus.*;
 
@@ -31,10 +32,12 @@ public class InfoResource extends BaseResource {
 
     public static final Map<String,String> BUILD_INFO = loadBuildInfo();
     private static final Logger log = LoggerFactory.getLogger(InfoResource.class);
+    private final TagService tagService;
 
 
     public InfoResource(EntityManager entityManager, FFConfiguration config) {
         super(entityManager, config);
+        this.tagService = Util.createTagService(config);
     }
 
     private static Map<String,String> loadBuildInfo() {
@@ -81,6 +84,7 @@ public class InfoResource extends BaseResource {
     public PingDTO ping() {
         return new PingDTO()
         .addResource(checkPostgres())
+        .addResource(checkTaggerService()) // FIXME: implement :-)
         ;
     }
 
@@ -100,6 +104,24 @@ public class InfoResource extends BaseResource {
             Throwable root = Util.unwindExceptions(problem);
             log.error("postgres problem", problem);
             ret = new PingDTO.Resource("postgresql", ERROR, root.toString());
+        }
+        return ret;
+    }
+
+    private PingDTO.Resource checkTaggerService() {
+        PingDTO.Resource ret;
+        try {
+            retrofit2.Response<PingDTO> rsp = tagService.ping().execute();
+            if (rsp.code() == 200) {
+                PingDTO ping = rsp.body();
+                ret = new PingDTO.Resource("tagger", ping.getStatus());
+            } else {
+                log.warn("problem with tagger health check: code=" + rsp.code(), rsp.message());
+                ret = new PingDTO.Resource("tagger", PingDTO.ResourceStatus.ERROR, rsp.code() + " response code");
+            }
+        } catch (Exception problem) {
+            log.error("problem pinging tagger service", problem);
+            return new PingDTO.Resource("tagger", PingDTO.ResourceStatus.ERROR, problem.toString());
         }
         return ret;
     }
