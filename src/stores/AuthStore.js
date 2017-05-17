@@ -72,10 +72,10 @@ class AuthStore extends EventEmitter {
         }
       }, (er, response, bodyString) => {
         if (er) {
-          amplitude.logEvent('REGISTER_ERROR', errToString(er));
+          amplitude.logEvent('REGISTER_ERROR', { errorMsg: errToString(er) });
         } else if (response.statusCode < 200 || response.statusCode > 299) {
           var errObj = JSON.parse(bodyString);
-          amplitude.logEvent('REGISTER_ERROR', errToString(errObj));
+          amplitude.logEvent('REGISTER_ERROR', { errorMsg: errToString(errObj) });
         }
       });
       
@@ -114,7 +114,7 @@ window.fbAsyncInit = function() {
   // https://developers.facebook.com/docs/reference/javascript/FB.getLoginStatus
   // this callback arg has the same shape as FB.getLoginStatus(), so pipe it to that same handler
   FB.Event.subscribe('auth.authResponseChange', (response) => {
-    console.log('****** auth.authResponseChange:', response);
+    console.log('auth status change - ' + new Date(), response);
     fbStatusCallback(response);
   });
   //console.log('AuthStore: fbInitialized');
@@ -174,7 +174,7 @@ function fbStatusCallback(response) {
 /* receives callback from FacebookLogin component */
 function fbLoginCallback(response) {
   //console.log('AuthStore.fbLoginCallback', response);
-  authStore._setLogin(response);
+  //authStore._setLogin(response);
 }
 
 authStore._fbLoginCallback = fbLoginCallback;
