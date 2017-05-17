@@ -9,6 +9,7 @@ import java.util.List;
 public class UserEJB {
 
     private String fbId, email, name;
+    private Integer id;
 
     @Id
     @Column(name="fb_id")
@@ -20,6 +21,17 @@ public class UserEJB {
     public void setFbId(String fbId) {
         this.fbId = fbId;
     }
+
+    // http://stackoverflow.com/questions/11825643/configure-jpa-to-let-postgresql-generate-the-primary-key-value
+    @Column(updatable = false, insertable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+            generator = "ff_user_id_seq"
+    )
+    @SequenceGenerator(name="ff_user_id_seq",
+            sequenceName="ff_user_id_seq",
+            allocationSize=1)
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
     @Column
     public String getEmail() {
@@ -57,7 +69,8 @@ public class UserEJB {
     @Override
     public String toString() {
         return "UserEJB{" +
-                "fbId='" + fbId + '\'' +
+                "id=" + id +
+                ", fbId='" + fbId + '\'' +
                 ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
                 '}';

@@ -10,13 +10,16 @@ import com.drew.metadata.jpeg.JpegDirectory;
 import com.drew.metadata.png.PngDirectory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.moonspider.ff.client.FBService;
 import com.moonspider.ff.client.TagService;
+import com.moonspider.ff.model.UserDTO;
 import com.moonspider.ff.util.ImageData;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.awt.*;
 import java.io.Closeable;
@@ -154,6 +157,12 @@ public class Util {
     private final static File TMPDIR = initTmpDir();
 
     public static final ObjectMapper JSON = new ObjectMapper();
+    static {
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(UserDTO.class, new FBService.FBUserDeserializer());
+        JSON.registerModule(module);
+    }
+
     public static String toJSON(Object o) throws JsonProcessingException {
         return JSON.writeValueAsString(o);
     }
@@ -165,7 +174,7 @@ public class Util {
     public static TagService createTagService(FFConfiguration config) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(config.getTagServiceUrl())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(JacksonConverterFactory.create(Util.JSON))
                 .build();
 
         return retrofit.create(TagService.class);

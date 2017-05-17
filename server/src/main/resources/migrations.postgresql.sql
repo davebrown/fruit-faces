@@ -80,4 +80,9 @@ UPDATE image set user_id='1563589003653025';
 ALTER TABLE image ALTER COLUMN user_id SET NOT NULL;
 ALTER TABLE image ADD CONSTRAINT image_user_fkey FOREIGN KEY (user_id) REFERENCES ff_user (fb_id) ON UPDATE NO ACTION ON DELETE CASCADE;
 
+-- changeset dave:19
+-- postgres conveniently updates all existing rows appropriately :-)
+alter table ff_user add column id serial;
+
+
 

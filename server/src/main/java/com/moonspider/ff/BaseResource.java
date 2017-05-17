@@ -10,7 +10,7 @@ import com.moonspider.ff.model.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.WebApplicationException;
@@ -30,7 +30,7 @@ public abstract class BaseResource {
 
     private static Retrofit retrofit = new Retrofit.Builder()
             .baseUrl("https://graph.facebook.com/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(JacksonConverterFactory.create(Util.JSON))
             .build();
 
     private static FBService fb = retrofit.create(FBService.class);
@@ -72,17 +72,17 @@ public abstract class BaseResource {
         } catch (/*Execution*/Exception e) { /* ExecutionException || UncheckExecutionException */
             log.error("Exception calling FB API", e);
             log.error("FB root", Util.unwindExceptions(e));
-            return null;
+            throw new WebApplicationException("internal server error", 500);
         }
     }
     // caller method must have @UnitOfWork(transactional = true)
     // since this might write to DB. But should be true that caller is so annotated anyway
     // at least until app ever imposes auth on read operations
     protected UserEJB findOrCreateUser(UserDTO dto) {
-        UserEJB ejb = entityManager.find(UserEJB.class, dto.getId());
+        UserEJB ejb = entityManager.find(UserEJB.class, dto.getFbId());
         if (ejb == null) {
             ejb = new UserEJB();
-            ejb.setFbId(dto.getId());
+            ejb.setFbId(dto.getFbId());
             ejb.setEmail(dto.getEmail());
             ejb.setName(dto.getName());
             entityManager.persist(ejb);

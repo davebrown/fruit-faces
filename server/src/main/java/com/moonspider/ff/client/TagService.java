@@ -1,5 +1,6 @@
 package com.moonspider.ff.client;
 
+import com.moonspider.ff.Util;
 import com.moonspider.ff.model.PingDTO;
 import com.moonspider.ff.model.TagsDTO;
 import com.moonspider.ff.model.UserDTO;
@@ -9,7 +10,7 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -29,7 +30,7 @@ public interface TagService {
     public static void main(String[] args) throws Exception {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://127.0.0.1:5000/api/v1/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(JacksonConverterFactory.create(Util.JSON))
                 .build();
 
         TagService ts = retrofit.create(TagService.class);

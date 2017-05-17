@@ -5,24 +5,36 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.moonspider.ff.ejb.UserEJB;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+
 public class UserDTO {
 
     private String id, email, name;
+    private int ffId;
 
     public UserDTO() { }
     public UserDTO(UserEJB ejb) {
+        ffId = ejb.getId();
         id = ejb.getFbId();
         email = ejb.getEmail();
         name = ejb.getName();
     }
 
-    @JsonProperty(value="id")
-    public String getId() {
+    @JsonProperty(value="fbId")
+    public String getFbId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setFbId(String id) {
         this.id = id;
+    }
+
+    @JsonProperty("ffId")
+    public int getId() {
+        return ffId;
+    }
+
+    public void setId(int id) {
+        this.ffId = id;
     }
 
     @JsonProperty
@@ -46,7 +58,8 @@ public class UserDTO {
     @Override
     public String toString() {
         return "UserDTO{" +
-                "id='" + id + '\'' +
+                "ffId='" + ffId + '\'' +
+                ", id='" + id + '\'' +
                 ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
                 '}';

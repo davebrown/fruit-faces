@@ -45,7 +45,7 @@ public class UserResource extends BaseResource {
     public Response getAllUsers(@HeaderParam("X-FF-Auth") String authToken) {
         UserDTO user = user(authToken);
         log.info("check " + user + " against " + config.getRootUserId());
-        if (user == null || user.getId() == null || !user.getId().equals(config.getRootUserId())) {
+        if (user == null || user.getFbId() == null || !user.getFbId().equals(config.getRootUserId())) {
             return error(403, "denied");
         }
         TypedQuery<UserEJB> query = entityManager.createQuery("SELECT u FROM UserEJB u", UserEJB.class);

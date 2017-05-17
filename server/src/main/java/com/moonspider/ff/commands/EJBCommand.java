@@ -2,6 +2,7 @@ package com.moonspider.ff.commands;
 
 import com.moonspider.ff.FFConfiguration;
 import com.moonspider.ff.ejb.ImageEJB;
+import com.moonspider.ff.ejb.UserEJB;
 import com.scottescue.dropwizard.entitymanager.EntityManagerBundle;
 import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
 import io.dropwizard.cli.ConfiguredCommand;
@@ -70,6 +71,18 @@ public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
             System.out.println("executing '" + query + "'");
             EntityTransaction tx = em.getTransaction();
             tx.begin();
+            if (true) {
+                UserEJB user = new UserEJB();
+                user.setName("Daffy Duck");
+                user.setEmail("daffy@duck.org");
+                user.setFbId("987654321");
+                em.persist(user);
+                tx.commit();
+                System.out.println("persisted and committed: " + user);
+                em.refresh(user);
+                System.out.println("after refresh: " + user);
+                return;
+            }
             //Query q = em.createQuery("SELECT i from ImageEJB i");
             Query q = em.createQuery(query);
             List l = q.getResultList();
