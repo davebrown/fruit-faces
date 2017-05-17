@@ -10,11 +10,11 @@ import java.io.IOException;
 public class ScalrResizer extends ImageResizer {
 
     @Override
-    public ResizeResult resize(File full, File outDir, String prefix, int width, int height, boolean preserveAspect)
+    public ResizeResult resize(ImageData data, File outDir, String prefix, int width, int height, boolean preserveAspect)
             throws IOException {
-        ResizeResult ret = result(full.getName(), width, height);
+        ResizeResult ret = result(data.imageFile.getName(), width, height);
         ret.thumb = prefix + ret.thumb;
-        BufferedImage fullImage = ImageIO.read(full);
+        BufferedImage fullImage = ImageIO.read(data.imageFile);
         BufferedImage thumbImage = Scalr.resize(fullImage, Scalr.Method.QUALITY,
                 Scalr.Mode.AUTOMATIC, width, height, Scalr.OP_ANTIALIAS);
         ImageIO.write(thumbImage, "jpg", new File(outDir, ret.thumb));

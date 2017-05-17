@@ -4,10 +4,14 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifDirectoryBase;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.drew.metadata.jpeg.JpegDirectory;
+import com.drew.metadata.png.PngDirectory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moonspider.ff.client.TagService;
+import com.moonspider.ff.util.ImageData;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +22,10 @@ import java.awt.*;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
+import java.util.Collection;
 import java.util.TimeZone;
 
 import static org.apache.commons.io.FilenameUtils.getExtension;
-import static org.apache.commons.io.FilenameUtils.getBaseName;
 
 public class Util {
 
@@ -68,20 +71,63 @@ public class Util {
     // FIXME: since EXIF timestamps don't carry timezone, this would need to be specified by uploader
     private static final TimeZone PACIFIC_TIME = TimeZone.getTimeZone("America/Los_Angeles");
 
-    public static Date getEXIFTimestamp(File image) throws IOException {
-        Metadata metadata = null;
+    public static ImageData getImageMetadata(File image) throws IOException {
+        ImageData ret = new ImageData(image);
+        Metadata metadata;
+        int width = -1, height = -1;
         try {
             metadata = ImageMetadataReader.readMetadata(image);
         } catch (ImageProcessingException ipe) {
             throw new RuntimeException("cannot read " + image.getName(), ipe);
         }
-        Directory directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-        Date date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL, PACIFIC_TIME);
-        if (date == null) {
-            date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME, PACIFIC_TIME);
+
+        String ext = getExtension(image.getName());
+        if (ext != null) ext = ext.toLowerCase();
+        if ("png".equalsIgnoreCase(ext)) {
+            Directory dir = metadata.getFirstDirectoryOfType(PngDirectory.class);
+            if (dir != null && dir.containsTag(PngDirectory.TAG_IMAGE_WIDTH) && dir.containsTag(PngDirectory.TAG_IMAGE_HEIGHT)) {
+                width = dir.getInteger(PngDirectory.TAG_IMAGE_WIDTH);
+                height = dir.getInteger(PngDirectory.TAG_IMAGE_HEIGHT);
+            }
+        } else {
+            Directory dir = metadata.getFirstDirectoryOfType(JpegDirectory.class);
+            if (dir != null && dir.containsTag(JpegDirectory.TAG_IMAGE_WIDTH) && dir.containsTag(JpegDirectory.TAG_IMAGE_HEIGHT)) {
+                width = dir.getInteger(JpegDirectory.TAG_IMAGE_WIDTH);
+                height = dir.getInteger(JpegDirectory.TAG_IMAGE_HEIGHT);
+            }
         }
-        // can be null; tstamp is nullable in DB
-        return date;
+
+        Collection dirs = metadata.getDirectoriesOfType(ExifDirectoryBase.class);
+
+
+        //Directory exif = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+        for (Object dif : dirs) {
+            Directory exif = (Directory)dif;
+            if (ret.timestamp == null) {
+                ret.timestamp = exif.getDate(ExifDirectoryBase.TAG_DATETIME_ORIGINAL, PACIFIC_TIME);
+                if (ret.timestamp == null) {
+                    ret.timestamp = exif.getDate(ExifDirectoryBase.TAG_DATETIME, PACIFIC_TIME);
+                } else {
+                    // can be null; tstamp is nullable in DB
+                }
+            }
+
+            if (exif.containsTag(ExifSubIFDDirectory.TAG_ORIENTATION)) {
+                ret.orientation = exif.getInteger(ExifSubIFDDirectory.TAG_ORIENTATION);
+            }
+            // prefer JPEG or PNG reckoning of size, but if not present there, try from exif
+            if (width == -1 || height == -1) {
+                if (exif.containsTag(ExifSubIFDDirectory.TAG_IMAGE_WIDTH) && exif.containsTag(ExifSubIFDDirectory.TAG_IMAGE_HEIGHT)) {
+                    width = exif.getInteger(ExifSubIFDDirectory.TAG_IMAGE_WIDTH);
+                    height = exif.getInteger(ExifSubIFDDirectory.TAG_IMAGE_HEIGHT);
+                }
+            }
+        }
+        if (width == -1 || height == -1) {
+            throw new IOException("no width/height information present on image");
+        }
+        ret.size = new Dimension(width, height);
+        return ret;
     }
 
     // same as FileUtils method of same name, but fails if dest file already exists
@@ -118,12 +164,11 @@ public class Util {
 
     public static TagService createTagService(FFConfiguration config) {
         Retrofit retrofit = new Retrofit.Builder()
-                //.baseUrl("http://127.0.0.1:5000/api/v1/")
                 .baseUrl(config.getTagServiceUrl())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         return retrofit.create(TagService.class);
-
     }
+
 }

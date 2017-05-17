@@ -32,7 +32,7 @@ public class CompareThumbMethods {
         cal.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
         //TimeZone.setDefault(
         for (File jpg : jpgs) {
-            Date d = Util.getEXIFTimestamp(jpg);
+            Date d = Util.getImageMetadata(jpg).timestamp;
             if (d != null) {
                 cal.setTime(d);
                 d = cal.getTime();
@@ -82,7 +82,7 @@ public class CompareThumbMethods {
         File[] images = getMainJPGS();
         int i = 0;
         for (File f : images) {
-            ResizeResult rr = resizer.resize(f, dir, prefix, width, height);
+            ResizeResult rr = resizer.resize(Util.getImageMetadata(f), dir, prefix, width, height);
             rr.type = prefix;
             html.write("<td><img src=\"" + rr.thumb + "\"/></td>");
             if (++i % 8 == 0) html.write("</tr><tr>\n");

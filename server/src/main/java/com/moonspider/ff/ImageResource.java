@@ -7,6 +7,7 @@ import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.model.ImageDTO;
 import com.moonspider.ff.model.TagsDTO;
 import com.moonspider.ff.model.UserDTO;
+import com.moonspider.ff.util.ImageData;
 import com.moonspider.ff.util.ImageResizer;
 import com.moonspider.ff.util.ResizeResult;
 import com.moonspider.ff.util.ThumbnailatorResizer;
@@ -222,11 +223,8 @@ public class ImageResource extends BaseResource {
             return _400("no image file posted");
         }
 
-
-
         // step 2: receive upload input of original image into tmpdir
         final File TMPDIR = getTmpdir();
-
         // FIXME: filenames might collide with different concurrent users
         // need to parameterize temp upload dir based on some user id when we have auth wired up
         File localFile = new File(TMPDIR, fname);
@@ -249,7 +247,7 @@ public class ImageResource extends BaseResource {
         } finally {
             close(out);
         }
-        // FIXME: validate that it is in fact an image
+        // FIXME: validate that it is in fact an image of the claimed type
         final String ext = getExtension(fname);
         if (emptyOrNull(ext) || !ImageResizer.VALID_EXTS.contains(ext.toLowerCase())) {
             localFile.delete();
@@ -264,47 +262,22 @@ public class ImageResource extends BaseResource {
             }
         }
         // step 5: make scaled versions, main size and thumb size
-        // FIXME: parameterize filename or dir on userId to avoid conflicting file names
+        // extract timestamp from EXIF for step 7
+        // FIXME: parameterize filename or dir on userId to avoid conflicting file names btw users
         final File thumbDir = config.getThumbDir();
         thumbDir.mkdirs();
         ImageResizer resizer = new ThumbnailatorResizer();
-        ResizeResult mainSize = resizer.resize(localFile, TMPDIR, MAIN_SIZE.width, MAIN_SIZE.height);
-        ResizeResult thumbSize = resizer.resize(localFile, TMPDIR, THUMB_SIZE.width, THUMB_SIZE.height);
-        ResizeResult mlSize = resizer.resize(localFile, TMPDIR, ML_SIZE.width, ML_SIZE.height, false);
+
+        ImageData imageData = Util.getImageMetadata(localFile);
+        ResizeResult mainSize = resizer.resize(imageData, TMPDIR, MAIN_SIZE.width, MAIN_SIZE.height);
+        ResizeResult thumbSize = resizer.resize(imageData, TMPDIR, THUMB_SIZE.width, THUMB_SIZE.height);
+        ResizeResult mlSize = resizer.resize(imageData, TMPDIR, ML_SIZE.width, ML_SIZE.height, false);
         File mainFile = new File(TMPDIR, mainSize.thumb);
         File thumbFile = new File(TMPDIR, thumbSize.thumb);
         File mlFile = new File(TMPDIR, mlSize.thumb);
-        // extract timestamp from EXIF for step 7
-        Date timestamp = Util.getEXIFTimestamp(localFile);
 
-        Collection<TagEJB> tags = Collections.EMPTY_LIST;
-        // step 6: get some tag info
-        {
-            RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("image/jpeg"), mlFile);
-            MultipartBody.Part thumbPart = null;
-
-            thumbPart = MultipartBody.Part.createFormData("imagefile", mlFile.getName(), requestBody);
-            Call<TagsDTO> call = tagService.getTags(thumbPart);
-            try {
-                retrofit2.Response<TagsDTO> tagResponse = call.execute();
-                if (tagResponse.code() != 200) {
-                    log.error("tagger service call failed code=" + tagResponse.code() + " msg='" + tagResponse.message()
-                            + "' body='" + tagResponse.errorBody().string() + "'");
-                    // don't fail file upload here
-                } else {
-                    TagsDTO tagsDTO = tagResponse.body();
-                    log.info("got tags for '" + basename + "': " + Arrays.toString(tagsDTO.getTags()));
-                    tags = new ArrayList<>();
-                    for (String tag : tagsDTO.getTags()) {
-                        TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
-                        if (tagEJB != null)
-                            tags.add(tagEJB);
-                    }
-                }
-            } catch (IOException ioe) {
-                log.error("call to tagger service at " + config.getTagServiceUrl() + " failed:", ioe);
-            }
-        }
+        // step 6: get the tags from shiny awesome ML image recognition service!
+        Collection<TagEJB> tags = inferTags(mlFile);
 
         // step 7: copy images from temp to permanent dir
         // FIXME: use the "force overwrite" variant of these methods
@@ -322,7 +295,7 @@ public class ImageResource extends BaseResource {
         record.setTagList(tags);
         record.setOriginal(localFile.getName());
         record.setFull(mainSize.thumb);
-        record.setTstamp(timestamp);
+        record.setTstamp(imageData.timestamp);
         record.setImportTime(new Date());
         record.setUser(findOrCreateUser(userDTO));
         entityManager.persist(record);
@@ -330,5 +303,35 @@ public class ImageResource extends BaseResource {
         log.info("successfully uploaded and persisted " + record);
         return Response.ok(new ImageDTO(record)).build();
         //return Response.noContent().build();
+    }
+
+    private Collection<TagEJB> inferTags(File mlFile) throws IOException {
+        Collection<TagEJB> tags = Collections.EMPTY_LIST;
+        RequestBody requestBody = RequestBody.create(okhttp3.MediaType.parse("image/jpeg"), mlFile);
+        MultipartBody.Part thumbPart = null;
+
+        thumbPart = MultipartBody.Part.createFormData("imagefile", mlFile.getName(), requestBody);
+        Call<TagsDTO> call = tagService.getTags(thumbPart);
+        try {
+            retrofit2.Response<TagsDTO> tagResponse = call.execute();
+            if (tagResponse.code() != 200) {
+                log.error("tagger service call failed code=" + tagResponse.code() + " msg='" + tagResponse.message()
+                        + "' body='" + tagResponse.errorBody().string() + "'");
+                // don't fail file upload here
+            } else {
+                TagsDTO tagsDTO = tagResponse.body();
+                log.info("got tags for '" + mlFile.getName() + "': " + Arrays.toString(tagsDTO.getTags()));
+                tags = new ArrayList<>();
+                for (String tag : tagsDTO.getTags()) {
+                    TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
+                    if (tagEJB != null)
+                        tags.add(tagEJB);
+                }
+            }
+        } catch (IOException ioe) {
+            log.error("call to tagger service at " + config.getTagServiceUrl() + " failed:", ioe);
+            // don't fail image upload on tagging failure
+        }
+        return tags;
     }
 }

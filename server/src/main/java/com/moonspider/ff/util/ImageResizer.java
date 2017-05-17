@@ -11,18 +11,18 @@ import static com.moonspider.ff.Util.emptyOrNull;
 
 public abstract class ImageResizer {
 
-    public ResizeResult resize(File full, File outDir, int width, int height) throws IOException {
-        return resize(full, outDir, "", width, height);
+    public ResizeResult resize(ImageData data, File outDir, int width, int height) throws IOException {
+        return resize(data, outDir, "", width, height);
     }
-    public ResizeResult resize(File full, File outDir, int width, int height,
+    public ResizeResult resize(ImageData data, File outDir, int width, int height,
                                boolean preserveAspectRatio) throws IOException {
-        return resize(full, outDir, "", width, height, preserveAspectRatio);
+        return resize(data, outDir, "", width, height, preserveAspectRatio);
     }
-    public ResizeResult resize(File full, File outDir, String prefix, int width, int height)
+    public ResizeResult resize(ImageData data, File outDir, String prefix, int width, int height)
             throws IOException {
-        return resize(full, outDir, prefix, width, height, true);
+        return resize(data, outDir, prefix, width, height, true);
     }
-    public abstract ResizeResult resize(File full, File outDir, String prefix, int width,
+    public abstract ResizeResult resize(ImageData data, File outDir, String prefix, int width,
                                         int height, boolean preserveAspectRatio) throws IOException;
 
     protected static String base(String filename) {
