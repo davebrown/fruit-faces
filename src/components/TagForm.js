@@ -47,7 +47,7 @@ class TagForm extends React.Component {
     console.log('delete image: ' + image.base);
     request({
       method: 'DELETE',
-      url: API_BASE_URL + '/api/v1/images/' + image.base,
+      url: API_BASE_URL + '/api/v1/images' + image.root + '/' + image.base,
       headers: {
         'X-FF-Auth': authStore.getAccessToken()
       }

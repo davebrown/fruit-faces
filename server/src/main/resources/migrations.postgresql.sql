@@ -84,5 +84,38 @@ ALTER TABLE image ADD CONSTRAINT image_user_fkey FOREIGN KEY (user_id) REFERENCE
 -- postgres conveniently updates all existing rows appropriately :-)
 alter table ff_user add column id serial;
 
+-- changeset dave:20
+-- change user pk, and image -> user fk
+-- drop image -> user fkey before dropping pkey on user
+alter table image drop constraint image_user_fkey;
+alter table ff_user drop constraint ff_user_pkey;
+alter table ff_user add primary key (id);
+-- populate new column on image
+alter table image add column user_id2 integer;
+update image set user_id2=ff_user.id from ff_user where image.user_id = ff_user.fb_id;
+alter table image drop column user_id;
+alter table image rename column user_id2 to user_id;
+alter table image alter column user_id set not null;
+ALTER TABLE image ADD CONSTRAINT image_user_fkey FOREIGN KEY (user_id) REFERENCES ff_user (id) ON UPDATE NO ACTION ON DELETE CASCADE;
+
+-- change the image pk, and image_tag -> image fk
+alter table image_tag drop constraint image_tag_image_id_fkey;
+alter table image drop constraint image_pkey;
+alter table image add column id serial;
+alter table image alter column id set not null;
+alter table image add primary key (id);
+
+alter table image_tag add column image_id2 integer;
+update image_tag set image_id2=image.id from image where image.base = image_tag.image_id;
+alter table image_tag drop column image_id;
+alter table image_tag rename column image_id2 to image_id;
+alter table image_tag alter column image_id set not null;
+alter table image_tag add constraint image_tag_image_id_fkey foreign key (image_id) references image(id) on update no action on delete cascade;
+alter table image add unique (user_id, base);
+
+
+
+
+
 
 

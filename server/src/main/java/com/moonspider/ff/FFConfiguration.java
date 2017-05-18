@@ -33,7 +33,7 @@ public class FFConfiguration extends Configuration {
     @Valid
     @NotNull
     @JsonProperty
-    private String rootUserId;
+    private int rootUserId;
 
     @Valid
     @NotNull
@@ -61,7 +61,7 @@ public class FFConfiguration extends Configuration {
 
     public String getThumbDirPath() { return thumbDirPath; }
     public File getThumbDir() { return new File(thumbDirPath); }
-    public String getRootUserId() { return rootUserId; }
+    public int getRootUserId() { return rootUserId; }
 
     public String getTagServiceUrl() {
         return tagServiceUrl;

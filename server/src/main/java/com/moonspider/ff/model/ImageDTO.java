@@ -12,16 +12,19 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ImageDTO {
 
+    private int id;
     private String base, full;
     private long timestamp;
     private String[] tags;
     private UserDTO user;
-
+    // directory prefix on URL's for this images components
+    private String root;
     public ImageDTO() {
         // jackson de-serialization
     }
 
     public ImageDTO(ImageEJB ejb) {
+        this.id = ejb.getId();
         this.base = ejb.getBase();
         Date d = ejb.getTstamp();
         this.timestamp = d != null ? d.getTime() : -1;
@@ -34,7 +37,18 @@ public class ImageDTO {
         }
         user = new UserDTO(ejb.getUser());
         user.setEmail(null);
+        root = "/" + user.getId();
     }
+
+    @JsonProperty
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
 
     @JsonProperty
     public String[] getTags() {
@@ -85,10 +99,20 @@ public class ImageDTO {
         this.user = user;
     }
 
+    @JsonProperty
+    public String getRoot() {
+        return root;
+    }
+
+    public void setRoot(String root) {
+        this.root = root;
+    }
+
     @Override
     public String toString() {
         return "ImageDTO{" +
-                "base='" + base + '\'' +
+                "root='" + root + '\'' +
+                ", base='" + base + '\'' +
                 ", full='" + full + '\'' +
                 ", timestamp=" + timestamp +
                 '}';

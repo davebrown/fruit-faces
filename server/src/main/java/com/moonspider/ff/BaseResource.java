@@ -13,8 +13,10 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public abstract class BaseResource {
@@ -42,19 +44,28 @@ public abstract class BaseResource {
         this.config = config;
     }
 
-    protected void checkAuth(final String accessToken, UserEJB owner) {
-        UserDTO dto = user(accessToken);
-        if (dto == null) {
+    protected <T> T getSingleResult(Query query, Class<T> c) {
+        List l = query.getResultList();
+        if (l.size() > 1) {
+            String msg = "query '" + query.toString() + "' expected 1 or zero, got " + l.size();
+            log.error(msg);
+            throw new RuntimeException(msg);
+        }
+        return l.size() == 0 ? null : (T)l.get(0);
+    }
+
+    protected void checkAuth(UserEJB operator, UserEJB owner) {
+        if (operator == null) {
             throw new WebApplicationException("authentication required", 401);
-        } else if (config.getRootUserId().equals(dto.getId())) {
+        } else if (config.getRootUserId() == operator.getId()) {
             // allow, just log
-            log.info("allowing root access to object owned by " + dto.getId());
-        } else if (!owner.getFbId().equals(dto.getId())) {
+            log.info("allowing root access to object owned by " + owner.getEmail());
+        } else if (owner.getId() != operator.getId()) {
             throw new WebApplicationException("not owner of resource", 403);
         }
     }
 
-    protected UserDTO user(final String accessToken) {
+    private UserDTO user(final String accessToken) {
         if (accessToken == null || "null".equals(accessToken))
             return null;
         try {
@@ -75,11 +86,19 @@ public abstract class BaseResource {
             throw new WebApplicationException("internal server error", 500);
         }
     }
+
+    private UserEJB findUser(UserDTO dto) {
+        Query query = entityManager.createQuery("SELECT u from UserEJB u where u.email=:email and u.fbId=:fbId");
+        query.setParameter("email", dto.getEmail());
+        query.setParameter("fbId", dto.getFbId());
+        UserEJB ejb = getSingleResult(query, UserEJB.class);
+        return ejb;
+    }
     // caller method must have @UnitOfWork(transactional = true)
     // since this might write to DB. But should be true that caller is so annotated anyway
     // at least until app ever imposes auth on read operations
-    protected UserEJB findOrCreateUser(UserDTO dto) {
-        UserEJB ejb = entityManager.find(UserEJB.class, dto.getFbId());
+    private UserEJB findOrCreateUser(UserDTO dto) {
+        UserEJB ejb = findUser(dto);
         if (ejb == null) {
             ejb = new UserEJB();
             ejb.setFbId(dto.getFbId());
@@ -88,6 +107,14 @@ public abstract class BaseResource {
             entityManager.persist(ejb);
         }
         return ejb;
+    }
+
+    protected UserEJB findOrCreateUser(String accessToken) {
+        UserDTO user = user(accessToken);
+        if (user == null) {
+            return null;
+        }
+        return findOrCreateUser(user);
     }
     public static class JsonError {
         @JsonProperty

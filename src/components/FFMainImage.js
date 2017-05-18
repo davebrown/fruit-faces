@@ -111,6 +111,7 @@ class FFMainImage extends React.Component {
       // if image to render is not set in the state, we can also receive it from
       // the router as a property
       this.log('render: imageId=' + imageId);
+      console.log('FFMainImage.render: imageId=' + imageId);
       image = ImageStore.getImage(imageId);
       if (!image) {
         this.log('no image or not found, returning loading div');
@@ -128,7 +129,7 @@ class FFMainImage extends React.Component {
         }
       }
     }
-    var src = '/thumbs/' + image.full;
+    var src = '/thumbs' + image.root + '/' + image.full;
     var tagForm = <TagForm className="tag-form" image={image}/>;
     //tagForm = ''; // not in prod yet
     // FIXME: should a component be doing this?

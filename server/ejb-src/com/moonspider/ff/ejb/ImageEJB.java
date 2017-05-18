@@ -27,8 +27,19 @@ public class ImageEJB
         setTstamp(new Date(dto.getTimestamp()));
     }
     // Columns
-    
+
     @Id
+    @Column(updatable = false, insertable = false)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+            generator = "image_id_seq"
+    )
+    @SequenceGenerator(name="image_id_seq",
+            sequenceName="image_id_seq",
+            allocationSize=1)
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    private int id;
+
     @Column(name="base")
     @JsonProperty
     public String getBase() {
@@ -97,6 +108,14 @@ public class ImageEJB
     */
 
 
+    @Column(name="user_id", insertable = false, updatable = false)
+    public int getUserId() {
+        return userId;
+    }
+    private void setUserId(int uid) {
+        userId = uid;
+    }
+    private int userId;
     // Relations
     @ManyToOne(
             cascade = {},
@@ -104,7 +123,7 @@ public class ImageEJB
     )
     @JoinColumn(
             name = "user_id",
-            referencedColumnName = "fb_id"
+            referencedColumnName = "id"
     )
     public UserEJB getUser() {
         return user;

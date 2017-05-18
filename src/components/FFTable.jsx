@@ -125,7 +125,7 @@ export default class FFTable extends React.Component {
       >
         {
           this.state.images.map((image) => {
-            var key = 'ff-thumb-' + image.base;
+            var key = 'ff-thumb-' + image.id;
             return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.base === image.base}/>;
           })
         }
@@ -192,7 +192,8 @@ class FFThumb extends React.Component {
     if (false && bowser.mobile) {
       dim = '20x27';
     }
-    var path = '/thumbs/' + this.props.image.base + '_' + dim + '_t.jpg';
+    const { root, base } = this.props.image;
+    var path = '/thumbs' + root + '/' + base + '_' + dim + '_t.jpg';
     var selClass = '';
     /* race condition on route load...look at hash instead?? */
     {
@@ -202,7 +203,6 @@ class FFThumb extends React.Component {
         selClass = 'thumb-selected';
       }
     }
-    var to = '/images/' + this.props.image.base;
     return <div className={selClass} key={this.props.image.base}>
         <img src={path} onClick={this.clickHandler.bind(this)}/>
     </div>;

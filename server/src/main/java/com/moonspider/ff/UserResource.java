@@ -30,9 +30,8 @@ public class UserResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = true)
     public Response loginHook(@HeaderParam("X-FF-Auth") String accessToken) {
-        UserDTO dto = user(accessToken);
-        if (dto != null) {
-            UserEJB user = findOrCreateUser(dto);
+        UserEJB user = findOrCreateUser(accessToken);
+        if (user != null) {
             entityManager.persist(user);
             log.info("user logged in: " + user.getFbId());
             return Response.noContent().build();
@@ -43,9 +42,9 @@ public class UserResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Response getAllUsers(@HeaderParam("X-FF-Auth") String authToken) {
-        UserDTO user = user(authToken);
+        UserEJB user = findOrCreateUser(authToken);
         log.info("check " + user + " against " + config.getRootUserId());
-        if (user == null || user.getFbId() == null || !user.getFbId().equals(config.getRootUserId())) {
+        if (user == null || user.getFbId() == null || user.getId() != config.getRootUserId()) {
             return error(403, "denied");
         }
         TypedQuery<UserEJB> query = entityManager.createQuery("SELECT u FROM UserEJB u", UserEJB.class);

@@ -11,7 +11,6 @@ public class UserEJB {
     private String fbId, email, name;
     private Integer id;
 
-    @Id
     @Column(name="fb_id")
     @NotNull
     public String getFbId() {
@@ -23,7 +22,8 @@ public class UserEJB {
     }
 
     // http://stackoverflow.com/questions/11825643/configure-jpa-to-let-postgresql-generate-the-primary-key-value
-    @Column(updatable = false, insertable = false)
+    @Id
+    @Column(name="id", updatable = false, insertable = false)
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
             generator = "ff_user_id_seq"
     )

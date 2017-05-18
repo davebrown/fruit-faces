@@ -71,7 +71,7 @@ public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
             System.out.println("executing '" + query + "'");
             EntityTransaction tx = em.getTransaction();
             tx.begin();
-            if (true) {
+            if (false) {
                 UserEJB user = new UserEJB();
                 user.setName("Daffy Duck");
                 user.setEmail("daffy@duck.org");
