@@ -1,3 +1,3 @@
-import { Dispatcher } from 'flux'; // <-- FIXME: investigate redux
+import { Dispatcher } from 'flux';
 
 export default new Dispatcher();

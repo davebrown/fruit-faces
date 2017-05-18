@@ -12,6 +12,14 @@ if (process.env.NODE_ENV === 'production') {
 
 amplitude.init(AMPLITUDE_KEY);
 
+var _logEvent = amplitude.logEvent;
+
+amplitude.logEvent = function(key, obj) {
+  if (obj.hasOwnProperty('imageBase') && !obj['imageBase']) {
+    throw new Error('amplitudeEvent key=' + key + ' with imageBase "' + obj['imageBase'] + '"');
+  }
+  //_logEvent(key, obj);
+}
 function imageHasTag(image, tag) {
   if (image) {
     if (!image.tags) image.tags = [];

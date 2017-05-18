@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { hashHistory } from 'react-router';
 import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import bowser from 'bowser';
@@ -134,7 +135,11 @@ function indexImages(images) {
   imageMap = {};
   for (var i = 0; i < images.length; i++) {
     var image = images[i];
-    imageMap[image.base] = image;
+    if (!image.path) {
+      image.path = image.root + '/' + image.base;
+    }
+    //imageMap[image.base] = image;
+    imageMap[image.path] = image;
     image.index = i;
   }
   console.log('images indexed (count=' + images.length + ')');
@@ -181,19 +186,6 @@ function getMobileMap() {
 function mix(arrays) {
   var i, j;
   var ret = [];
-  for (i = 0; i < arrays.length; i++) {
-    for (j = 0; j < arrays[i].length; j++) {
-      var img = arrays[i][j];
-      img.index = ret.length;
-      ret.push(img);
-    }
-  }
-  return ret;
-}
-
-function mix2(arrays) {
-  var i, j;
-  var ret = [];
   var max = 0;
   for (i = 0; i < arrays.length; i++) {
     max = max < arrays[i].length ? arrays[i].length : max;
@@ -216,7 +208,7 @@ function imageList(map, images) {
   var whites = imageStore.getWhites();
   var grays = imageStore.getGrays();
   var nons = imageStore.getNonColors();
-  grays = mix2([whites, grays]);
+  grays = mix([whites, grays]);
   var ret = [];
   var i = 0;
   for (i = 0; blues.length > 0 && grays.length; i++) {
@@ -250,13 +242,16 @@ Dispatcher.register((action) => {
   switch (action.actionType) {
     case IMAGE_CHANGED:
       selectedImage = action.image;
+      if (!selectedImage) {
+        throw new Error('image changed to NULL');
+      }
       imageStore.emitChange();
       var base = selectedImage ? selectedImage.base : null;
       if (base) {
         // undo filter selection if an image is selected
         filterTag = null;
+        amplitude.logEvent('IMAGE_SELECTED', { imageBase: base, filter: imageStore.getFilterTag() || 'none' });
       }
-      amplitude.logEvent('IMAGE_SELECTED', { imageBase: base, filter: imageStore.getFilterTag() || 'none' });
       break;
     case IMAGE_ADDED:
       //console.log('imageStore adding image', action.image);
@@ -290,6 +285,17 @@ Dispatcher.register((action) => {
       images = action.images;
       images = imageList(bowser.mobile ? getMobileMap(): DEFAULT_THUMB_MAP, images);
       indexImages(images);
+      /* need to set selected image state, if any, from hash path
+       * FIXME: cleaner way to do this?
+       */
+      var location = hashHistory.getCurrentLocation();
+      if (!imageStore.getSelectedImage() && location && location.pathname) {
+        var elems = location.pathname.split('/');
+        if (elems.length === 4 && elems[1] === 'images') {
+          var selPath = '/' + elems[2] + '/' + elems[3];
+          selectedImage = imageMap[selPath];
+        }
+      }
       imageStore.emitChange();
       break;
     case ORIENTATION_CHANGED:

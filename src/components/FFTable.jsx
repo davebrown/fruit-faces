@@ -126,7 +126,7 @@ export default class FFTable extends React.Component {
         {
           this.state.images.map((image) => {
             var key = 'ff-thumb-' + image.id;
-            return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.base === image.base}/>;
+            return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.path === image.path}/>;
           })
         }
         <ReactTooltip disable={ttDisable} id="table-tt" place="right" multiline={true}
@@ -153,14 +153,17 @@ export default class FFTable extends React.Component {
       /* need to set selected image state, if any, from hash path
        * FIXME: cleaner way to do this?
        */
+      /*
       var location = hashHistory.getCurrentLocation();
       if (location && location.pathname) {
         var elems = location.pathname.split('/');
-        if (elems.length === 3 && elems[1] === 'images') {
-          var selImage = ImageStore.getImage(elems[2]);
+        if (elems.length === 4 && elems[1] === 'images') {
+          var selImage = ImageStore.getImage('/' + elems[2] + '/' + elems[3]);
+          console.log('FFTable.loadImageDefs(): selecting on load', selImage, '/' + elems[2] + '/' + elems[3]);
           FFActions.imageChanged(selImage);
         }
       }
+      */
       amplitude.logEvent('IMAGE_CATALOG_LOADED', { durationMillis: duration });
     }.bind(this));
   }
@@ -176,7 +179,7 @@ class FFThumb extends React.Component {
   clickHandler() {
     clickCount++;
     FFActions.imageChanged(this.props.image);
-    hashHistory.push('/images/' + this.props.image.base);
+    hashHistory.push('/images' + this.props.image.path);
     showClickTooltip = false;
     ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
     ReactTooltip.hide();

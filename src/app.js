@@ -136,7 +136,7 @@ function keyDownHandler(evt) {
     FFActions.imageChanged(newImage);
     // FIXME: will hash history exhaust memory if my kid just hits right arrow for an hour?
     //hashHistory.push('/images/' + newImage.base);
-    hashHistory.replace('/images/' + newImage.base);
+    hashHistory.replace('/images' + newImage.path);
   }
 }
 
@@ -169,7 +169,7 @@ class FFApp extends React.Component {
           <Route path='/login' component={FBLogin}/>
           <Route path='/upload' component={Upload}/>
           <Route path='/toastr' component={Toastr}/>
-          <Route path='/images/:imageId' component={FFMainImage}/>
+          <Route path='/images/:userId/:imageBase' component={FFMainImage}/>
           <Route path='*' component={NotFound}/>
         </Route>
       </Router>
