@@ -28,7 +28,7 @@ class FFMainImage extends React.Component {
 
   mainImageActionListener(action) {
     // hack?
-    console.log('FFMainImage.action: ' + action.actionType + ' dispatching? ' + this.dispatching);
+    //console.log('FFMainImage.action: ' + action.actionType + ' dispatching? ' + this.dispatching);
     switch (action.actionType) {
       case IMAGES_LOADED:
         // FIXME: necessary for when we arrive with an image route selected,
@@ -36,14 +36,14 @@ class FFMainImage extends React.Component {
         this.forceUpdate();
         break;
       case IMAGE_CHANGED:
-        console.log('FFMainImage action ' + action.actionType + ' to', action.image, ' mounted?' + this.mounted);
+        //console.log('FFMainImage action ' + action.actionType + ' to', action.image, ' mounted?' + this.mounted);
         if (this.mounted) {
           this.setState( { image: action.image } );
           this.props = { }; // clear out router state
         }
         break;
       case IMAGE_DELETED:
-        console.log('FFMainImage action ' + action.actionType + ' from ', action.image, ' to ', action.newImage, ' mounted?' + this.mounted);
+        //console.log('FFMainImage action ' + action.actionType + ' from ', action.image, ' to ', action.newImage, ' mounted?' + this.mounted);
         if (this.mounted) {
           this.setState( { image: action.newImage } );
           this.props = { }; // clear out router state
@@ -106,7 +106,7 @@ class FFMainImage extends React.Component {
     const { userId, imageBase } = this.props.params;
     const imageId = '/' + userId + '/' + imageBase;
     var stateId = this.state.image && this.state.image.path || 'state_is_null';
-    console.log('FFMain.render imageId=' + imageId + ' stateId=' + stateId);
+    //console.log('FFMain.render imageId=' + imageId + ' stateId=' + stateId);
     // when we have both image from state and imageId from props, we prefer props
     // since this occurs when user manually changes the hash line in address bar
     if (!image) {
