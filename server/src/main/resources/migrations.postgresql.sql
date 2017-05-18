@@ -113,6 +113,9 @@ alter table image_tag alter column image_id set not null;
 alter table image_tag add constraint image_tag_image_id_fkey foreign key (image_id) references image(id) on update no action on delete cascade;
 alter table image add unique (user_id, base);
 
+-- changeset dave:21
+update image set tstamp=import_time where tstamp is null;
+
 
 
 

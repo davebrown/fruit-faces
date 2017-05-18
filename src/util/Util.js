@@ -3,7 +3,7 @@ import FFActions from '../actions/FFActions.js';
 
 const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
 const AMPLITUDE_KEY = process.env.AMPLITUDE_API_KEY || 'error-missing-amplitude-key';
-var REDIRECT_URI = 'http://localhost:3000/'
+var REDIRECT_URI = process.env.FF_URL || 'http://localhost:3000/'
 if (process.env.NODE_ENV === 'production') {
   REDIRECT_URI = 'https://ff.moonspider.com/';
 }

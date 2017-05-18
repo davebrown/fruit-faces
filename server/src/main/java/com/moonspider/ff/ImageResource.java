@@ -243,10 +243,26 @@ public class ImageResource extends BaseResource {
             return _400("no image file posted");
         }
 
-        // step 2: receive upload input of original image into tmpdir
-        final File TMPDIR = getTmpdir();
-        // FIXME: filenames might collide with different concurrent users
-        // need to parameterize temp upload dir based on some user id when we have auth wired up
+        // step 2: choose filename. Prefer user's existing filename, but uniqify if needed
+        // this is b/c safari mobile will always call contemporaneously snapped photos "image.jpg"
+        String basename = getBaseName(fname);
+        final String ext = getExtension(fname);
+        {
+            ImageEJB existingImage = findEJB(userEJB.getId(), basename);
+            if (existingImage != null) {
+                //return _400("image " + basename + " already uploaded");
+                basename = basename + "_" + getBaseNameCount(userEJB, basename);
+                fname = basename + '.' + ext;
+            }
+        }
+
+        // step 3: another modicum of validation
+        if (emptyOrNull(ext) || !ImageResizer.VALID_EXTS.contains(ext.toLowerCase())) {
+            return _400("only jpg or png images allowed");
+        }
+
+        // step 4: receive upload input of original image into tmpdir
+        final File TMPDIR = getTmpdir( String.valueOf(userEJB.getId()) );
         File localFile = new File(TMPDIR, fname);
         OutputStream out = new FileOutputStream(localFile);
         long nread = 0;
@@ -267,23 +283,10 @@ public class ImageResource extends BaseResource {
         } finally {
             close(out);
         }
-        // FIXME: validate that it is in fact an image of the claimed type
-        final String ext = getExtension(fname);
-        if (emptyOrNull(ext) || !ImageResizer.VALID_EXTS.contains(ext.toLowerCase())) {
-            localFile.delete();
-            return _400("only jpg or png images allowed");
-        }
-        // step 4: see if we already have this image in DB; reject if so
-        final String basename = getBaseName(fname);
-        {
-            ImageEJB existingImage = findEJB(userEJB.getId(), basename);
-            if (existingImage != null) {
-                return _400("image " + basename + " already uploaded");
-            }
-        }
+        // FIXME: after writing file to disk, validate that it is in fact an image of the claimed type
+
         // step 5: make scaled versions, main size and thumb size
         // extract timestamp from EXIF for step 7
-        // FIXME: parameterize filename or dir on userId to avoid conflicting file names btw users
         final File thumbDir = new File(config.getThumbDir(), String.valueOf(userEJB.getId()));
         thumbDir.mkdirs();
         ImageResizer resizer = new ThumbnailatorResizer();
@@ -311,18 +314,25 @@ public class ImageResource extends BaseResource {
         mlFile.delete();
 
         // step 8: update DB
+        final Date now = new Date();
         ImageEJB record = new ImageEJB(basename);
         record.setTagList(tags);
         record.setOriginal(localFile.getName());
         record.setFull(mainSize.thumb);
-        record.setTstamp(imageData.timestamp);
-        record.setImportTime(new Date());
+        record.setTstamp(imageData.timestamp != null ? imageData.timestamp : now);
+        record.setImportTime(now);
         record.setUser(userEJB);
         entityManager.persist(record);
-        // FIXME: return JSON of newly uploaded image
         log.info("successfully uploaded and persisted " + record);
         return Response.ok(new ImageDTO(record)).build();
         //return Response.noContent().build();
+    }
+
+    private long getBaseNameCount(UserEJB user, String basename) {
+        Query q = entityManager.createNativeQuery("SELECT count(*) + 1 from image where user_id=?1 and base like ?2");
+        q.setParameter(1, user.getId());
+        q.setParameter(2, '%' + basename + '%');
+        return getSingleResult(q, Number.class).longValue();
     }
 
     private Collection<TagEJB> inferTags(File mlFile) throws IOException {

@@ -61,6 +61,12 @@ public class Util {
         return TMPDIR;
     }
 
+    public static File getTmpdir(String child) {
+        File ret = new File(TMPDIR, child);
+        ret.mkdirs();
+        return ret;
+    }
+
     public static final Dimension MAIN_SIZE = new Dimension(480, 640);
     public static final Dimension THUMB_SIZE = new Dimension(60, 80);
     public static final Dimension ML_SIZE = new Dimension(28, 28);

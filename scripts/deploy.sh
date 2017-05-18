@@ -71,7 +71,7 @@ ssh $REMOTE_USER mkdir -p website/thumbs
 
 rsync -av ff.css index.html index.js $REMOTE_USER:website/
 
-rsync -Lav thumbs/ $REMOTE_USER:website/thumbs/
+#rsync -Lav thumbs/ $REMOTE_USER:website/thumbs/
 
 echo '============ STOPPING CURRENT SERVICE ================'
 
