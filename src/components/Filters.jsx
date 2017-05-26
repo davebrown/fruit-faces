@@ -40,12 +40,15 @@ export default class Filters extends React.Component {
       <div className="filters">
         <h1>Filters</h1>
         <p className="sans-font"><b>Check one of the radio buttons</b> to highlight only particular images.</p>
-        <h2>Plates</h2>
-        <RadioGroup name="plates" selectedValue={this.state.selectedValue} onChange={this.handleChange}>
+        <RadioGroup name="plates" selectedValue={this.state.selectedValue} onChange={this.handleChange} className="form-group">
+          <h2 className="form-label">Plates</h2>
           {
             TAGS.map((tag) => {
               const key = 'filter-radio-' + tag;
-              return <div key={key}><Radio value={tag}/>{tag.charAt(0).toUpperCase() + tag.slice(1) + ' plates'}<br/></div>
+              return <label key={key} className="form-radio">
+                <Radio value={tag}/>
+                <i className="form-icon"></i> {tag.charAt(0).toUpperCase() + tag.slice(1) + ' plates'}
+              </label>
             })
           }
         </RadioGroup>
@@ -54,7 +57,10 @@ export default class Filters extends React.Component {
           {
             FRUITS.map((tag) => {
               const key = 'filter-radio-' + tag;
-              return <div className="filter-cell" key={key}><Radio value={tag} disabled={true}/>{tag}</div>
+              return <label key={key} className="form-radio">
+                <Radio value={tag}/>
+                <i className="form-icon"></i> {tag.charAt(0).toUpperCase() + tag.slice(1) + ' plates'}<br/>
+              </label>
             })
           }
         </RadioGroup>

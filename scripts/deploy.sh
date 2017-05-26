@@ -20,7 +20,6 @@ ssh $REMOTE_USER '. venvs/tagger/bin/activate && pip install -r tagger/requireme
 echo '============ RESTART TAGGER SERVICE ================'
 ssh $REMOTE_USER 'tagger/tagger-prod.sh stop || true'
 sleep 1
-#ssh $REMOTE_USER '. venvs/tagger/bin/activate && echo $PATH && which gunicorn'
 
 ssh $REMOTE_USER 'cd tagger && ./tagger-prod.sh start'
 echo waiting 15s for tagger to start: && sleep 15

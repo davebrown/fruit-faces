@@ -4,7 +4,7 @@ html, body, .container {
   margin: 0;
   /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
   /*font-family: -apple-system, Lucida Grande, Helvetica, Arial, sans-serif;*/
-  font-family: Helvetica, Arial, sans-serif;
+  /*font-family: Helvetica, Arial, sans-serif;*/
   -webkit-overflow-scrolling: touch;
 }
 
@@ -14,7 +14,7 @@ h1, h2, h3, p {
 
 
 p {
-    font-family: "Droid Serif", "Open Sans", Cambria, Georgia, "DejaVu Serif", serif;
+    /*font-family: "Droid Serif", "Open Sans", Cambria, Georgia, "DejaVu Serif", serif;*/
     line-height: 1.6;
     font-size: 1.0em;
 }
@@ -23,9 +23,14 @@ p {
     text-decoration: line-through;
 }
 /* iremmel boilerplate */
-.container {
+.flex-container {
   display: flex;
   align-items: flex-start; /* don't stretch height of flex items */
+}
+
+.fixed {
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
 .column {
@@ -41,11 +46,6 @@ p {
   overflow-y: scroll;
 }
 
-.fixed {
-  flex-grow: 0;
-  flex-shrink: 0;
-}
-
 .expandable {
   flex-grow: 1;
 }
@@ -58,19 +58,6 @@ p {
     color: red;
     font-weight: bold;
     border: 1px solid red;
-}
-
-.loading {
-  font-size: 30px;
-}
-
-.loading:after {
-  overflow: hidden;
-  display: inline-block;
-  vertical-align: bottom;
-  animation: ellipsis steps(4,end) 900ms infinite;
-  content: "\2026"; /* ascii code for the ellipsis character */
-  width: 0px;
 }
 
 @keyframes ellipsis {
@@ -105,7 +92,7 @@ p {
     border: 2px solid red;
 }
 .blue-border {
-    border: 2px solid blue;
+    border: 2px solid #5764c6;
 }
 .green-border {
     border: 2px solid green;

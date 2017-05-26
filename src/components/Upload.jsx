@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router';
-import request from 'browser-request';
 import FileUpload from 'react-fileupload';
 import FFActions from '../actions/FFActions.js';
 import { API_BASE_URL, reportError, reportSuccess, errToString } from '../util/Util.js';
@@ -81,7 +80,7 @@ export default class Upload extends React.Component {
     }
     return (
       <FileUpload options={options}>
-        <button className="ff-button" ref="chooseAndUpload">Choose photos</button>
+        <button className="btn btn-primary" ref="chooseAndUpload">Choose photos</button>
       </FileUpload>
       );
   }

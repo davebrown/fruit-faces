@@ -120,7 +120,7 @@ class FFMainImage extends React.Component {
     }
 
     if (!image) {
-      return (<div>whoops no image, wanted {imageId}</div>);
+      return (<div className="loading">whoops no image, wanted {imageId}</div>);
     }
     var src = '/thumbs' + image.root + '/' + image.full;
     var tagForm = <TagForm className="tag-form" image={image}/>;
@@ -132,7 +132,7 @@ class FFMainImage extends React.Component {
       timeStr = dateformat(new Date(image.timestamp), 'h:MM TT');
     }
     const key = 'main-image-' + image.base;
-    const userLink = 'https://facebook.com/' + image.user.id;
+    const userLink = 'https://facebook.com/' + image.user.fbId;
     return (
       <Swipable id={key} key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
         onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}

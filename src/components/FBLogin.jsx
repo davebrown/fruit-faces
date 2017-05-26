@@ -41,7 +41,7 @@ export default class FBLogin extends React.Component {
   render() {
     //console.log('FBLogin.render', this.state);
     if (typeof(FB) === 'undefined') {
-      return (<div className="loading">Loading Facebook auth form</div>);
+      return (<div><span>Loading Facebook form...</span><span className="loading">loading</span></div>);
     }
     const { userId, name, profilePicUrl } = this.state;
     

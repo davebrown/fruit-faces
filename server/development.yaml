@@ -15,7 +15,7 @@ database:
   password: na
 
   # the JDBC URL
-  url: jdbc:postgresql://localhost/ff-qa
+  url: jdbc:postgresql://localhost/ff
 
   # any properties specific to your JDBC driver:
   properties:

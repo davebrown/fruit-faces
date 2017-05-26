@@ -52,10 +52,9 @@ class FFChartDOW extends React.Component {
         </div>
       );
     } else if (this.state.data == null) {
-      // FIXME: loading spinner or something...
       return (
-        <div>
-          <p><i>Loading chart data...</i></p>
+        <div className="blue-border">
+          <p className="loading"></p>
         </div>
       );
     }
@@ -124,10 +123,9 @@ class FFChartTOD extends React.Component {
         </div>
       );
     } else if (this.state.data == null) {
-      // FIXME: loading spinner or something...
       return (
-        <div>
-          <p><i>Loading chart data...</i></p>
+        <div className="blue-border">
+          <p className="loading"></p>
         </div>
       );
     }
@@ -212,10 +210,9 @@ class FFChartMonth extends React.Component {
         </div>
       );
     } else if (this.state.data == null) {
-      // FIXME: loading spinner or something...
       return (
-        <div>
-          <p><i>Loading chart data...</i></p>
+        <div className="blue-border">
+          <p className="loading"></p>
         </div>
       );
     }
@@ -301,7 +298,7 @@ export default class FFDataVictory extends React.Component {
         <p>Yup. That looks like a very standard gaussian distribution, between 7:00 - 7:40 am.</p>
         <p>
           Statistically speaking:<br/>
-          <code>
+          <code style={{ width: '100%' }}>
             Median: <b>7:21 am</b><br/>
             Mean: <b>7:20 am</b><br/>
             Standard deviation: <b>26 minutes, 10 seconds</b><br/>

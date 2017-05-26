@@ -80,8 +80,8 @@ class TagForm extends React.Component {
     var image = ImageStore.getSelectedImage();
     var i = 0;
     return (
-      <div id="tag-form" className="container tag-form column">
-        <button className="ff-button" onClick={this.deleteClicked}>Delete Image</button>
+      <div id="tag-form" className="flex-container tag-form column">
+        <button className="btn btn-primary" onClick={this.deleteClicked}>Delete Image</button>
         <table><tbody><tr>
           {
             FRUITS.map((fruit) => {

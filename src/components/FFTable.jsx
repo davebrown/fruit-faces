@@ -80,7 +80,7 @@ export default class FFTable extends React.Component {
   render() {
     const { images, selectedImage, filter } = this.state;
     if (!images) {
-      return (<b className="loading" style={{ color: '#808080', minWidth: '340px' }}>Loading thumbnails</b>);
+      return (<h1 className="loading" style={{ color: '#808080', minWidth: '340px', marginTop: '20vh' }}>Loading thumbnails</h1>);
     } else if (images.length == 0) {
       return (<div className="thumbs">No fruit faces yet! Why not&nbsp;<Link to="/upload"> upload some?</Link></div>);
     }
@@ -120,7 +120,7 @@ export default class FFTable extends React.Component {
     };
 
     var content = (
-      <div ref="ff_table" className="fixed scrollable thumbs" data-for="table-tt"
+      <div ref="ff_table" className="flex-fixed scrollable thumbs" data-for="table-tt"
       data-multiline={true} data-tip={ttText}
       >
         {

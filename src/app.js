@@ -91,7 +91,7 @@ class FFContainer extends React.Component {
     </div>);
     */
     return (
-        <div className="container">
+        <div className="flex-container">
           <ToastContainer ref="container"
             toastMessageFactory={ToastMessageFactory}
             className="toast-top-right" />
