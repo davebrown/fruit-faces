@@ -1,7 +1,9 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import request from 'browser-request';
-import { Link, hashHistory } from 'react-router';
+
+import { Link } from 'react-router-dom';
+import createHistory from 'history/createHashHistory';
 import bowser from 'bowser';
 import ReactTooltip from 'react-tooltip';
 
@@ -11,7 +13,11 @@ import FFActions from '../actions/FFActions.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, KEY_NAV_HAPPENED } from '../constants/FFConstants.js';
 
+const hashHistory = createHistory();
+
 function len(a) { return a && a.length; }
+
+console.log('FFTable: link', Link, ' hashHistory ', hashHistory);
 
 // track state on whether or not to show tooltips
 var showClickTooltip = true;

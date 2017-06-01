@@ -68,7 +68,7 @@ rsync -av \
 
 ssh $REMOTE_USER mkdir -p website/thumbs
 
-rsync -av ff.css index.html index.js $REMOTE_USER:website/
+rsync -av ff.css spectre.min.css index.html index.js $REMOTE_USER:website/
 
 #rsync -Lav thumbs/ $REMOTE_USER:website/thumbs/
 

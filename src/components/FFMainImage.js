@@ -1,13 +1,15 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
+import dateformat from 'dateformat';
+import Swipable from 'react-swipeable';
+import { Icon } from 'react-fa';
+
+import FBBlock from './FBBlock.jsx';
 import ImageStore from '../stores/ImageStore.js';
 import { IMAGE_CHANGED, IMAGES_LOADED, IMAGE_DELETED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import FFActions from '../actions/FFActions.js';
 import TagForm from './TagForm.js';
-import dateformat from 'dateformat';
-import Swipable from 'react-swipeable';
-import FBBlock from './FBBlock.jsx';
 
 //var fbUpdated = false;
 
@@ -23,6 +25,10 @@ class FFMainImage extends React.Component {
     this.onSwiping = this.onSwiping.bind(this);
     this.onSwipingLeft = this.onSwipingLeft.bind(this);
     this.onSwipingRight = this.onSwipingRight.bind(this);
+    this.onMouseEnter = this.onMouseEnter.bind(this);
+    this.onMouseOut = this.onMouseOut.bind(this);
+    this.onTagClick = this.onTagClick.bind(this);
+    this.onFBClick = this.onFBClick.bind(this);
     //this.log = this.log.bind(this);
   }
 
@@ -58,7 +64,10 @@ class FFMainImage extends React.Component {
     this.log('willMount');
     this.dispatcherToken = Dispatcher.register(this.mainImageActionListener);
     this.log('dispatcherToken', '"' + this.dispatcherToken + '"');
-    this.setState( { image: ImageStore.getSelectedImage() } );
+    this.setState( {
+      image: ImageStore.getSelectedImage()
+    }
+    );
   }
 
   componentDidMount() {
@@ -103,7 +112,9 @@ class FFMainImage extends React.Component {
   
   render() {
     var image = this.state.image;
-    const { userId, imageBase } = this.props.params;
+    const showTags = this.state.showTags;
+    console.log('FFMainImage.render: props are', this.props);
+    const { userId, imageBase } = this.props.match.params;
     const imageId = '/' + userId + '/' + imageBase;
     var stateId = this.state.image && this.state.image.path || 'state_is_null';
     //console.log('FFMain.render imageId=' + imageId + ' stateId=' + stateId);
@@ -123,8 +134,7 @@ class FFMainImage extends React.Component {
       return (<div className="loading">whoops no image, wanted {imageId}</div>);
     }
     var src = '/thumbs' + image.root + '/' + image.full;
-    var tagForm = <TagForm className="tag-form" image={image}/>;
-    //tagForm = ''; // not in prod yet
+    var tagForm = showTags ? <TagForm className="tag-form" image={image}/> : '';
     var dateStr = 'Unknown date...';
     var timeStr = '';
     if (image.timestamp) {
@@ -133,22 +143,50 @@ class FFMainImage extends React.Component {
     }
     const key = 'main-image-' + image.base;
     const userLink = 'https://facebook.com/' + image.user.fbId;
+    const fbClass = this.state.animateFB ? 'animated shake' : '';
     return (
       <Swipable id={key} key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
         onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
         onSwiping={this.onSwiping}>
-        {tagForm}
-        <div id="main-image-holder" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}>
-          <img id="main-image" src={src}/>
+        <div id="main-image-holder" className="flex-container" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}>
+          <img id="main-image" src={src} onMouseEnter={this.onMouseEnter} onMouseOut={this.onMouseOut}/>
+          <ImageToolbar onFBClick={this.onFBClick} onTagClick={this.onTagClick}/>
+          { tagForm }
+        </div>
+        <div>
           <p className="sans-font">
             {timeStr}<br/>
             {dateStr}<br/>
             <a href={userLink}>{image.user.name}</a>
           </p>
-          <FBBlock like={true}/>
+          <FBBlock like={true} className={fbClass}/>
         </div>
       </Swipable>
     );
+  }
+
+  onTagClick(evt) {
+    console.log('onTagClick');
+    const showTags = this.state.showTags;
+    this.setState({ showTags: !showTags });
+  }
+  
+  onFBClick(evt) {
+    console.log('onFBClick', evt);
+    window.scrollTo(0, window.innerHeight * .9);
+    this.setState({ animateFB: true });
+    const ffm = this;
+    setTimeout(() => { ffm.setState({animateFB: false}) }, 2000);
+  }
+  
+  onMouseEnter(evt) {
+    /*console.log('onMouseEnter', evt);*/
+    //this.setState({showToolbar: true});
+  }
+
+  onMouseOut(evt) {
+    /*console.log('onMouseOut', evt);*/
+    //this.setState({showToolbar: false});
   }
   
   onSwipingLeft(event, absX) {
@@ -197,6 +235,27 @@ class FFMainImage extends React.Component {
   
   log(msg) {
     //console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
+  }
+}
+
+class ImageToolbar extends React.Component {
+
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const { onTagClick, onStarClick, onDeleteClick, onFBClick, onUploadClick } = this.props;
+    
+    return (
+      <div id="image-toolbar" className={ 'image-toolbar flex-column ' + (this.props.className || '')}>
+        <Icon name="tags" title="edit tags" onClick={onTagClick}/>
+        <Icon name="star" onClick={onStarClick}/>
+        <Icon name="close" onClick={onDeleteClick}/>
+        <Icon name="facebook" onClick={onFBClick}/>
+        <Icon name="upload"/>
+      </div>
+    );
   }
 }
 

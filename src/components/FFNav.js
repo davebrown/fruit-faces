@@ -59,7 +59,7 @@ class FFNav extends React.Component {
         <div className="nav-item"><Link to='/data' onClick={this.onClick}>Data</Link></div>
         <div className="nav-item"><Link to='/tech' onClick={this.onClick}>Tech</Link></div>
       </div>
-           );
+    );
   }
 }
 

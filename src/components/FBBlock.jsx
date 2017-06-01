@@ -53,7 +53,7 @@ export default class FBBlock extends React.Component {
     fbTimer = setTimeout(fbParseFunc, 300);
     return (!likeDiv && !commentsDiv) ? (<span className="disabled loading footnote">facebook form</span>):
            (
-             <div id="ff-fb-block">
+             <div id="ff-fb-block" className={this.props.className || ''}>
                {likeDiv}
                {commentsDiv}
              </div>

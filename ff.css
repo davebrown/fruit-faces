@@ -28,17 +28,17 @@ p {
   align-items: flex-start; /* don't stretch height of flex items */
 }
 
-.fixed {
+.flex-fixed {
   flex-grow: 0;
   flex-shrink: 0;
 }
 
-.column {
+.flex-column {
   display: flex;
   flex-direction: column;
 }
 
-.wrap {
+.flex-wrap {
     flex-wrap: wrap;
 }
 
@@ -60,6 +60,9 @@ p {
     border: 1px solid red;
 }
 
+.invisible {
+    display: none;
+}
 @keyframes ellipsis {
   to {
     width: 1.25em;    
@@ -118,11 +121,25 @@ p {
     font-style: italic;
 }
 
-.ff-button {
-    font-size: 1.0em;
-    margin: 8px 0px 0px 8px;
-    border-radius: 6px;
-    background: #e0e0e0;
+#main-image-holder {
+    position: relative;
+}
+
+.image-toolbar {
+    width: 50px;
+    min-width: 50px;
+    padding-top: 36px;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 1.8em;
+}
+
+.image-toolbar span {
+    margin-top: 24px;
+}
+
+.fa:hover {
+    color: #5764c6;
 }
 /*
 .dialog svg {
@@ -184,6 +201,15 @@ p {
     padding-bottom: 10px;
 }
 
+.tag-form {
+    padding: 12px;
+}
+
+.tag-check label {
+    margin-right: 10px;
+    margin-left: 3px;
+}
+
 
 @media only screen and (max-width: 799px) {
 
@@ -212,7 +238,7 @@ p {
     }
 
     .dialog-content {
-        padding-top: 20px;
+        /*padding-top: 20px;*/
     }
     
     .close-icon {
@@ -232,7 +258,7 @@ p {
         margin: 0 auto;
     }
     #main-image-holder {
-        position: absolute;
+        /*position: absolute;*/
         top: 0px;
         z-index: -1;
      }
@@ -332,11 +358,8 @@ p {
         width: initial;
         height: initial;
         /*background-color: coral;*/
-        flex-wrap: wrap;
+        /*flex-wrap: wrap;*/
         max-width: 450px; /* FIXME: hack */
-    }
-    .tag-check {
-        margin: 8px;
     }
     #main-image {
         display: block;
@@ -357,3 +380,54 @@ p {
     }
 
 } /* close large screen media */    
+
+/* Burger menu custom styles */
+.bm-burger-button {
+  position: fixed;
+  width: 28px;
+  height: 28px;
+  left: 20px;
+  top: 20px;
+}
+
+.right .bm-burger-button {
+  left: initial;
+  right: 20px;
+}
+
+.bm-burger-bars {
+    background: #373a47;
+    /*background: #dee4f9;*/
+}
+
+.bm-morph-shape {
+  fill: #373a47;
+}
+
+/* not sure why I need to do this, but ok */
+.bm-overlay, .bm-menu-wrap {
+    top: 0px;
+}
+.bm-menu {
+  background: #373a47;
+}
+
+.bm-item-list a {
+  padding: 0.8em;
+  /*color: #b8b7ad;*/
+  /*color: #dee4f9;*/
+  color: white;
+  text-decoration: none;
+}
+
+
+.bm-cross {
+    /*background: #bdc3c7;*/
+    /*background: #dee4f9;*/
+    background: white;
+}
+
+.bm-menu {
+    padding: 2.5em 1.5em 0;
+    font-size: 1.15em;
+}

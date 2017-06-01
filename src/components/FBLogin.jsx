@@ -64,7 +64,7 @@ export default class FBLogin extends React.Component {
     return (
       <div>
         Logged in as {name || 'Name unknown'} &nbsp; {profileTag}<br/>
-      <button className="ff-button" onClick={this.doLogout}>Logout</button>
+      <button className="btn btn-primary" onClick={this.doLogout}>Logout</button>
       </div>
     );
   }

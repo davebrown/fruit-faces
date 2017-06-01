@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import FBBlock from './FBBlock.jsx';
 
 export default class About extends React.Component {

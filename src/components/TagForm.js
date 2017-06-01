@@ -11,7 +11,7 @@ var FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloup
                'googly eyes', 'grape', 'honeydew', 'kiwi', 'mango',
                'peach', 'pear', 'pineapple', 'plum', 'raspberry', 'strawberry', 'try harder Dad!', 'watermelon' ];
 
-FRUITS = [ 'strawberry', 'raspberry', 'apple' ]
+//FRUITS = [ 'strawberry', 'raspberry', 'apple' ]
 
 var TAGS = [ 'blue', 'gray', 'white' ];
 
@@ -67,8 +67,34 @@ class TagForm extends React.Component {
       }
     });
   }
-  
+
   render() {
+    var image = ImageStore.getSelectedImage();
+    return (
+      <div className="flex-container flex-column tag-form animated fadeInRight">
+        <h3 className="center">plates</h3>
+        <div className="flex-container flex-wrap">
+        {
+          TAGS.map((tag) => {
+            var key = 'ff-checkbox-' + tag;
+            return <FFCheck key={key} image={image} fruit={tag}/>;
+          })
+        }
+        </div>
+        <h3 className="center">fruits</h3>
+        <div className="flex-container flex-wrap">
+          {
+            FRUITS.map((tag) => {
+              var key = 'ff-checkbox-' + tag;
+              return <FFCheck key={key} image={image} fruit={tag}/>;
+            })
+          }
+        </div>
+      </div>
+    );
+  }
+  
+  renderTable() {
     const error = this.state.error;
     if (error) {
       setTimeout(function() {
@@ -78,10 +104,11 @@ class TagForm extends React.Component {
     }
     /* FIXME: race condition on initial load, selected image still null, need to handle async properties */
     var image = ImageStore.getSelectedImage();
+    var deleteButton = ( <button className="btn btn-primary" onClick={this.deleteClicked}>Delete Image</button> );
     var i = 0;
+
     return (
-      <div id="tag-form" className="flex-container tag-form column">
-        <button className="btn btn-primary" onClick={this.deleteClicked}>Delete Image</button>
+      <div id="tag-form" className="flex-container tag-form flex-column">
         <table><tbody><tr>
           {
             FRUITS.map((fruit) => {

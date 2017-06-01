@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
-import { hashHistory } from 'react-router';
 import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
+import { hashHistory } from '../util/Util.js';
 import bowser from 'bowser';
 import amplitude from 'amplitude-js/amplitude.min';
 
@@ -288,7 +288,7 @@ Dispatcher.register((action) => {
       /* need to set selected image state, if any, from hash path
        * FIXME: cleaner way to do this?
        */
-      var location = hashHistory.getCurrentLocation();
+      var location = hashHistory.location;
       if (!imageStore.getSelectedImage() && location && location.pathname) {
         var elems = location.pathname.split('/');
         if (elems.length === 4 && elems[1] === 'images') {
