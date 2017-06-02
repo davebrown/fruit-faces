@@ -230,7 +230,7 @@ p {
         height: 100vh;
         width: 100%;
         overflow-x: hidden;
-        z-index: 10;
+        z-index: 1;
         -webkit-transform: translateZ(1px);
         -moz-transform: translateZ(1px);
         -o-transform: translateZ(1px);
@@ -247,6 +247,11 @@ p {
         top: 0px;
         left: 0px;
         position: fixed;
+        color: white;
+        background: black;
+        text-align: center;
+        font-size: 2.0em !important;
+        line-height: 30px !important;        
     }
     
     .tag-form {
@@ -388,11 +393,19 @@ p {
   height: 28px;
   left: 20px;
   top: 20px;
+  z-index: 2 !important;
 }
 
 .right .bm-burger-button {
   left: initial;
   right: 20px;
+}
+
+.headshot {
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    margin-left: 12px;
 }
 
 .bm-burger-bars {
@@ -412,12 +425,17 @@ p {
   background: #373a47;
 }
 
+html [type=button] {
+    -webkit-appearance: initial;
+}
+
 .bm-item-list a {
   padding: 0.8em;
   /*color: #b8b7ad;*/
   /*color: #dee4f9;*/
   color: white;
   text-decoration: none;
+  display: block;
 }
 
 
@@ -429,5 +447,6 @@ p {
 
 .bm-menu {
     padding: 2.5em 1.5em 0;
-    font-size: 1.15em;
+    /*font-size: 1.15em;*/
+    font-size: 16px;
 }

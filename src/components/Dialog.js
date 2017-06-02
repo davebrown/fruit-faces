@@ -22,7 +22,6 @@ class Dialog extends React.Component {
     var hashLocation = hashHistory.location;// hashHistory.getCurrentLocation();
     var dataHref = 'https://ff.moonspider.com/#' + hashLocation;
     var closeIcon = (<Icon name="times-circle" className="close-icon" onClick={closeHandler}/>);
-    closeIcon = null;
     return (
       <div id="ff-dialog" className="flex-column dialog expandable compressible scrollable">
         {closeIcon}

@@ -67,11 +67,11 @@ class TagForm extends React.Component {
       }
     });
   }
-
   render() {
     var image = ImageStore.getSelectedImage();
+    var className = "flex-container flex-column tag-form " + (this.props.className || '');
     return (
-      <div className="flex-container flex-column tag-form animated fadeInRight">
+      <div className={className}>
         <h3 className="center">plates</h3>
         <div className="flex-container flex-wrap">
         {

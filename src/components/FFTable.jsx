@@ -17,8 +17,6 @@ const hashHistory = createHistory();
 
 function len(a) { return a && a.length; }
 
-console.log('FFTable: link', Link, ' hashHistory ', hashHistory);
-
 // track state on whether or not to show tooltips
 var showClickTooltip = true;
 var showKeyTooltip = true;

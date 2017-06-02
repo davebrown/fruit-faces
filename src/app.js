@@ -1,12 +1,10 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-//import { Router, Route, Link, IndexRoute, hashHistory, browserHistory } from 'react-router';
 import { Router, Route, Switch } from 'react-router';
 import { HashRouter, Link } from 'react-router-dom';
 import request from 'browser-request';
 import bowser from 'bowser';
 import { ToastContainer, ToastMessage } from 'react-toastr';
-import { slide as Menu } from 'react-burger-menu';
 
 import Dispatcher from './dispatcher/AppDispatcher.js';
 import { IMAGE_CHANGED, IMAGES_LOADED, STATUS_REPORT } from './constants/FFConstants.js';
@@ -23,11 +21,10 @@ import FFMainImage from './components/FFMainImage.js';
 import FBLogin from './components/FBLogin.jsx';
 import Upload from './components/Upload.jsx';
 import Toastr from './components/Toastr.jsx';
+import SideMenu from './components/SideMenu.jsx';
 
 import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportWarning, reportSuccess, reportInfo, hashHistory } from './util/Util.js';
 import { authStore, FB_APP_ID } from './stores/AuthStore.js';
-
-console.log('app.js: hashHistory', hashHistory);
 
 const NotFound = () => (
   <div>
@@ -154,62 +151,6 @@ function routeLocationDidUpdate(location) {
   console.log(location);
 }
 
-class SideMenu extends React.Component {
-  constructor(props) {
-    super(props);
-    this.linkClicked = this.linkClicked.bind(this);
-  }
-
-  linkClicked(e) {
-    this.setState({ open: false });
-  }
-
-  componentWillMount() {
-    //console.log('component will mount');
-    this.setState({ open: false });
-  }
-  
-  render() {
-    const { open } = this.state;
-    const { userId, name, profilePicUrl } = this.state;
-    var slideShow = (<div className="nav-item">Slideshow</div>);
-    slideShow = '';
-
-    var aboutRef = bowser.mobile ? '/about' : '/';
-    
-    var authText = userId != null ? "Logout": "Login...";
-    const profileTag = profilePicUrl ? (<img src={profilePicUrl}/>) : '';
-    //return (<div className="right">BUG</div>);
-    return (
-      <div className="right">
-        <Menu right={true} isOpen={open} outerContainerId={"container"} pageWrapId="main" width={ '200px' }>
-        {profileTag}
-          <Link to="/login" onClick={this.linkClicked}>{authText}</Link>
-          <Link className="menu-item" to={aboutRef} onClick={this.linkClicked}>About</Link>
-          <Link className="menu-item" to='/filters' onClick={this.linkClicked}>Filters</Link>
-          <Link className="menu-item" to='/upload' onClick={this.linkClicked}>Upload</Link>
-        {slideShow}
-          <Link className="menu-item" to='/data' onClick={this.linkClicked}>Data</Link>
-          <Link className="menu-item" to='/tech' onClick={this.linkClicked}>Tech</Link>
-        </Menu>
-      </div>
-    );
-
-    /*
-    return (
-      <div className="right">
-        <Menu right={true} isOpen={open} outerContainerId={"container"} pageWrapId="main" width={ '200px' }>
-          <Link id="home" className="menu-item" to="/" onClick={this.linkClicked}>About</Link>
-          <Link id="how-it-works" className="menu-item" to="/faq"  onClick={this.linkClicked}>How It Works</Link>
-          <Link id="register" className="menu-item" to="/register" onClick={this.linkClicked}>Register</Link>
-          <Link id="team" className="menu-item" to="/team"  onClick={this.linkClicked}>Team</Link>
-          <Link id="contact" className="menu-item" to="/contact"  onClick={this.linkClicked}>Contact</Link>
-        </Menu>
-      </div>
-    );
-*/
-  }
-}
 
 //hashHistory.listen(location => routeLocationDidUpdate(location));
 //hashHistory.listen(location => function(location) { console.log('hashHistory changed', location); });
@@ -224,19 +165,19 @@ class FFApp extends React.Component {
       <HashRouter history={hashHistory}>
         <main id="main">
           <SideMenu/>
-        <FFContainer>
-        <Switch>  
-          <Route path='/about' component={About}/>
-          <Route path='/filters' component={Filters}/>
-          <Route path='/data' component={FFDataVictory}/>
-          <Route path='/tech' component={Tech}/>
-          <Route path='/login' component={FBLogin}/>
-          <Route path='/upload' component={Upload}/>
-          <Route path='/toastr' component={Toastr}/>
-          <Route path='/images/:userId/:imageBase' component={FFMainImage}/>
-          <Route path='*' component={NotFound}/>
-        </Switch>
-        </FFContainer>
+          <FFContainer>
+            <Switch>  
+              <Route exact={true} path='/' component={About}/>
+              <Route path='/filters' component={Filters}/>
+              <Route path='/data' component={FFDataVictory}/>
+              <Route path='/tech' component={Tech}/>
+              <Route path='/login' component={FBLogin}/>
+              <Route path='/upload' component={Upload}/>
+              <Route path='/toastr' component={Toastr}/>
+              <Route path='/images/:userId/:imageBase' component={FFMainImage}/>
+              <Route path='*' component={NotFound}/>
+            </Switch>
+          </FFContainer>
         </main>
       </HashRouter>
     );

@@ -16,6 +16,8 @@ export default class FBLogin extends React.Component {
   }
 
   componentWillMount() {
+    //console.log('FBLogin - will mount');
+    this.mounted = true;
     authStore.addChangeListener(this.authChanged);
     this.authChanged();
   }
@@ -23,15 +25,18 @@ export default class FBLogin extends React.Component {
   componentWillUnmount() {
     //console.log('FBLogin - will unmount');
     authStore.removeChangeListener(this.authChanged);
+    this.mounted = false;
   }
 
   authChanged() {
     //console.log('FBLogin.authChanged');
-    this.setState({
-      userId: authStore.getUserID(),
-      name: authStore.getFullName(),
-      profilePicUrl: authStore.getProfilePicUrl()
-    });
+    if (this.mounted) {
+      this.setState({
+        userId: authStore.getUserID(),
+        name: authStore.getFullName(),
+        profilePicUrl: authStore.getProfilePicUrl()
+      });
+    }
   }
 
   doLogout() {
@@ -39,6 +44,29 @@ export default class FBLogin extends React.Component {
   }
   
   render() {
+    if (this.props.renderLink) {
+      const containerStyle = {
+        display: 'block',
+        outline: 'none'
+      };
+      return (
+        <FacebookLogin
+          appId={FB_APP_ID}
+          autoLoad={true}
+          fields="name,email,picture"
+          isMobile={bowser.mobile}
+          redirectUri={ REDIRECT_URI }
+          callback={fbLoginCallback}
+          tag="a"
+          cssClass="bm-menu menu-item"
+          containerStyle={containerStyle}
+          textButton={this.props.authText || 'Login...'}
+          typeButton="link"
+        />
+      );
+      
+    }
+    
     //console.log('FBLogin.render', this.state);
     if (typeof(FB) === 'undefined') {
       return (<div><span>Loading Facebook form...</span><span className="loading">loading</span></div>);

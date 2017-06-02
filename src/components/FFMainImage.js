@@ -1,9 +1,9 @@
 import React from 'react';
-import { hashHistory } from 'react-router';
 import dateformat from 'dateformat';
 import Swipable from 'react-swipeable';
 import { Icon } from 'react-fa';
 
+import { hashHistory } from '../util/Util.js';
 import FBBlock from './FBBlock.jsx';
 import ImageStore from '../stores/ImageStore.js';
 import { IMAGE_CHANGED, IMAGES_LOADED, IMAGE_DELETED } from '../constants/FFConstants.js';
@@ -11,7 +11,9 @@ import Dispatcher from '../dispatcher/AppDispatcher.js';
 import FFActions from '../actions/FFActions.js';
 import TagForm from './TagForm.js';
 
-//var fbUpdated = false;
+const TAG_FORM_NONE = 0;
+const TAG_FORM_ON = 1;
+const TAG_FORM_OFF = 2;
 
 class FFMainImage extends React.Component {
 
@@ -65,7 +67,8 @@ class FFMainImage extends React.Component {
     this.dispatcherToken = Dispatcher.register(this.mainImageActionListener);
     this.log('dispatcherToken', '"' + this.dispatcherToken + '"');
     this.setState( {
-      image: ImageStore.getSelectedImage()
+      image: ImageStore.getSelectedImage(),
+      tagState: TAG_FORM_NONE
     }
     );
   }
@@ -112,8 +115,7 @@ class FFMainImage extends React.Component {
   
   render() {
     var image = this.state.image;
-    const showTags = this.state.showTags;
-    console.log('FFMainImage.render: props are', this.props);
+    const tagState = this.state.tagState;
     const { userId, imageBase } = this.props.match.params;
     const imageId = '/' + userId + '/' + imageBase;
     var stateId = this.state.image && this.state.image.path || 'state_is_null';
@@ -134,7 +136,11 @@ class FFMainImage extends React.Component {
       return (<div className="loading">whoops no image, wanted {imageId}</div>);
     }
     var src = '/thumbs' + image.root + '/' + image.full;
-    var tagForm = showTags ? <TagForm className="tag-form" image={image}/> : '';
+    var tagForm = '';
+    if (tagState != TAG_FORM_NONE) {
+      const tagClass = (tagState == TAG_FORM_ON) ? 'animated fadeInRight' : 'animated fadeOutRight';
+      tagForm = (<TagForm className={tagClass} image={image}/>);
+    }
     var dateStr = 'Unknown date...';
     var timeStr = '';
     if (image.timestamp) {
@@ -166,9 +172,14 @@ class FFMainImage extends React.Component {
   }
 
   onTagClick(evt) {
-    console.log('onTagClick');
-    const showTags = this.state.showTags;
-    this.setState({ showTags: !showTags });
+    var tagState = this.state.tagState;
+    //console.log('onTagClick', tagState, (tagState + 1) % 3);
+    tagState = (tagState + 1) % 3;
+    this.setState({ tagState: tagState });
+    if (tagState == TAG_FORM_OFF) {
+      const ffm = this;
+      setTimeout(() => { ffm.setState({tagState: TAG_FORM_NONE}) }, 800);
+    }
   }
   
   onFBClick(evt) {
