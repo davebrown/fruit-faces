@@ -3,7 +3,7 @@ import request from 'browser-request';
 import { FB_INITIALIZED, FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import FFActions from '../actions/FFActions.js';
-import { amplitude, errToString, API_BASE_URL } from '../util/Util.js';
+import { amplitude, errToString, API_BASE_URL, reportSuccess } from '../util/Util.js';
 
 // initial mirror
 const UNKNOWN_LOGIN = {
@@ -147,12 +147,14 @@ function fbStatusCallback(response) {
   }
   authStore._setLogin(login);
   if (response.status === 'connected') {
+    amplitude.logEvent('FB_LOGIN', {});
     FB.api('/me', (rsp) => {
       if (!rsp || rsp.error) {
         console.warn('FB API error getting profile name', rsp);
         amplitude.logEvent('FB_PROFILE_ERROR', { errorMsg: errToString(rsp) });
       } else {
         authStore._setName(rsp.name);
+        reportSuccess('You can upload fruit faces!', 'Logged in');
       }
       if (!Dispatcher.isDispatching()) {
         FFActions.fbAuthChanged();

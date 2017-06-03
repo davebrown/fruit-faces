@@ -81,7 +81,7 @@ class FFCheck extends React.Component {
       //console.log(fruit + ' NOT checked');
     }
     return (<div key={key} className="tag-check">
-            <input checked={checkStr} onChange={this.checkHandler.bind(this)} type="checkbox"/>
+  <input checked={checkStr} onChange={this.checkHandler.bind(this)} type="checkbox"/>
             <label>{fruit}</label>
             </div>);
   }

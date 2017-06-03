@@ -17,11 +17,11 @@ class Dialog extends React.Component {
     if (!this.props.children || this.props.children.length === 0) {
       return null;
     }
-    //console.debug('dialog children len: ' + Children.count(this.props.children));
+    console.log('dialog children len: ' + Children.count(this.props.children), 'children:', this.props.children);
     var closeHandler = this.props.onClose || this.dialogCloseHandler.bind(this);
     var hashLocation = hashHistory.location;// hashHistory.getCurrentLocation();
     var dataHref = 'https://ff.moonspider.com/#' + hashLocation;
-    var closeIcon = (<Icon name="times-circle" className="close-icon" onClick={closeHandler}/>);
+    var closeIcon = (<Icon name="times-circle-o" className="close-icon" onClick={closeHandler}/>);
     return (
       <div id="ff-dialog" className="flex-column dialog expandable compressible scrollable">
         {closeIcon}

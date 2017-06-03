@@ -12,6 +12,9 @@ h1, h2, h3, p {
     margin: 10px;
 }
 
+h1 {
+    margin-top: 19px;
+}
 
 p {
     /*font-family: "Droid Serif", "Open Sans", Cambria, Georgia, "DejaVu Serif", serif;*/
@@ -101,6 +104,13 @@ p {
     border: 2px solid green;
 }
 
+.center-single-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50%;
+    min-height: 200px;
+}
 /* end debug */
 
 
@@ -203,6 +213,16 @@ p {
 
 .tag-form {
     padding: 12px;
+    display: inline-grid;
+}
+
+.inline-grid {
+    display: inline-grid;
+}
+.tag-check {
+    flex-grow: 1;
+    flex-basis: 0;
+    display: inline-table;
 }
 
 .tag-check label {
@@ -226,11 +246,12 @@ p {
     .dialog {
         position: fixed;
         top: 0px;
+        left: 0px;
         background-color: white;
         height: 100vh;
         width: 100%;
         overflow-x: hidden;
-        z-index: 1;
+        /*z-index: 1;*/
         -webkit-transform: translateZ(1px);
         -moz-transform: translateZ(1px);
         -o-transform: translateZ(1px);
@@ -247,8 +268,8 @@ p {
         top: 0px;
         left: 0px;
         position: fixed;
-        color: white;
-        background: black;
+        color: #50596c;
+        background: white;
         text-align: center;
         font-size: 2.0em !important;
         line-height: 30px !important;        
@@ -393,7 +414,7 @@ p {
   height: 28px;
   left: 20px;
   top: 20px;
-  z-index: 2 !important;
+  /*z-index: 2 !important;*/
 }
 
 .right .bm-burger-button {
@@ -436,6 +457,7 @@ html [type=button] {
   color: white;
   text-decoration: none;
   display: block;
+  cursor: pointer;
 }
 
 

@@ -19,7 +19,6 @@ class FFMainImage extends React.Component {
 
   constructor(props) {
     super(props);
-    this.log('CTOR');
     this.mounted = false;
     this.mainImageActionListener = this.mainImageActionListener.bind(this);
     this.swipeLeft = this.swipeLeft.bind(this);
@@ -31,6 +30,8 @@ class FFMainImage extends React.Component {
     this.onMouseOut = this.onMouseOut.bind(this);
     this.onTagClick = this.onTagClick.bind(this);
     this.onFBClick = this.onFBClick.bind(this);
+    this.onUploadClick = this.onUploadClick.bind(this);
+    this.onDeleteClick = this.onDeleteClick.bind(this);
     //this.log = this.log.bind(this);
   }
 
@@ -156,7 +157,9 @@ class FFMainImage extends React.Component {
         onSwiping={this.onSwiping}>
         <div id="main-image-holder" className="flex-container" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}>
           <img id="main-image" src={src} onMouseEnter={this.onMouseEnter} onMouseOut={this.onMouseOut}/>
-          <ImageToolbar onFBClick={this.onFBClick} onTagClick={this.onTagClick}/>
+          <ImageToolbar onFBClick={this.onFBClick} onTagClick={this.onTagClick}
+            onUploadClick={this.onUploadClick} onDeleteClick={this.onDeleteClick}
+          />
           { tagForm }
         </div>
         <div>
@@ -189,7 +192,14 @@ class FFMainImage extends React.Component {
     const ffm = this;
     setTimeout(() => { ffm.setState({animateFB: false}) }, 2000);
   }
-  
+
+  onUploadClick(evt) {
+    hashHistory.push('/upload');
+  }
+
+  onDeleteClick(e) {
+    console.log('FFMain ondeleteclick');
+  }
   onMouseEnter(evt) {
     /*console.log('onMouseEnter', evt);*/
     //this.setState({showToolbar: true});
@@ -257,14 +267,17 @@ class ImageToolbar extends React.Component {
 
   render() {
     const { onTagClick, onStarClick, onDeleteClick, onFBClick, onUploadClick } = this.props;
-    
+
+    /* for when favorites are implemented
+    (<Icon name="star" onClick={onStarClick}/>)
+    */
+
     return (
       <div id="image-toolbar" className={ 'image-toolbar flex-column ' + (this.props.className || '')}>
         <Icon name="tags" title="edit tags" onClick={onTagClick}/>
-        <Icon name="star" onClick={onStarClick}/>
         <Icon name="close" onClick={onDeleteClick}/>
         <Icon name="facebook" onClick={onFBClick}/>
-        <Icon name="upload"/>
+        <Icon name="upload" onClick={onUploadClick}/>
       </div>
     );
   }

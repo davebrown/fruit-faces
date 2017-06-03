@@ -59,7 +59,7 @@ export default class Filters extends React.Component {
               const key = 'filter-radio-' + tag;
               return <label key={key} className="form-radio">
                 <Radio value={tag}/>
-                <i className="form-icon"></i> {tag.charAt(0).toUpperCase() + tag.slice(1) + ' plates'}<br/>
+                <i className="form-icon"></i> {tag.charAt(0).toUpperCase() + tag.slice(1)}<br/>
               </label>
             })
           }

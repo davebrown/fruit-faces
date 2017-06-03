@@ -83,21 +83,12 @@ class FFContainer extends React.Component {
       children = (<About/>);
     }
     
-    var toastTest = null;
-    /*
-    toastTest = (<div>
-    <button onClick={() => reportError('bad thing happened', 'oops', 'error')}>Error Button</button>
-    <button onClick={() => reportSuccess('good thing happened', 'GREAT!', 'success')}>Success Button</button>
-    <button onClick={() => reportWarning('might be bad', 'WARNING', 'warning')}>Warning Button</button>
-    <button onClick={() => reportInfo('very neutral something', 'FYI', 'info')}>Info Button</button>
-    </div>);
-    */
     return (
         <div className="flex-container">
           <ToastContainer ref="container"
             toastMessageFactory={ToastMessageFactory}
             className="toast-top-right" />
-        <FFTable/>
+          <FFTable/>
         <Dialog>
         {children}
         </Dialog>
@@ -167,11 +158,11 @@ class FFApp extends React.Component {
           <SideMenu/>
           <FFContainer>
             <Switch>  
-              <Route exact={true} path='/' component={About}/>
+              <Route exact={true} path='/' component={null}/>
+              <Route path='/about' component={About}/>
               <Route path='/filters' component={Filters}/>
               <Route path='/data' component={FFDataVictory}/>
               <Route path='/tech' component={Tech}/>
-              <Route path='/login' component={FBLogin}/>
               <Route path='/upload' component={Upload}/>
               <Route path='/toastr' component={Toastr}/>
               <Route path='/images/:userId/:imageBase' component={FFMainImage}/>

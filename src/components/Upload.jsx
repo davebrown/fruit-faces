@@ -14,12 +14,27 @@ export default class Upload extends React.Component {
     this.uploading = this.uploading.bind(this);
     this.doUpload = this.doUpload.bind(this);
     this.uploadStopped = this.uploadStopped.bind(this);
+    this.authChanged = this.authChanged.bind(this);
   }
 
+  
   componentWillMount() {
+    authStore.addChangeListener(this.authChanged);
     this.uploadStopped();
+    this.authChanged();
   }
 
+  authChanged() {
+    //console.log('SideMenu.authChanged()->' + authStore.getUserID());
+    this.setState({
+      accessToken: authStore.getAccessToken()
+    });
+  }    
+
+  componentWillUnmount() {
+    authStore.removeChangeListener(this.authChanged);
+  }
+  
   uploadStopped() {
     this.setState({
       uploading: false
@@ -59,7 +74,7 @@ export default class Upload extends React.Component {
       fileFieldName: 'imagefile',
       chooseAndUpload: true,
       requestHeaders: {
-        'X-FF-Auth': authStore.getAccessToken()
+        'X-FF-Auth': this.state.accessToken
       },
       uploadSuccess: this.uploadSuccess,
       uploadError: this.uploadError,
@@ -79,9 +94,11 @@ export default class Upload extends React.Component {
       return (<div className="error">{msg}</div>);
     }
     return (
+      <div className="center-single-child">
       <FileUpload options={options}>
-        <button className="btn btn-primary" ref="chooseAndUpload">Choose photos</button>
+        <button className="btn btn-primary" ref="chooseAndUpload">Choose photos to upload</button>
       </FileUpload>
+      </div>
       );
   }
   
