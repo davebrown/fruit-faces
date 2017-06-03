@@ -67,7 +67,7 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
                     .addFilter("crossOriginRequests", CrossOriginFilter.class);
             cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
             cors.setInitParameter("allowedOrigins", "*");
-            cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,X-FF-Auth");
+            cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,X-FF-Auth,X-FF-Prevent-Duplicates");
             cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
         }
         final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager(), config);

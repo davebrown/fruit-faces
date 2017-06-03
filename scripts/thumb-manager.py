@@ -8,6 +8,7 @@ import json
 import exifread
 import psycopg2
 import psycopg2.extras
+import requests
 from PIL import Image
 from PIL.ExifTags import TAGS
 from colorthief import ColorThief
@@ -308,6 +309,45 @@ def cmd_colors():
   cur.close()
   DB.close()
   print('done!')
+
+def cmd_upload():
+  if ARGS.dir is None:
+    fail('upload requires "--dir" option')
+  elif ARGS.auth is None:
+    fail('upload requires "--auth" option')
+  elif ARGS.url is None:
+    fail('upload requires "--url" option')
+  files = listFiles(ARGS.dir, fullSizeMatch)
+
+  url = '%s%s' % (ARGS.url, '/api/v1/images')
+  verbose('posting files to %s' % url)
+  uploads = 0
+  exists = 0
+  for f in files:
+    verbose('%s / %s' % (os.path.basename(f), f))
+    fileData = {
+      'imagefile': (os.path.basename(f), open(f, 'rb'), 'image/jpeg') # content type assumption
+    }
+
+    r = requests.post(url, files=fileData, headers={'X-FF-Auth': ARGS.auth, 'X-FF-Prevent-Duplicates': 'true'}, allow_redirects=False)
+    if r.status_code == 303:
+      exists = exists + 1
+      info('%s already exists: %s' % (os.path.basename(f), r.headers['location']))
+      continue
+    elif r.status_code != 200:
+      raise Exception('non-200 HTTP response %d from %s' % (r.status_code, ARGS.url))
+    
+    ctype = r.headers['content-type']
+    if ctype is None:
+      raise Exception('no Content-Type on response from %s' % url)
+    elif 'application/json' not in ctype:
+      raise Exception('non-JSON content type "%s" on resource %s' % (ctype, ARGS.url))
+
+    dto = r.json()
+    print 'uploaded: %s' % str(dto)
+    uploads = uploads + 1
+    
+  info('done - uploaded %d and %d already existed' % (uploads, exists))
   
 def cmd_thumb_page():
   verbose('thumb-page got args: ' + str(ARGS.args))
@@ -535,6 +575,8 @@ def main():
   parser.add_argument('-v', '--verbose', help='emit verbose output', default=False, action="store_true")
   parser.add_argument('-s', '--size', help='"WxH" dimension', default=None)
   parser.add_argument('-d', '--dir', help='directory for scan or output', default=None)
+  parser.add_argument('-a', '--auth', help='auth token for remote server', default=None)
+  parser.add_argument('-u', '--url', help='url of remote server', default='http://localhost:9080')
   parser.add_argument('command', help='thumbs')
   parser.add_argument('args', nargs='*')
   ARGS = parser.parse_args()

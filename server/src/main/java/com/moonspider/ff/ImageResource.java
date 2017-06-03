@@ -29,6 +29,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
+import java.net.URI;
 import java.util.*;
 import java.util.List;
 
@@ -179,7 +180,6 @@ public class ImageResource extends BaseResource {
         checkAuth(userEJB, ejb.getUser());
         TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
         if (tagEJB == null) {
-            /* FIXME: allow create new tags from client? At least need auth */
             tagEJB = new TagEJB(tag);
             entityManager.persist(tagEJB);
         }
@@ -224,6 +224,8 @@ public class ImageResource extends BaseResource {
     public Response addImage(@FormDataParam("imagefile") InputStream inputStream,
                              @FormDataParam("imagefile") FormDataContentDisposition contentDispositionHeader,
                              @HeaderParam("X-FF-Auth") String accessToken,
+                             @HeaderParam("X-FF-Prevent-Duplicates") String preventDups,
+                             @HeaderParam("Host") String serverHost,
                              @HeaderParam("Content-Length") long contentLength
                          ) throws IOException {
         // step 1: do some validation
@@ -250,9 +252,15 @@ public class ImageResource extends BaseResource {
         {
             ImageEJB existingImage = findEJB(userEJB.getId(), basename);
             if (existingImage != null) {
-                //return _400("image " + basename + " already uploaded");
-                basename = basename + "_" + getBaseNameCount(userEJB, basename);
-                fname = basename + '.' + ext;
+                if ("true".equalsIgnoreCase(preventDups)) {
+                    URI uri = URI.create(config.getBaseProtocol() + "://" + serverHost + "/api/v1/images/" + userEJB.getId() + "/" + existingImage.getBase());
+                    log.info("duplicate file: " + userEJB.getId() + "/" + basename + ", returning 303 to " + uri);
+                    return Response.seeOther(uri).build();
+                } else {
+                    //return _400("image " + basename + " already uploaded");
+                    basename = basename + "_" + getBaseNameCount(userEJB, basename);
+                    fname = basename + '.' + ext;
+                }
             }
         }
 
@@ -354,8 +362,11 @@ public class ImageResource extends BaseResource {
                 tags = new ArrayList<>();
                 for (String tag : tagsDTO.getTags()) {
                     TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
-                    if (tagEJB != null)
-                        tags.add(tagEJB);
+                    if (tagEJB == null) {
+                        tagEJB = new TagEJB(tag);
+                        entityManager.persist(tagEJB);
+                    }
+                    tags.add(tagEJB);
                 }
             }
         } catch (IOException ioe) {

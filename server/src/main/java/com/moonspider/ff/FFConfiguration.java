@@ -40,6 +40,19 @@ public class FFConfiguration extends Configuration {
     @JsonProperty
     private String tagServiceUrl;
 
+    public String getBaseProtocol() {
+        return baseProtocol;
+    }
+
+    public void setBaseProtocol(String baseProtocol) {
+        this.baseProtocol = baseProtocol;
+    }
+
+    @Valid
+    @NotNull
+    @JsonProperty
+    private String baseProtocol;
+
     public DataSourceFactory getDataSourceFactory() {
         return database;
     }

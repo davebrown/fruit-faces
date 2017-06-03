@@ -169,7 +169,8 @@ class TagResource:
     body = {
       'tags': [ n2c(predicts[0]) ]
     }
-    resp.body = json.dumps(body)    
+    resp.body = json.dumps(body)
+    say('returning predictions %s' % str(resp.body))
     
   
   
