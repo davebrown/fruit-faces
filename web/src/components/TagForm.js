@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import request from 'browser-request';
 
 import ImageStore from '../stores/ImageStore.js';
 import FFCheck from './FFCheck.js';
@@ -29,7 +28,6 @@ class TagForm extends React.Component {
   
   constructor(props) {
     super(props);
-    this.deleteClicked = this.deleteClicked.bind(this);
   }
 
   componentWillMount() {
@@ -37,36 +35,6 @@ class TagForm extends React.Component {
     this.setState({error: null});
   }
 
-  deleteClicked() {
-    const image = this.props.image;
-    var next = ImageStore.getNextImage();
-    if (next && next.base === image.base) {
-      // special case the last image
-      next = null;
-    }
-    console.log('delete image: ' + image.base);
-    request({
-      method: 'DELETE',
-      url: API_BASE_URL + '/api/v1/images' + image.root + '/' + image.base,
-      headers: {
-        'X-FF-Auth': authStore.getAccessToken()
-      }
-    }, (er, response, bodyString) => {
-      if (er) {
-        console.log('delete image problem: ' + er);
-        reportError(er, 'problem deleting image');
-        this.setState({ error: er });
-        return;
-      } else if (response.statusCode < 200 || response.statusCode > 299) {
-        var errObj = JSON.parse(bodyString);
-        reportError(errObj, 'problem deleting image');
-        this.setState({ error: errObj });
-      } else {
-        console.log('delete image OK? code=' + response.statusCode);
-        FFActions.imageDeleted(image, next);
-      }
-    });
-  }
   render() {
     var image = ImageStore.getSelectedImage();
     var className = "flex-container flex-column tag-form " + (this.props.className || '');
@@ -104,7 +72,6 @@ class TagForm extends React.Component {
     }
     /* FIXME: race condition on initial load, selected image still null, need to handle async properties */
     var image = ImageStore.getSelectedImage();
-    var deleteButton = ( <button className="btn btn-primary" onClick={this.deleteClicked}>Delete Image</button> );
     var i = 0;
 
     return (

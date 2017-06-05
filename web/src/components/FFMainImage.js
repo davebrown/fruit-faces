@@ -2,8 +2,9 @@ import React from 'react';
 import dateformat from 'dateformat';
 import Swipable from 'react-swipeable';
 import { Icon } from 'react-fa';
+import request from 'browser-request';
 
-import { hashHistory } from '../util/Util.js';
+import { amplitude, API_BASE_URL, hashHistory, reportError, reportInfo } from '../util/Util.js';
 import FBBlock from './FBBlock.jsx';
 import ImageStore from '../stores/ImageStore.js';
 import { IMAGE_CHANGED, IMAGES_LOADED, IMAGE_DELETED } from '../constants/FFConstants.js';
@@ -198,7 +199,39 @@ class FFMainImage extends React.Component {
   }
 
   onDeleteClick(e) {
-    console.log('FFMain ondeleteclick');
+    const image = ImageStore.getSelectedImage();//this.state.image;
+    //console.log('delete clicked, image', image);
+    if (!image || !window.confirm('Are you sure you want to delete ' + image.base + '.jpg?')) {
+      return;
+    }
+    var next = ImageStore.getNextImage();
+    if (next && next.base === image.base) {
+      // special case the last image
+      next = null;
+    }
+    console.log('delete image: ' + image.base);
+    request({
+      method: 'DELETE',
+      url: API_BASE_URL + '/api/v1/images' + image.root + '/' + image.base,
+      headers: {
+        'X-FF-Auth': authStore.getAccessToken()
+      }
+    }, (er, response, bodyString) => {
+      if (er) {
+        console.log('delete image problem: ' + er);
+        reportError(er, 'problem deleting image');
+        this.setState({ error: er });
+        return;
+      } else if (response.statusCode < 200 || response.statusCode > 299) {
+        var errObj = JSON.parse(bodyString);
+        reportError(errObj, 'problem deleting image');
+        this.setState({ error: errObj });
+      } else {
+        //console.log('delete image OK? code=' + response.statusCode);
+        FFActions.imageDeleted(image, next);
+        reportInfo('deleted ' + image.base + '.jpg');
+      }
+    });
   }
   onMouseEnter(evt) {
     /*console.log('onMouseEnter', evt);*/
@@ -275,9 +308,9 @@ class ImageToolbar extends React.Component {
     return (
       <div id="image-toolbar" className={ 'image-toolbar flex-column ' + (this.props.className || '')}>
         <Icon name="tags" title="edit tags" onClick={onTagClick}/>
-        <Icon name="close" onClick={onDeleteClick}/>
-        <Icon name="facebook" onClick={onFBClick}/>
-        <Icon name="upload" onClick={onUploadClick}/>
+        <Icon name="close" title="delete image" onClick={onDeleteClick}/>
+        <Icon name="facebook" title="comment on Facebook" onClick={onFBClick}/>
+        <Icon name="upload" title="upload an image" onClick={onUploadClick}/>
       </div>
     );
   }
