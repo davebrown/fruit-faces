@@ -5,3 +5,5 @@ server/dependency-reduced-pom.xml
 *classified.html
 node_modules
 index.js
+*.pyc
+*~

@@ -45,7 +45,7 @@ class FFContainer extends React.Component {
   statusListener(action) {
     switch (action.actionType) {
         case STATUS_REPORT:
-        console.log('FFContainer.status', action);
+        //console.log('FFContainer.status', action);
         const opts =  {
           timeOut: 3000,
           extendedTimeOut: 10000,

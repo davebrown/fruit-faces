@@ -17,7 +17,7 @@ class Dialog extends React.Component {
     if (!this.props.children || this.props.children.length === 0) {
       return null;
     }
-    console.log('dialog children len: ' + Children.count(this.props.children), 'children:', this.props.children);
+    //console.log('dialog children len: ' + Children.count(this.props.children), 'children:', this.props.children);
     var closeHandler = this.props.onClose || this.dialogCloseHandler.bind(this);
     var hashLocation = hashHistory.location;// hashHistory.getCurrentLocation();
     var dataHref = 'https://ff.moonspider.com/#' + hashLocation;
