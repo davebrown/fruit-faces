@@ -116,6 +116,16 @@ alter table image add unique (user_id, base);
 -- changeset dave:21
 update image set tstamp=import_time where tstamp is null;
 
+-- changeset dave:22
+delete from day_of_week;
+insert into day_of_week values (0, 'Sun');
+insert into day_of_week values (1, 'Mon');
+insert into day_of_week values (2, 'Tue');
+insert into day_of_week values (3, 'Wed');
+insert into day_of_week values (4, 'Thu');
+insert into day_of_week values (5, 'Fri');
+insert into day_of_week values (6, 'Sat');
+
 
 
 
