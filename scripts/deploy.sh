@@ -56,9 +56,17 @@ fi
 echo AMP is $AMPLITUDE_API_KEY
 echo FB is $FB_APP_ID
 
+cd web
 npm run build
 
-echo 'ARTIFACTS BUILT, syncing backend to prod'
+echo 'ARTIFACTS built, syncing frontend to prod'
+ssh $REMOTE_USER mkdir -p website/thumbs
+
+rsync -av css index.html index.js $REMOTE_USER:website/
+
+
+cd ..
+echo 'syncing backend to prod'
 
 rsync -av \
       server/target/ff-1.0.0.jar \
@@ -66,9 +74,6 @@ rsync -av \
       server/daemon.sh \
       $REMOTE_USER:.
 
-ssh $REMOTE_USER mkdir -p website/thumbs
-
-rsync -av ff.css spectre.min.css index.html index.js $REMOTE_USER:website/
 
 #rsync -Lav thumbs/ $REMOTE_USER:website/thumbs/
 
