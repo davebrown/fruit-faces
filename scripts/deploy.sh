@@ -8,7 +8,7 @@ REMOTE_USER=ff@ff.moonspider.com
 echo '============ SYNC TAGGER SERVICE AND DEPENDENCIES ================'
 ssh $REMOTE_USER mkdir -p tagger
 cd tagger
-rsync -av *.py requirements.txt model_mnist-28x28.h5 tagger-prod.sh $REMOTE_USER:tagger/
+rsync -av *.py requirements.txt model_plates-28x28.h5 tagger-prod.sh $REMOTE_USER:tagger/
 cd ..
 # assume here that deploy machine already provisioned with:
 # 1) python 2.7

@@ -18,7 +18,7 @@ set -e
 # -D, --daemon - detach from terminal, enter background
 # -p <FILE>, --pid <FILE> - write pid file
 DIR=$(dirname $0)
-export FF_MODEL=$DIR/model_mnist-28x28.h5
+export FF_MODEL=$DIR/model_plates-28x28.h5
 mkdir -p $HOME/logs
 
 if [ "$#" != "1" ] ; then
@@ -36,7 +36,7 @@ fail() {
 do_start() {
     echo starting...
     cd $DIR
-    gunicorn -b 0.0.0.0:5000 --preload restserver:app \
+    gunicorn -b 0.0.0.0:5000 --preload tagservice:app \
              --access-logfile=$HOME/logs/tagger-access.log \
              --error-logfile=$HOME/logs/tagger-error.log \
              --pythonpath $DIR \
