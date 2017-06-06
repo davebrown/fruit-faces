@@ -19,7 +19,7 @@ import java.io.IOException;
 public interface FBService {
 
     //@GET("https://graph.facebook.com/me")
-    @GET("https://graph.facebook.com/me?fields=name,email")
+    @GET("https://graph.facebook.com/me?fields=name,email,picture")
     Call<UserDTO> me(@Query("access_token")String accessToken);
 
     public static class FBUserDeserializer extends StdDeserializer {
@@ -43,6 +43,16 @@ public interface FBService {
                 n = root.get("fbId");
                 if (n != null) ret.setFbId(n.asText());
             }
+            n = root.get("picture");
+            if (n != null) {
+                n = n.get("data");
+                if (n != null) {
+                    n = n.get("url");
+                    if (n != null) {
+                        ret.setProfileUrl(n.asText());
+                    }
+                }
+            }
             return ret;
         }
     }
@@ -55,7 +65,7 @@ public interface FBService {
         FBService fb = retrofit.create(FBService.class);
 
         String accessToken;
-        accessToken = "EAAXZAbuB1ingBANBNsPmC7fszJ8BdgkE90wkfSrYXhb2SEKqOjIhPofxNpARzRyZB5yylIP28w9ZBG60b9HPTBtL0M5ZBE7zy1AryBoLR5M8CTW2bTrJze9U9DCf5VSDWUAgnbf8nR75VqLzAGu1iChWF4ClWZBMTafpAdfZAZBtawqB1b4duFfIeZBw2ya8JRsZD";
+        accessToken = "EAAXZAbuB1ingBAP4OEMbCP9imITzKrZCVVXcKf8H5ZCbpR5qZBs1rPF4q14wm9ZADUc5B6hOoCAPymEQw97Ccv06vZCZCb8VVTKFDkqsZAUjqnUFAsfscnZABd2sStclMRG9nApEXyH8R7ee10Qp6EpZBiFoFLZCuPeaBLa86muOsl6wXgNWAbpeWkIasRi7GZBVd6QZD";
         //if (args.length > 0) accessToken = args[0];
         Call<UserDTO> call = fb.me(accessToken);
         System.out.println("call: " + call);

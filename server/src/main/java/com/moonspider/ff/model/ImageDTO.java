@@ -7,7 +7,6 @@ import com.moonspider.ff.ejb.TagEJB;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ImageDTO {

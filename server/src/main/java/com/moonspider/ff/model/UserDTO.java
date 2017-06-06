@@ -8,16 +8,28 @@ import com.moonspider.ff.ejb.UserEJB;
 
 public class UserDTO {
 
-    private String id, email, name;
+    private String id, email, name, profileUrl;
     private int ffId;
 
     public UserDTO() { }
+
     public UserDTO(UserEJB ejb) {
         ffId = ejb.getId();
         id = ejb.getFbId();
         email = ejb.getEmail();
         name = ejb.getName();
+        profileUrl = ejb.getProfileUrl();
     }
+
+    @JsonProperty
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
+    }
+
 
     @JsonProperty(value="fbId")
     public String getFbId() {
@@ -55,6 +67,7 @@ public class UserDTO {
         this.name = name;
     }
 
+
     @Override
     public String toString() {
         return "UserDTO{" +
@@ -62,6 +75,7 @@ public class UserDTO {
                 ", id='" + id + '\'' +
                 ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
+                ", profilePic='" + profileUrl + '\'' +
                 '}';
     }
 

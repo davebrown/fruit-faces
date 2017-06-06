@@ -1,6 +1,6 @@
 allowWriteOperations: true
 maxImageFileSize: 10000000
-thumbDir: ${HOME}/code/fruit-faces/thumbs
+thumbDir: ${HOME}/code/fruit-faces/web/thumbs
 rootUserId: 1 # facebook@moonspider.com
 tagServiceUrl: http://127.0.0.1:5000/api/v1/ # must end with '/', because retrofit2
 baseProtocol: http # to compose Location: response header of redirects

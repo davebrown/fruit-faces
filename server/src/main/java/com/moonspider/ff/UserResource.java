@@ -34,7 +34,7 @@ public class UserResource extends BaseResource {
         if (user != null) {
             entityManager.persist(user);
             log.info("user logged in: " + user.getFbId());
-            return Response.noContent().build();
+            return Response.ok(new UserDTO(user)).build();
         }
         return error(401, "invalid auth token");
     }

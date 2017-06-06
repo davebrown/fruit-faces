@@ -104,6 +104,7 @@ public abstract class BaseResource {
             ejb.setFbId(dto.getFbId());
             ejb.setEmail(dto.getEmail());
             ejb.setName(dto.getName());
+            ejb.setProfileUrl(dto.getProfileUrl());
             entityManager.persist(ejb);
         }
         return ejb;

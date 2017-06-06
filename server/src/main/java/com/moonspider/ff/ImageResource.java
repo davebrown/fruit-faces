@@ -69,6 +69,35 @@ public class ImageResource extends BaseResource {
     }
 
     @GET
+    @Path("/{userId}")
+    @Timed
+    @UnitOfWork(transactional = false)
+    public Collection<ImageDTO> getByUser(@PathParam("userId") int userId) {
+        return imagesByUser(userId);
+    }
+
+    @GET
+    @Path("/mine")
+    @Timed
+    @UnitOfWork(transactional = false)
+    public Response getMyImages(@HeaderParam("X-FF-Auth") String authToken) {
+        UserEJB userEJB = this.findOrCreateUser(authToken);
+        if (userEJB == null) {
+            return error(401, "auth required");
+        }
+        return Response.ok(imagesByUser(userEJB.getId())).build();
+    }
+
+    private Collection<ImageDTO> imagesByUser(int userId) {
+        TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i where i.userId=?1 ORDER BY i.tstamp DESC", ImageEJB.class);
+        query.setParameter(1, userId);
+        List<ImageEJB> dbList = query.getResultList();
+        List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
+        dbList.forEach(ejb->dtoList.add(new ImageDTO(ejb)));
+        return dtoList;
+    }
+
+    @GET
     @Path("/no-plate")
     @Timed
     @UnitOfWork(transactional = false)
@@ -202,7 +231,7 @@ public class ImageResource extends BaseResource {
         }
         UserEJB userEJB = findOrCreateUser(accessToken);
         if (userEJB == null) {
-            return error(403, "auth needed");
+            return error(401, "auth needed");
         }
         ImageEJB ejb = findEJB(userEJB.getId(), base);
         if (ejb == null) {
@@ -278,6 +307,12 @@ public class ImageResource extends BaseResource {
             byte[] buf = new byte[4096];
             int r;
             while ((r = inputStream.read(buf)) > 0) {
+                /*
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException inte) {
+                    inte.printStackTrace();
+                }*/
                 nread += r;
                 if (nread > contentLength) {
                     log.warn("image POST for " + fname + " exceeded content-length " + contentLength);

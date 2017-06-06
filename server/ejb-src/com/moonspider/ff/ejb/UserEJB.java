@@ -8,7 +8,7 @@ import java.util.List;
 @Table(name="ff_user")
 public class UserEJB {
 
-    private String fbId, email, name;
+    private String fbId, email, name, profileUrl;
     private Integer id;
 
     @Column(name="fb_id")
@@ -51,21 +51,30 @@ public class UserEJB {
         this.name = name;
     }
 
-    /*
-    @OneToMany(
-            mappedBy = "user",
-            cascade = CascadeType.REMOVE,
-            fetch = FetchType.LAZY
-    )
-    public List<ImageEJB> getImages() {
-        return imageEJBList;
+    @Column(name="profile_url")
+    public String getProfileUrl() {
+        return profileUrl;
     }
 
-    public void setImages(List<ImageEJB> l) {
-        imageEJBList = l;
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
     }
-    private List<ImageEJB> imageEJBList;
-*/
+
+    /*
+        @OneToMany(
+                mappedBy = "user",
+                cascade = CascadeType.REMOVE,
+                fetch = FetchType.LAZY
+        )
+        public List<ImageEJB> getImages() {
+            return imageEJBList;
+        }
+
+        public void setImages(List<ImageEJB> l) {
+            imageEJBList = l;
+        }
+        private List<ImageEJB> imageEJBList;
+    */
     @Override
     public String toString() {
         return "UserEJB{" +
@@ -73,6 +82,7 @@ public class UserEJB {
                 ", fbId='" + fbId + '\'' +
                 ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
+                ", profilePic=" + profileUrl + '\'' +
                 '}';
     }
 }
