@@ -9,8 +9,6 @@ import traceback
 import logging
 from gunicorn.errors import HaltServer
 from gunicorn.app.base import BaseApplication
-#from wsgiref import simple_server
-
 
 #import faulthandler, signal
 #faulthandler.register(signal.SIGUSR1)
@@ -33,7 +31,7 @@ def say(*args):
 
 # Import helper functions
 try:
-  say('restserver executing!!! put %s in lib path' % os.path.dirname(__file__))
+  say('tagservice executing!!! put %s in lib path' % os.path.dirname(__file__))
   dir_path = os.path.dirname(os.path.realpath(__file__))
   sys.path.insert(0, dir_path)
   from tag_util import n2c, decodeSize
@@ -43,7 +41,7 @@ except:
   traceback.print_exc()
   sys.exit(1)
 
-say('all imports ok')
+say('all dependency imports ok')
 
 K.set_learning_phase(0) # all new operations will be in test mode from now on
 
@@ -55,12 +53,9 @@ def loadModel():
   # then fail
   model = None
   global SESSION
-  #SESSION = tf.Session(graph=GRAPH)
   SESSION = tf.Session()
   K.set_session(SESSION)
-  say('default session, PRE - with %s' % str(tf.get_default_session()))
   with SESSION.as_default():
-    say('default session, POST - with %s' % str(tf.get_default_session()))
     for f in sys.argv[1:]:
       if '.h5' in f:
         logger.info('loading keras model from %s' % f)
@@ -112,7 +107,7 @@ class TagResource:
   # def _initModel(self):
   #   say('validating model')
   #   try:
-  #     data = np.array([ skimage.data.imread('/Users/dave/code/fruit-faces/thumbs/IMG_4036_28x28_t.jpg') ] )
+  #     data = np.array([ imread('/Users/dave/code/fruit-faces/thumbs/IMG_4036_28x28_t.jpg') ] )
   #     if os.environ.get('FLATTEN', None) is not None:
   #       data = np.array(data).flatten()
   #     say('initModel() loaded validation data, shape %s' % str(data.shape))
@@ -137,7 +132,6 @@ class TagResource:
     with open(tmpfile, 'wb') as tmp:
       tmp.write(raw)
       tmp.close()
-      #data = np.array([ skimage.data.imread(tmpfile) ])
       data = np.array([ imread(tmpfile) ])
       say('upload numpy shape: %s' % str(data.shape))
       os.remove(tmpfile)
@@ -209,7 +203,7 @@ def main():
   
       
 if __name__ == '__main__':
- # can't do file upload :-(
+ # can't do file upload with simple server, doesn't grok the Multipart middleware :-(
  # httpd = simple_server.make_server('0.0.0.0', 5000, app)
  # httpd.serve_forever()
   try:
