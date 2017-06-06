@@ -159,7 +159,7 @@ class FFApp extends React.Component {
           <SideMenu/>
           <FFContainer>
             <Switch>  
-              <Route exact={true} path='/' component={null}/>
+              <Route exact={true} path='/' component={About}/>
               <Route path='/about' component={About}/>
               <Route path='/filters' component={Filters}/>
               <Route path='/data' component={FFDataVictory}/>
