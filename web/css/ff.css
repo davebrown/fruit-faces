@@ -63,6 +63,10 @@ p {
     border: 1px solid red;
 }
 
+.text-center {
+    text-align: center;
+}
+
 .invisible {
     display: none;
 }
@@ -108,8 +112,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 50%;
-    min-height: 200px;
+    min-height: 400px;
 }
 /* end debug */
 
@@ -183,15 +186,6 @@ p {
     font-size: 0.8em;
 }
 
-.fb-login-parent {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.fb-login-button {
-    
-}
 #main-image {
     display: block;
     width: auto;
@@ -230,13 +224,27 @@ p {
     margin-left: 3px;
 }
 
+.thumb-table {
+}
+
+.month-thumb-table h6 {
+    margin-bottom: 0px;
+    margin-top: 12px;
+}
+
+.month-thumb-table .thumb-cell {
+    width: 60px;
+    /* top, right, bottom, left */
+    margin: 5 10 5 0;
+    overflow-x: hidden;
+}
 
 @media only screen and (max-width: 799px) {
 
     .container {
         flex-direction: column;
     }
-        
+
     .thumbs {
         width: 360px;
         max-width: 360px;
@@ -430,7 +438,8 @@ p {
 }
 
 .bm-burger-bars {
-    background: #373a47;
+    background: #5764c6;
+    /*background: #373a47;*/
     /*background: #dee4f9;*/
 }
 

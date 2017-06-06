@@ -1,9 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import FileUpload from 'react-fileupload';
+import request from 'browser-request';
+
 import FFActions from '../actions/FFActions.js';
 import { API_BASE_URL, reportError, reportSuccess, errToString } from '../util/Util.js';
 import { authStore } from '../stores/AuthStore.js';
+import FBLogin from './FBLogin.jsx';
+import ThumbTable from './ThumbTable.jsx';
+import ImageStore from '../stores/ImageStore.js';
 
 export default class Upload extends React.Component {
 
@@ -15,6 +20,7 @@ export default class Upload extends React.Component {
     this.doUpload = this.doUpload.bind(this);
     this.uploadStopped = this.uploadStopped.bind(this);
     this.authChanged = this.authChanged.bind(this);
+    this.fetchUserImages = this.fetchUserImages.bind(this);
   }
 
   
@@ -24,33 +30,86 @@ export default class Upload extends React.Component {
     this.authChanged();
   }
 
+  fetchUserImages() {
+    if (authStore.getAccessToken() != null) {
+      request({
+        method: 'GET',
+        url: API_BASE_URL + '/api/v1/images/mine',
+        headers: {
+          'X-FF-Auth': authStore.getAccessToken()
+          
+        }
+      }, (er, response, bodyString) => {
+        if (response && response.statusCode === 200) {
+          var myImages =  JSON.parse(bodyString);
+          myImages.forEach(this.fixupImage);
+          this.setState({
+            uploadedImages: myImages
+          });
+        } else if (er) {
+          reportError(er, 'problem fetching images');
+        }
+      });
+    }
+  }
+
   authChanged() {
-    //console.log('SideMenu.authChanged()->' + authStore.getUserID());
+    //console.log('Upload.authChanged()->' + authStore.getUserID());
     this.setState({
       accessToken: authStore.getAccessToken()
     });
+    if (authStore.getAccessToken()) {
+      if (!this.state || !this.state.uploadedImages) {
+        this.fetchUserImages();
+      }
+    } else {
+      this.setState({ uploadedImages: null });
+    }
+      
   }    
 
   componentWillUnmount() {
     authStore.removeChangeListener(this.authChanged);
   }
   
-  uploadStopped() {
+  uploadStopped(newImage) {
     this.setState({
-      uploading: false
+      uploading: false,
     });
   }
+  
   doUpload(files, mill, xhrID) {
+    console.log('doUpload: files: ', files, 'mill', mill, 'xhrID', xhrID);
+    console.log('files.length', files.length);
+    for (var i = 0; i < files.length; i++) {
+      console.log('files[' + i + ']:', files[i]);
+    }
     this.setState({
-      uploading: true
+      uploading: true,
+      dataUploaded: 0,
+      dataSize: 100 * 1000,
+      fileName: (files.length > 0 && files[0].name) || ''
     });
   }
-  uploadSuccess(response) {
-    this.uploadStopped();
-    console.log('uploadSuccess', response);
-    FFActions.imageAdded(response);
-    FFActions.imageChanged(response);
-    reportSuccess(response.base || '', 'Uploaded image');
+
+  fixupImage(newImage) {
+    if (newImage.base) {
+      newImage.path = newImage.root + '/' + newImage.base;
+    }
+  }
+    
+  uploadSuccess(newImage) {
+    this.uploadStopped(newImage);
+    console.log('uploadSuccess', newImage);    
+    var images = (this.state && this.state.uploadedImages) || [];
+    if (newImage && newImage.base) {
+      this.fixupImage(newImage);
+      images.push(newImage);
+      this.setState({ uploadedImages: images });
+    }
+    FFActions.imageAdded(newImage);
+    FFActions.imageChanged(newImage);
+    reportSuccess(newImage.base || '', 'Uploaded image');
   }
   
   uploadError(err) {
@@ -64,9 +123,18 @@ export default class Upload extends React.Component {
 
   uploading(progress) {
     console.log('uploading progress', progress);
+    this.setState({
+      uploading: true,
+      dataUploaded: progress.loaded,
+      dataSize: progress.total
+    });
   }
   
   render() {
+    //console.log('Upload.render: state', this.state);
+    if (!authStore.getUserID()) {
+      return (<div className="center-single-child"><span>Please <FBLogin/> to upload images.</span></div>);
+    }
     const target = API_BASE_URL + "/api/v1/images";
 
     const options = {
@@ -83,8 +151,13 @@ export default class Upload extends React.Component {
       doUpload: this.doUpload
     };
 
-    if (this.state.uploading) {
-      return (<div className="loading">Uploading</div>);
+    const { uploading, dataUploaded, dataSize, fileName, uploadedImages } = this.state;
+    var progress = '';
+    var filename = '';
+    if (uploading) {
+      //return (<div className="loading">Uploading</div>);
+      progress = (<progress className="progress" value={dataUploaded} max={dataSize}></progress>);
+      filename = (<span className="footnote">{fileName}</span>);
     } else if (this.state.error) {
       const err = this.state.error;
       const msg = errToString(err);
@@ -93,11 +166,25 @@ export default class Upload extends React.Component {
       }.bind(this), 3000);
       return (<div className="error">{msg}</div>);
     }
+    var thumbDisplay;
+    if (!uploadedImages) {
+      thumbDisplay = (<span className="loading">loading</span>);
+    } else if (uploadedImages.length === 0) {
+      thumbDisplay = (<span className="text-center">None uploaded yet</span>);
+    } else {
+      thumbDisplay = (<ThumbTable images={uploadedImages} showLabel="true"/>);
+    }
     return (
       <div className="center-single-child">
-      <FileUpload options={options}>
-        <button className="btn btn-primary" ref="chooseAndUpload">Choose photos to upload</button>
-      </FileUpload>
+        <div className="flex-column">
+          <FileUpload style={{ margin: '0 auto', padding: '12px' }} options={options}>
+            <button className="btn btn-primary btn-lg" ref="chooseAndUpload">Choose photos to upload</button>
+          </FileUpload>
+          {progress}
+          {filename}
+          <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '8px' }}>Your images</h4>
+          { thumbDisplay }
+        </div>
       </div>
       );
   }

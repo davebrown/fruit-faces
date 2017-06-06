@@ -1,6 +1,7 @@
 import React from 'react';
 import { slide as Menu } from 'react-burger-menu';
 import { Link } from 'react-router-dom';
+import bowser from 'bowser';
 
 import { FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 import FBLogin from './FBLogin.jsx';
@@ -39,7 +40,7 @@ export default class SideMenu extends React.Component {
   }
 
   doLogout(e) {
-    //console.log('doLogout', e);
+    authStore.logout();
     FB.logout();
     this.setState({open: false});
     e.stopPropagation();

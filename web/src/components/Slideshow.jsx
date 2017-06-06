@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import ImageGallery from 'react-image-gallery';
 import ImageStore from '../stores/ImageStore.js';
 
@@ -10,9 +10,10 @@ export default class Slideshow extends React.Component {
     this.images = [];
     const images = ImageStore.getImages();
     for (var i = 0; i < images.length; i++) {
+      const root = '/thumbs' + images[i].root + '/';
       this.images.push({
-        original: '/thumbs/' + images[i].full,
-        thumbnail: '/thumbs/' + images[i].base + '_60x80_t.jpg'
+        original: root + images[i].full,
+        thumbnail: root + images[i].base + '_60x80_t.jpg'
       });
     }
   }

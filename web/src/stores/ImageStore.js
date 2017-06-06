@@ -39,6 +39,10 @@ class ImageStore extends EventEmitter {
     return selectedImage;
   }
 
+  setSelectedImage(image) {
+    selectedImage = image;
+  }
+  
   getImages() {
     return images;
   }

@@ -48,14 +48,14 @@ class FFMainImage extends React.Component {
       case IMAGE_CHANGED:
         //console.log('FFMainImage action ' + action.actionType + ' to', action.image, ' mounted?' + this.mounted);
         if (this.mounted) {
-          this.setState( { image: action.image } );
+          this.setState( { image: action.image, animateTools: false } );
           this.props = { }; // clear out router state
         }
         break;
       case IMAGE_DELETED:
         //console.log('FFMainImage action ' + action.actionType + ' from ', action.image, ' to ', action.newImage, ' mounted?' + this.mounted);
         if (this.mounted) {
-          this.setState( { image: action.newImage } );
+          this.setState( { image: action.newImage, animateTools: false } );
           this.props = { }; // clear out router state
           hashHistory.replace(action.newImage ? '/images' + action.newImage.path : '/');
 
@@ -70,7 +70,8 @@ class FFMainImage extends React.Component {
     this.log('dispatcherToken', '"' + this.dispatcherToken + '"');
     this.setState( {
       image: ImageStore.getSelectedImage(),
-      tagState: TAG_FORM_NONE
+      tagState: TAG_FORM_NONE,
+      animateTools: true
     }
     );
   }
@@ -118,6 +119,7 @@ class FFMainImage extends React.Component {
   render() {
     var image = this.state.image;
     const tagState = this.state.tagState;
+    const animateTools = this.state.animateTools;
     const { userId, imageBase } = this.props.match.params;
     const imageId = '/' + userId + '/' + imageBase;
     var stateId = this.state.image && this.state.image.path || 'state_is_null';
@@ -132,6 +134,8 @@ class FFMainImage extends React.Component {
         this.log('no image or not found, returning loading div');
         return (<div className="loading">loading image</div>);
       }
+      //FFActions.imageChanged(image);
+      ImageStore.setSelectedImage(image);
     }
 
     if (!image) {
@@ -140,7 +144,10 @@ class FFMainImage extends React.Component {
     var src = '/thumbs' + image.root + '/' + image.full;
     var tagForm = '';
     if (tagState != TAG_FORM_NONE) {
-      const tagClass = (tagState == TAG_FORM_ON) ? 'animated fadeInRight' : 'animated fadeOutRight';
+      var tagClass = '';
+      if (animateTools) {
+        tagClass = (tagState == TAG_FORM_ON) ? 'animated fadeInRight' : 'animated fadeOutRight';
+      }
       tagForm = (<TagForm className={tagClass} image={image}/>);
     }
     var dateStr = 'Unknown date...';
@@ -179,7 +186,7 @@ class FFMainImage extends React.Component {
     var tagState = this.state.tagState;
     //console.log('onTagClick', tagState, (tagState + 1) % 3);
     tagState = (tagState + 1) % 3;
-    this.setState({ tagState: tagState });
+    this.setState({ tagState: tagState, animateTools: true });
     if (tagState == TAG_FORM_OFF) {
       const ffm = this;
       setTimeout(() => { ffm.setState({tagState: TAG_FORM_NONE}) }, 800);
@@ -201,9 +208,11 @@ class FFMainImage extends React.Component {
   onDeleteClick(e) {
     const image = ImageStore.getSelectedImage();//this.state.image;
     //console.log('delete clicked, image', image);
+    /*
     if (!image || !window.confirm('Are you sure you want to delete ' + image.base + '.jpg?')) {
       return;
     }
+    */
     var next = ImageStore.getNextImage();
     if (next && next.base === image.base) {
       // special case the last image

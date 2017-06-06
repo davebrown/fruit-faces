@@ -22,6 +22,7 @@ import FBLogin from './components/FBLogin.jsx';
 import Upload from './components/Upload.jsx';
 import Toastr from './components/Toastr.jsx';
 import SideMenu from './components/SideMenu.jsx';
+import Slideshow from './components/Slideshow.jsx';
 
 import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportWarning, reportSuccess, reportInfo, hashHistory } from './util/Util.js';
 import { authStore, FB_APP_ID } from './stores/AuthStore.js';
@@ -164,6 +165,7 @@ class FFApp extends React.Component {
               <Route path='/data' component={FFDataVictory}/>
               <Route path='/tech' component={Tech}/>
               <Route path='/upload' component={Upload}/>
+              <Route path="/slideshow" component={Slideshow}/>
               <Route path='/toastr' component={Toastr}/>
               <Route path='/images/:userId/:imageBase' component={FFMainImage}/>
               <Route path='*' component={NotFound}/>

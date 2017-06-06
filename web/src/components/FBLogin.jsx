@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import FacebookLogin from 'react-facebook-login';
 import request from 'browser-request';
 import bowser from 'bowser';
@@ -75,7 +75,6 @@ export default class FBLogin extends React.Component {
     
     if (!userId) {
       return (
-        <div className="fb-login-parent fill-area">
           <FacebookLogin
             appId={FB_APP_ID}
             autoLoad={true}
@@ -83,7 +82,6 @@ export default class FBLogin extends React.Component {
             isMobile={bowser.mobile}
             redirectUri={ REDIRECT_URI }
             callback={fbLoginCallback} />
-        </div>
       );
     }
 
@@ -91,7 +89,7 @@ export default class FBLogin extends React.Component {
     
     return (
       <div>
-        Logged in as {name || 'Name unknown'} &nbsp; {profileTag}<br/>
+        Logged in as {name || 'Name unknown'} &nbsp; {profileTag}
       <button className="btn btn-primary" onClick={this.doLogout}>Logout</button>
       </div>
     );

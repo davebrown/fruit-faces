@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import bowser from 'bowser';
 
 import { FB_AUTH_CHANGED } from '../constants/FFConstants.js';

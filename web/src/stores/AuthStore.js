@@ -23,6 +23,12 @@ const CHANGE_EVENT = 'change';
 var login = UNKNOWN_LOGIN;
 
 class AuthStore extends EventEmitter {
+
+  constructor() {
+    super();
+    this.logout = this.logout.bind(this);
+  }
+  
   emitChange() {
     this.emit(CHANGE_EVENT);
   }
@@ -53,6 +59,11 @@ class AuthStore extends EventEmitter {
     //console.log('getprofilepic, login is', login);
     return login.picture.data && login.picture.data.url;
   }
+
+  logout() {
+    window.localStorage.removeItem('ff_auth');
+    this._setLogin(UNKNOWN_LOGIN);
+  }
   
   _setLogin(l) {
     //console.log('AuthStore._setLogin', l);
@@ -71,11 +82,19 @@ class AuthStore extends EventEmitter {
           'X-FF-Auth': authStore.getAccessToken()
         }
       }, (er, response, bodyString) => {
+        //console.log('AuthStore._setLogin FF response', er, response, bodyString);
         if (er) {
           amplitude.logEvent('REGISTER_ERROR', { errorMsg: errToString(er) });
         } else if (response.statusCode < 200 || response.statusCode > 299) {
           var errObj = JSON.parse(bodyString);
           amplitude.logEvent('REGISTER_ERROR', { errorMsg: errToString(errObj) });
+        } else {
+          // squirrel away
+          /*
+          const pickle = {
+            expiry: Date.now() + login.authResponse
+          }
+          */
         }
       });
       
@@ -170,14 +189,33 @@ function fbStatusCallback(response) {
         if (!Dispatcher.isDispatching())  FFActions.fbAuthChanged();
       }
     }, true);
+  } else {
+    var pickle = window.localStorage.getItem('ff_auth');
+    if (pickle) {
+      pickle = JSON.parse(pickle);
+      if (pickle['expires'] && Date.now() < pickle['expires']) {
+        //console.log('**** logging in from pickle');
+        authStore._setLogin(pickle);
+      } else {
+        //console.log('pickle expired: ' + (new Date(pickle['expires'])));
+      }
+    }
   }
   if (!Dispatcher.isDispatching())  FFActions.fbAuthChanged();
 }
 /* receives callback from FacebookLogin component */
 function fbLoginCallback(response) {
   //console.log('AuthStore.fbLoginCallback', response);
-  //authStore._setLogin(response);
+  authStore._setLogin(response);
+  if (response.name && response.email && response.expiresIn) {
+    var now = Date.now();
+    response['expires'] = now + response.expiresIn * 1000;
+    //console.log('pickling expiry at ' + (new Date(response['expires'])) + ' after ' + response.expiresIn + ' sec(s)');
+    //console.log('now=' + now + ' expires=' + response['expires'] + ' delta=' + (response['expires'] - now));
+    window.localStorage.setItem('ff_auth', JSON.stringify(response));
+  }
 }
+
 
 authStore._fbLoginCallback = fbLoginCallback;
 
