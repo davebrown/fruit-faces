@@ -33,6 +33,7 @@ class FFMainImage extends React.Component {
     this.onFBClick = this.onFBClick.bind(this);
     this.onUploadClick = this.onUploadClick.bind(this);
     this.onDeleteClick = this.onDeleteClick.bind(this);
+    this.resolveSelectedImage = this.resolveSelectedImage.bind(this);
     //this.log = this.log.bind(this);
   }
 
@@ -64,12 +65,30 @@ class FFMainImage extends React.Component {
     }
   }
 
+  /* update selected image from router path params, if needed */
+  resolveSelectedImage(props) {
+    //const params = this.props && this.props.match && this.props.match.params;
+    const params = props && props.match && props.match.params;
+    if (params && params.imageBase) {
+      const path = '/' + params.userId + '/' + params.imageBase;
+      const image = ImageStore.getImage(path);
+      //console.log('resolveSelectedImage: path params', params, 'path', path, 'image', image);
+      this.setState({
+        image: image,
+        imagePath: path
+      });
+      if (image) {
+        FFActions.imageChanged(image);
+      }
+    }
+  }
   componentWillMount() {
     this.log('willMount');
+    //console.log('FFMainImage.componentWillMount, props', this.props);
     this.dispatcherToken = Dispatcher.register(this.mainImageActionListener);
-    this.log('dispatcherToken', '"' + this.dispatcherToken + '"');
+    //this.log('dispatcherToken', '"' + this.dispatcherToken + '"');
+    this.resolveSelectedImage(this.props);
     this.setState( {
-      image: ImageStore.getSelectedImage(),
       tagState: TAG_FORM_NONE,
       animateTools: true
     }
@@ -82,10 +101,10 @@ class FFMainImage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    this.log('willReceiveProps');
+    //console.log('willReceiveProps', nextProps, nextContext);
+    this.resolveSelectedImage(nextProps);
   }
 
-  /*
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     this.log('shouldUpdate');
     console.debug(this.props);
@@ -95,7 +114,6 @@ class FFMainImage extends React.Component {
     this.log('shouldUpdate->' + ret);
     return ret;
   }
-  */
 
   componentWillUpdate(nextProps, nextState, nextContext) {
     this.log('willUpdate');
@@ -117,29 +135,16 @@ class FFMainImage extends React.Component {
   }
   
   render() {
+    //console.log('FFMainImage.render', this.props, this.state);
     var image = this.state.image;
-    const tagState = this.state.tagState;
-    const animateTools = this.state.animateTools;
-    const { userId, imageBase } = this.props.match.params;
-    const imageId = '/' + userId + '/' + imageBase;
-    var stateId = this.state.image && this.state.image.path || 'state_is_null';
-    //console.log('FFMain.render imageId=' + imageId + ' stateId=' + stateId);
-    // when we have both image from state and imageId from props, we prefer props
-    // since this occurs when user manually changes the hash line in address bar
-    if (!image) {
-      // if image to render is not set in the state, we can also receive it from
-      // the router as a property
-      image = ImageStore.getImage(imageId);
-      if (!image) {
-        this.log('no image or not found, returning loading div');
-        return (<div className="loading">loading image</div>);
-      }
-      //FFActions.imageChanged(image);
-      ImageStore.setSelectedImage(image);
+    
+    const { tagState, animateTools, imagePath } = this.state;
+    if (!image && imagePath) {
+      image = ImageStore.getImage(imagePath);
     }
 
     if (!image) {
-      return (<div className="loading">whoops no image, wanted {imageId}</div>);
+      return (<div className="loading">whoops no image, wanted {imagePath}</div>);
     }
     var src = '/thumbs' + image.root + '/' + image.full;
     var tagForm = '';
@@ -194,7 +199,6 @@ class FFMainImage extends React.Component {
   }
   
   onFBClick(evt) {
-    console.log('onFBClick', evt);
     window.scrollTo(0, window.innerHeight * .9);
     this.setState({ animateFB: true });
     const ffm = this;
@@ -218,7 +222,7 @@ class FFMainImage extends React.Component {
       // special case the last image
       next = null;
     }
-    console.log('delete image: ' + image.base);
+    //console.log('delete image: ' + image.base);
     request({
       method: 'DELETE',
       url: API_BASE_URL + '/api/v1/images' + image.root + '/' + image.base,
@@ -297,7 +301,7 @@ class FFMainImage extends React.Component {
   }
   
   log(msg) {
-    //console.debug('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
+    //console.log('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
   }
 }
 
