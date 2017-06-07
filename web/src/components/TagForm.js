@@ -41,7 +41,7 @@ class TagForm extends React.Component {
     return (
       <div className={className}>
         <h3 className="center">plates</h3>
-        <div className="flex-container flex-wrap">
+        <div className="flex-container flex-wrap inline-grid">
         {
           TAGS.map((tag) => {
             var key = 'ff-checkbox-' + tag;
