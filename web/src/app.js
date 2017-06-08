@@ -74,16 +74,8 @@ class FFContainer extends React.Component {
   }
 
   render() {
-    //var len = this.props.children && this.props.children.length;
-    //console.log('container: children', len);
     // FIXME: hack to work around router weirdness
-    var children;
-    if (this.props.children) {
-      children = this.props.children;
-    } else if (!bowser.mobile) {
-      children = (<About/>);
-    }
-    
+    const homeComponent = bowser.mobile ? null : About;
     return (
       <div className="flex-container">
         <ToastContainer ref="container"
@@ -91,7 +83,7 @@ class FFContainer extends React.Component {
           className="toast-top-right" />
         <FFTable/>
         <Switch>
-          <Route exact={true} path='/' component={null}/>
+          <Route exact={true} path='/' component={homeComponent}/>
           <Route path="*">
             <Dialog>
               <Switch>  
