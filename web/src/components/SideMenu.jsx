@@ -8,6 +8,12 @@ import FBLogin from './FBLogin.jsx';
 import { authStore } from '../stores/AuthStore.js';
 import { amplitude } from '../util/Util.js';
 
+const BM_STYLES = {
+  bmCrossButton: {
+    zIndex: 5
+  },
+}
+
 export default class SideMenu extends React.Component {
   constructor(props) {
     super(props);
@@ -52,19 +58,25 @@ export default class SideMenu extends React.Component {
     var slideShow = (<div className="nav-item">Slideshow</div>);
     slideShow = '';
 
-    var aboutRef = bowser.mobile ? '/about' : '/';
-    
-    var authText = userId != null ? "Logout": "Login...";
+    const aboutRef = bowser.mobile ? '/about' : '/';
+    const homeLink = bowser.mobile ? (<Link className="menu-item" to='/' onClick={this.linkClicked}>Home</Link>) : '';
+    const authText = userId != null ? "Logout": "Login...";
     const authLink = userId != null ?
                      (<a onClick={this.doLogout}>Logout</a>) :
                      (<FBLogin renderLink={true} text="Login..."/>);
     const profileTag = profilePicUrl ? (<img className="headshot menu-item" src={profilePicUrl}/>) : '';
     //console.log('SideMenu.render(): userId=' + userId);
+    const menuWidth = bowser.mobile ? '30%': '150px';
+    /* smaller submenus if needed
+    <Link className="menu-item-small" to="/data">Small 1</Link>
+    <Link className="menu-item-small" to="/data">Small 2</Link>
+    */
     return (
       <div className="right">
-        <Menu right={true} isOpen={open} outerContainerId={"container"} pageWrapId="main" width={ '200px' }>
+        <Menu right isOpen={open} outerContainerId={"container"} pageWrapId="main" width={ menuWidth } styles={ BM_STYLES }>
           {profileTag}
           {authLink}
+          {homeLink}
           <Link className="menu-item" to={aboutRef} onClick={this.linkClicked}>About</Link>
           <Link className="menu-item" to='/filters' onClick={this.linkClicked}>Filters</Link>
           <Link className="menu-item" to='/upload' onClick={this.linkClicked}>Upload</Link>

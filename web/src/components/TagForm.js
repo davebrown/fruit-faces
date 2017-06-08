@@ -40,8 +40,8 @@ class TagForm extends React.Component {
     var className = "flex-container flex-column tag-form " + (this.props.className || '');
     return (
       <div className={className}>
-        <h3 className="center">plates</h3>
-        <div className="flex-container flex-wrap">
+        <h4 className="center">plates</h4>
+        <div className="flex-container flex-wrap inline-grid">
         {
           TAGS.map((tag) => {
             var key = 'ff-checkbox-' + tag;
@@ -49,7 +49,7 @@ class TagForm extends React.Component {
           })
         }
         </div>
-        <h3 className="center">fruits</h3>
+        <h4 className="center">fruits</h4>
         <div className="flex-container flex-wrap inline-grid">
           {
             FRUITS.map((tag) => {
@@ -58,42 +58,6 @@ class TagForm extends React.Component {
             })
           }
         </div>
-      </div>
-    );
-  }
-  
-  renderTable() {
-    const error = this.state.error;
-    if (error) {
-      setTimeout(function() {
-        this.setState({error: null});
-      }.bind(this), 3000);
-      return (<div className="error">{errToString(error)}</div>);
-    }
-    /* FIXME: race condition on initial load, selected image still null, need to handle async properties */
-    var image = ImageStore.getSelectedImage();
-    var i = 0;
-
-    return (
-      <div id="tag-form" className="flex-container tag-form flex-column">
-        <table><tbody><tr>
-          {
-            FRUITS.map((fruit) => {
-              var key = 'ff-checkbox-' + fruit;
-              var td =  (<td key={key}><FFCheck image={image} fruit={fruit}/></td>);
-              //if (++i % 5 == 0) return (<tr>{td}</tr>);
-              return td;
-            })
-          }
-        </tr>
-        <tr>  
-          {
-            TAGS.map((tag) => {
-              var key = 'ff-checkbox-' + tag;
-              return <td key={key}><FFCheck image={image} fruit={tag}/></td>
-            })
-          }
-        </tr></tbody></table>
       </div>
     );
   }
