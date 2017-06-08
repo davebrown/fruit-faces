@@ -173,6 +173,11 @@ p {
     opacity: 1.0;
 }
 
+.thumbs div {
+    width: 30px;
+    height: 40px;
+}
+
 .thumb-outside-filter img {
     opacity: 0.2;
 }

@@ -85,15 +85,30 @@ class FFContainer extends React.Component {
     }
     
     return (
-        <div className="flex-container">
-          <ToastContainer ref="container"
-            toastMessageFactory={ToastMessageFactory}
-            className="toast-top-right" />
-          <FFTable/>
-        <Dialog>
-        {children}
-        </Dialog>
-        </div>
+      <div className="flex-container">
+        <ToastContainer ref="container"
+          toastMessageFactory={ToastMessageFactory}
+          className="toast-top-right" />
+        <FFTable/>
+        <Switch>
+          <Route exact={true} path='/' component={null}/>
+          <Route path="*">
+            <Dialog>
+              <Switch>  
+                <Route path='/about' component={About}/>
+                <Route path='/filters' component={Filters}/>
+                <Route path='/data' component={FFDataVictory}/>
+                <Route path='/tech' component={Tech}/>
+                <Route path='/upload' component={Upload}/>
+                <Route path="/slideshow" component={Slideshow}/>
+                <Route path='/toastr' component={Toastr}/>
+                <Route path='/images/:userId/:imageBase' component={FFMainImage}/>
+                <Route path='*' component={NotFound}/>
+              </Switch>
+            </Dialog>
+          </Route>
+        </Switch>
+      </div>
     );
   }
 }
@@ -157,20 +172,7 @@ class FFApp extends React.Component {
       <HashRouter history={hashHistory}>
         <main id="main">
           <SideMenu/>
-          <FFContainer>
-            <Switch>  
-              <Route exact={true} path='/' component={About}/>
-              <Route path='/about' component={About}/>
-              <Route path='/filters' component={Filters}/>
-              <Route path='/data' component={FFDataVictory}/>
-              <Route path='/tech' component={Tech}/>
-              <Route path='/upload' component={Upload}/>
-              <Route path="/slideshow" component={Slideshow}/>
-              <Route path='/toastr' component={Toastr}/>
-              <Route path='/images/:userId/:imageBase' component={FFMainImage}/>
-              <Route path='*' component={NotFound}/>
-            </Switch>
-          </FFContainer>
+          <FFContainer/>
         </main>
       </HashRouter>
     );
