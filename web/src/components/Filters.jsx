@@ -58,7 +58,7 @@ export default class Filters extends React.Component {
             FRUITS.map((tag) => {
               const key = 'filter-radio-' + tag;
               return <label key={key} className="form-radio">
-                <Radio value={tag}/>
+                <Radio value={tag} disabled="true"/>
                 <i className="form-icon"></i> {tag.charAt(0).toUpperCase() + tag.slice(1)}<br/>
               </label>
             })

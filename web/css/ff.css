@@ -67,6 +67,11 @@ p {
     text-align: center;
 }
 
+.block-center {
+    display: block;
+    margin: 0 auto;
+}
+
 .invisible {
     display: none;
 }
@@ -122,11 +127,9 @@ p {
     height: 100%;
 }
 
-.filter-cell {
-}
-
-.fruit-filters {
-    height: auto;
+.filters {
+    padding-left: 12px;
+    padding-right: 12px;
 }
 
 .disabled {
@@ -241,6 +244,10 @@ p {
 .thumb-table {
 }
 
+.month-thumb-table {
+    margin-left: 12px;
+}
+
 .month-thumb-table h6 {
     margin-bottom: 0px;
     margin-top: 12px;
@@ -345,14 +352,16 @@ html [type=button] {
         width: 100%;
         overflow-x: hidden;
         /*z-index: 1;*/
+        /*
         -webkit-transform: translateZ(1px);
         -moz-transform: translateZ(1px);
         -o-transform: translateZ(1px);
         transform: translateZ(1px);
+*/
     }
 
     .dialog-content {
-        /*padding-top: 20px;*/
+        /*padding-left: 12px;*/
     }
     
     .close-icon {
@@ -361,11 +370,14 @@ html [type=button] {
         top: 0px;
         left: 0px;
         position: fixed;
-        color: #50596c;
-        background: white;
+        color: #f0f0f0;
+        /*background: #202020;*/
+        background: #5764c6;
+        border-radius: 15px;
         text-align: center;
         font-size: 2.0em !important;
-        line-height: 30px !important;        
+        line-height: 30px !important;
+        display: none;
     }
     
     .tag-form {

@@ -7,11 +7,15 @@ import { FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 import FBLogin from './FBLogin.jsx';
 import { authStore } from '../stores/AuthStore.js';
 import { amplitude } from '../util/Util.js';
+import FFTable from './FFTable.jsx';
 
 const BM_STYLES = {
-  bmCrossButton: {
-    zIndex: 5
+  bmBurgerButton: {
+    zIndex: 1
   },
+  bmBurgerBars: {
+    zIndex: 1
+  }
 }
 
 export default class SideMenu extends React.Component {

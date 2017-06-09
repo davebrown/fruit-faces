@@ -27,12 +27,18 @@ import Slideshow from './components/Slideshow.jsx';
 import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportWarning, reportSuccess, reportInfo, hashHistory } from './util/Util.js';
 import { authStore, FB_APP_ID } from './stores/AuthStore.js';
 
-const NotFound = () => (
-  <div>
-    <h1>Not found</h1>
-    <p>Hmmm...why not go <Link to="/">back home?</Link></p>
-  </div>
-);
+class NotFound extends React.Component {
+
+  render() {
+    console.log('NotFound.render, props are', this.props);
+    return (
+      <div>
+        <h1>Not found</h1>
+        <p>Hmmm...why not go <Link to="/">back home?</Link></p>
+      </div>
+    );
+  }
+}
 
 const ToastMessageFactory = React.createFactory(ToastMessage.animation);
 
@@ -74,7 +80,8 @@ class FFContainer extends React.Component {
   }
 
   render() {
-    // FIXME: hack to work around router weirdness
+    // FIXME: hack to work around router weirdness. Proper fix here should
+    // use responsve CSS to make the home component invisible when < certain resolution
     const homeComponent = bowser.mobile ? null : About;
     return (
       <div className="flex-container">
@@ -84,6 +91,7 @@ class FFContainer extends React.Component {
         <FFTable/>
         <Switch>
           <Route exact={true} path='/' component={homeComponent}/>
+          <Route exact={true} path='/_=_' component={homeComponent}/>
           <Route path="*">
             <Dialog>
               <Switch>  

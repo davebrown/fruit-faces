@@ -175,15 +175,16 @@ export default class Upload extends React.Component {
       thumbDisplay = (<ThumbTable images={uploadedImages} showLabel="true"/>);
     }
     return (
-      <div className="center-single-child">
+      <div className="">
         <div className="flex-column">
-          <FileUpload style={{ margin: '0 auto', padding: '12px' }} options={options}>
+          <FileUpload style={{ margin: '0 auto', padding: '12px' }} className="text-center" options={options}>
             <button className="btn btn-primary btn-lg" ref="chooseAndUpload">Choose photos to upload</button>
           </FileUpload>
           {progress}
           {filename}
           <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '8px' }}>Your images</h4>
           { thumbDisplay }
+          <div className="" style={{ height: '100px' }}></div>
         </div>
       </div>
       );
