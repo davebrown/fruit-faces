@@ -156,8 +156,8 @@ export default class Upload extends React.Component {
     var filename = '';
     if (uploading) {
       //return (<div className="loading">Uploading</div>);
-      progress = (<progress className="progress" value={dataUploaded} max={dataSize}></progress>);
-      filename = (<span className="footnote">{fileName}</span>);
+      progress = (<progress className="block-center" value={dataUploaded} max={dataSize}></progress>);
+      filename = (<span className="footnote block-center text-center">{fileName}</span>);
     } else if (this.state.error) {
       const err = this.state.error;
       const msg = errToString(err);
@@ -175,8 +175,7 @@ export default class Upload extends React.Component {
       thumbDisplay = (<ThumbTable images={uploadedImages} showLabel="true"/>);
     }
     return (
-      <div className="">
-        <div className="flex-column">
+        <div className="flex-column upload">
           <FileUpload style={{ margin: '0 auto', padding: '12px' }} className="text-center" options={options}>
             <button className="btn btn-primary btn-lg" ref="chooseAndUpload">Choose photos to upload</button>
           </FileUpload>
@@ -186,7 +185,6 @@ export default class Upload extends React.Component {
           { thumbDisplay }
           <div className="" style={{ height: '100px' }}></div>
         </div>
-      </div>
       );
   }
   

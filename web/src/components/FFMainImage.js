@@ -33,7 +33,9 @@ class FFMainImage extends React.Component {
     this.onFBClick = this.onFBClick.bind(this);
     this.onUploadClick = this.onUploadClick.bind(this);
     this.onDeleteClick = this.onDeleteClick.bind(this);
+    this.onImageClick = this.onImageClick.bind(this);
     this.resolveSelectedImage = this.resolveSelectedImage.bind(this);
+    this.retractTagForm = this.retractTagForm.bind(this);
     //this.log = this.log.bind(this);
   }
 
@@ -151,7 +153,11 @@ class FFMainImage extends React.Component {
     if (tagState != TAG_FORM_NONE) {
       var tagClass = '';
       if (animateTools) {
-        tagClass = (tagState == TAG_FORM_ON) ? 'animated fadeInRight' : 'animated fadeOutRight';
+        if (window.innerWidth >= 1240) {
+          tagClass = (tagState == TAG_FORM_ON) ? 'animated fadeInRight' : 'animated fadeOutRight';
+        } else {
+          tagClass = (tagState == TAG_FORM_ON) ? 'animated slideInDown' : 'animated slideOutUp';
+        }
       }
       tagForm = (<TagForm className={tagClass} image={image}/>);
     }
@@ -168,9 +174,11 @@ class FFMainImage extends React.Component {
       <Swipable id={key} key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
         onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
         onSwiping={this.onSwiping}>
-        <div id="main-image-holder" className="flex-container" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}>
+        <div id="main-image-holder" className="flex-container" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}
+          onClick={this.onImageClick}
+        >
           <img id="main-image" src={src} onMouseEnter={this.onMouseEnter} onMouseOut={this.onMouseOut}/>
-          <ImageToolbar onFBClick={this.onFBClick} onTagClick={this.onTagClick}
+          <ImageToolbar ref="imageToolbar" onFBClick={this.onFBClick} onTagClick={this.onTagClick}
             onUploadClick={this.onUploadClick} onDeleteClick={this.onDeleteClick}
           />
           { tagForm }
@@ -187,15 +195,27 @@ class FFMainImage extends React.Component {
     );
   }
 
+  onImageClick(evt) {
+    // FIXME: dismiss tag menu here, if open
+    //console.log('on image click', this.refs.imageToolbar);
+    if (this.state.tagState == TAG_FORM_ON) {
+      this.setState({ tagState: TAG_FORM_OFF });
+      this.retractTagForm();
+    }
+  }
   onTagClick(evt) {
     var tagState = this.state.tagState;
     //console.log('onTagClick', tagState, (tagState + 1) % 3);
     tagState = (tagState + 1) % 3;
     this.setState({ tagState: tagState, animateTools: true });
     if (tagState == TAG_FORM_OFF) {
-      const ffm = this;
-      setTimeout(() => { ffm.setState({tagState: TAG_FORM_NONE}) }, 800);
+      this.retractTagForm();
     }
+  }
+
+  retractTagForm() {
+    const ffm = this;
+    setTimeout(() => { ffm.setState({tagState: TAG_FORM_NONE}) }, 800);
   }
   
   onFBClick(evt) {
@@ -206,17 +226,16 @@ class FFMainImage extends React.Component {
   }
 
   onUploadClick(evt) {
+    evt.stopPropagation();
     hashHistory.push('/upload');
   }
 
   onDeleteClick(e) {
     const image = ImageStore.getSelectedImage();//this.state.image;
     //console.log('delete clicked, image', image);
-    /*
     if (!image || !window.confirm('Are you sure you want to delete ' + image.base + '.jpg?')) {
       return;
     }
-    */
     var next = ImageStore.getNextImage();
     if (next && next.base === image.base) {
       // special case the last image

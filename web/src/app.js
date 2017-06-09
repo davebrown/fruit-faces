@@ -14,6 +14,7 @@ import Dialog from './components/Dialog.js';
 import FFNav from './components/FFNav.js';
 import FFDataVictory from './components/FFDataVictory.jsx';
 import Tech from './components/Tech.jsx';
+import Home from './components/Home.jsx';
 import About from './components/About.jsx';
 import Filters from './components/Filters.jsx';
 import FFTable from './components/FFTable.jsx';
@@ -82,7 +83,8 @@ class FFContainer extends React.Component {
   render() {
     // FIXME: hack to work around router weirdness. Proper fix here should
     // use responsve CSS to make the home component invisible when < certain resolution
-    const homeComponent = bowser.mobile ? null : About;
+    //const homeComponent = bowser.mobile ? null : About;
+    const homeComponent = Home;
     return (
       <div className="flex-container">
         <ToastContainer ref="container"

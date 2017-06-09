@@ -39,7 +39,7 @@ class TagForm extends React.Component {
     var image = ImageStore.getSelectedImage();
     var className = "flex-container flex-column tag-form " + (this.props.className || '');
     return (
-      <div className={className}>
+      <div className={className} onClick={(e) => e.stopPropagation() }>
         <h4 className="center">plates</h4>
         <div className="flex-container flex-wrap inline-grid">
         {
