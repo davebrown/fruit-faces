@@ -24,6 +24,7 @@ import Upload from './components/Upload.jsx';
 import Toastr from './components/Toastr.jsx';
 import SideMenu from './components/SideMenu.jsx';
 import Slideshow from './components/Slideshow.jsx';
+import ImageToolbar from './components/ImageToolbar.jsx';
 
 import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportWarning, reportSuccess, reportInfo, hashHistory } from './util/Util.js';
 import { authStore, FB_APP_ID } from './stores/AuthStore.js';
@@ -93,6 +94,7 @@ class FFContainer extends React.Component {
         <FFTable/>
         <Switch>
           <Route exact={true} path='/' component={homeComponent}/>
+          <Route exact={true} path='/it' component={ImageToolbar}/>
           <Route exact={true} path='/_=_' component={homeComponent}/>
           <Route path="*">
             <Dialog>

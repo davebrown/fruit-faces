@@ -11,6 +11,7 @@ import { IMAGE_CHANGED, IMAGES_LOADED, IMAGE_DELETED } from '../constants/FFCons
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import FFActions from '../actions/FFActions.js';
 import TagForm from './TagForm.js';
+import ImageToolbar from './ImageToolbar.jsx';
 
 const TAG_FORM_NONE = 0;
 const TAG_FORM_ON = 1;
@@ -156,7 +157,7 @@ class FFMainImage extends React.Component {
         if (window.innerWidth >= 1240) {
           tagClass = (tagState == TAG_FORM_ON) ? 'animated fadeInRight' : 'animated fadeOutRight';
         } else {
-          tagClass = (tagState == TAG_FORM_ON) ? 'animated slideInDown' : 'animated slideOutUp';
+          tagClass = (tagState == TAG_FORM_ON) ? 'animated slideInLeft' : 'animated slideOutLeft';
         }
       }
       tagForm = (<TagForm className={tagClass} image={image}/>);
@@ -321,30 +322,6 @@ class FFMainImage extends React.Component {
   
   log(msg) {
     //console.log('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
-  }
-}
-
-class ImageToolbar extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const { onTagClick, onStarClick, onDeleteClick, onFBClick, onUploadClick } = this.props;
-
-    /* for when favorites are implemented
-    (<Icon name="star" onClick={onStarClick}/>)
-    */
-
-    return (
-      <div id="image-toolbar" className={ 'flex-column image-toolbar ' + (this.props.className || '')}>
-        <Icon name="tags" title="edit tags" onClick={onTagClick}/>
-        <Icon name="close" title="delete image" onClick={onDeleteClick}/>
-        <Icon name="facebook" title="comment on Facebook" onClick={onFBClick}/>
-        <Icon name="upload" title="upload an image" onClick={onUploadClick}/>
-      </div>
-    );
   }
 }
 

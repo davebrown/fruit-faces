@@ -339,12 +339,14 @@ html [type=button] {
 
      .tag-form {
          position: absolute;
-         top: 70px;
-         left: 20px;
+         top: 60px;
+         left: 0px;
          padding: 3px;
+         padding-left: 20px;
          background: white;
          max-height: 40vh;
          overflow-y: scroll;
+         opacity: 0.9;
      }
 
      .image-toolbar {
@@ -359,6 +361,7 @@ html [type=button] {
          flex-direction: row;
          top: 0px;
          left: 0px;
+         padding-top: 12px;
      }
  
      .image-toolbar span {
@@ -432,7 +435,7 @@ html [type=button] {
     #main-image {
         width: 100%;
         margin: 0 auto;
-        margin-top: 80px;
+        margin-top: 60px;
     }
     #main-image-holder {
         /*position: absolute;*/
