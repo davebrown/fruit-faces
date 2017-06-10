@@ -94,7 +94,6 @@ class FFContainer extends React.Component {
         <FFTable/>
         <Switch>
           <Route exact={true} path='/' component={homeComponent}/>
-          <Route exact={true} path='/it' component={ImageToolbar}/>
           <Route exact={true} path='/_=_' component={homeComponent}/>
           <Route path="*">
             <Dialog>
