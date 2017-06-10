@@ -40,7 +40,7 @@ class TagForm extends React.Component {
     var className = "flex-container flex-column tag-form " + (this.props.className || '');
     return (
       <div className={className} onClick={(e) => e.stopPropagation() }>
-        <h4 className="center">plates</h4>
+        <h4 className="text-center">plates</h4>
         <div className="flex-container flex-wrap inline-grid">
         {
           TAGS.map((tag) => {
@@ -49,7 +49,7 @@ class TagForm extends React.Component {
           })
         }
         </div>
-        <h4 className="center">fruits</h4>
+        <h4 className="text-center">fruits</h4>
         <div className="flex-container flex-wrap inline-grid">
           {
             FRUITS.map((tag) => {

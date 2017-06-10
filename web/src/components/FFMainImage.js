@@ -174,7 +174,7 @@ class FFMainImage extends React.Component {
       <Swipable id={key} key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
         onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
         onSwiping={this.onSwiping}>
-        <div id="main-image-holder" className="flex-container" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}
+        <div id="main-image-holder" className="flex-column" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}
           onClick={this.onImageClick}
         >
           <img id="main-image" src={src} onMouseEnter={this.onMouseEnter} onMouseOut={this.onMouseOut}/>
@@ -338,7 +338,7 @@ class ImageToolbar extends React.Component {
     */
 
     return (
-      <div id="image-toolbar" className={ 'image-toolbar flex-column ' + (this.props.className || '')}>
+      <div id="image-toolbar" className={ 'flex-column image-toolbar ' + (this.props.className || '')}>
         <Icon name="tags" title="edit tags" onClick={onTagClick}/>
         <Icon name="close" title="delete image" onClick={onDeleteClick}/>
         <Icon name="facebook" title="comment on Facebook" onClick={onFBClick}/>

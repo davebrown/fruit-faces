@@ -83,8 +83,8 @@ class FFContainer extends React.Component {
   render() {
     // FIXME: hack to work around router weirdness. Proper fix here should
     // use responsve CSS to make the home component invisible when < certain resolution
-    //const homeComponent = bowser.mobile ? null : About;
-    const homeComponent = Home;
+    const homeComponent = bowser.mobile ? null : About;
+    //const homeComponent = Home;
     return (
       <div className="flex-container">
         <ToastContainer ref="container"
