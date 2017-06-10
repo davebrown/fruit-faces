@@ -350,15 +350,15 @@ html [type=button] {
      }
 
      .image-toolbar {
-         justify-content: flex-start;
+         position: absolute;
+         flex-direction: row;
+         justify-content: space-around;
          align-items: center;
          font-size: 1.8em;
          /*z-index: 10;*/
-         position: absolute;
          /*color: #373a47;*/
          background: white;
          width: 100%;
-         flex-direction: row;
          top: 0px;
          left: 0px;
          padding-top: 12px;

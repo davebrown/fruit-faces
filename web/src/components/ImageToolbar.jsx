@@ -20,6 +20,7 @@ export default class ImageToolbar extends React.Component {
         <Icon name="close" title="delete image" onClick={onDeleteClick}/>
         <Icon name="facebook" title="comment on Facebook" onClick={onFBClick}/>
         <Icon name="upload" title="upload an image" onClick={onUploadClick}/>
+        <span></span>
       </div>
     );
   }
