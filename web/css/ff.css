@@ -146,6 +146,7 @@ p {
     min-width: 50px;
     padding-top: 36px;
     justify-content: flex-start;
+    flex-direction: column;
     align-items: center;
     font-size: 1.8em;
 }
