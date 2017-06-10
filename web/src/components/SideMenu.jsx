@@ -62,8 +62,8 @@ export default class SideMenu extends React.Component {
     var slideShow = (<div className="nav-item">Slideshow</div>);
     slideShow = '';
 
-    const aboutRef = bowser.mobile ? '/about' : '/';
-    const homeLink = bowser.mobile ? (<Link className="menu-item" to='/' onClick={this.linkClicked}>Home</Link>) : '';
+    const aboutRef = '/about';
+    const homeLink = (<Link className="menu-item" to='/' onClick={this.linkClicked}>Home</Link>);
     const authText = userId != null ? "Logout": "Login...";
     const authLink = userId != null ?
                      (<a onClick={this.doLogout}>Logout</a>) :
@@ -82,6 +82,7 @@ export default class SideMenu extends React.Component {
           {authLink}
           {homeLink}
           <Link className="menu-item" to={aboutRef} onClick={this.linkClicked}>About</Link>
+          <Link className="menu-item" to="/mosaic" onClick={this.linkClicked}>Mosaic</Link>
           <Link className="menu-item" to='/filters' onClick={this.linkClicked}>Filters</Link>
           <Link className="menu-item" to='/upload' onClick={this.linkClicked}>Upload</Link>
           {slideShow}

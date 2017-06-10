@@ -84,8 +84,8 @@ class FFContainer extends React.Component {
   render() {
     // FIXME: hack to work around router weirdness. Proper fix here should
     // use responsve CSS to make the home component invisible when < certain resolution
-    const homeComponent = bowser.mobile ? null : About;
-    //const homeComponent = Home;
+    //const homeComponent = bowser.mobile ? null : About;
+    const homeComponent = Home;
     return (
       <div className="flex-container">
         <ToastContainer ref="container"
@@ -93,11 +93,12 @@ class FFContainer extends React.Component {
           className="toast-top-right" />
         <FFTable/>
         <Switch>
-          <Route exact={true} path='/' component={homeComponent}/>
-          <Route exact={true} path='/_=_' component={homeComponent}/>
+          <Route exact={true} path='/mosaic' component={null}/>
           <Route path="*">
             <Dialog>
               <Switch>  
+                <Route exact={true} path='/' component={homeComponent}/>
+                <Route exact={true} path='/_=_' component={homeComponent}/>
                 <Route path='/about' component={About}/>
                 <Route path='/filters' component={Filters}/>
                 <Route path='/data' component={FFDataVictory}/>
@@ -173,7 +174,7 @@ class FFApp extends React.Component {
   render() {
     return (
       <HashRouter history={hashHistory}>
-        <main id="main">
+        <main id="main" className="main">
           <SideMenu/>
           <FFContainer/>
         </main>
