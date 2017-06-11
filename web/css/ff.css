@@ -398,6 +398,7 @@ html [type=button] {
         height: 100vh;
         width: 100%;
         overflow-x: hidden;
+        /*overflow-y: scroll;*/
         /*z-index: 1;*/
         /*
         -webkit-transform: translateZ(1px);

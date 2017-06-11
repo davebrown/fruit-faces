@@ -23,7 +23,7 @@ class Dialog extends React.Component {
     var dataHref = 'https://ff.moonspider.com/#' + hashLocation;
     var closeIcon = (<Icon name="times-circle-o" className="close-icon" onClick={closeHandler}/>);
     return (
-      <div id="ff-dialog" className="flex-column dialog expandable compressible scrollable">
+      <div id="ff-dialog" className="flex-column dialog expandable compressible">
         {closeIcon}
         <div className="dialog-content">
           {this.props.children}
