@@ -246,7 +246,7 @@ Dispatcher.register((action) => {
         throw new Error('image changed to NULL');
       }
       imageStore.emitChange();
-      var base = selectedImage ? selectedImage.base : null;
+      var base = selectedImage ? selectedImage.path || selectedImage.base : null;
       if (base) {
         // undo filter selection if an image is selected
         filterTag = null;

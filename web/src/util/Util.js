@@ -15,6 +15,7 @@ if (process.env.NODE_ENV === 'production') {
 
 amplitude.init(AMPLITUDE_KEY);
 
+/*
 var _logEvent = amplitude.logEvent;
 
 amplitude.logEvent = function(key, obj) {
@@ -23,6 +24,7 @@ amplitude.logEvent = function(key, obj) {
   }
   //_logEvent(key, obj);
 }
+*/
 function imageHasTag(image, tag) {
   if (image) {
     if (!image.tags) image.tags = [];
