@@ -16,20 +16,17 @@ export default class FBLogin extends React.Component {
   }
 
   componentWillMount() {
-    //console.log('FBLogin - will mount');
     this.mounted = true;
     authStore.addChangeListener(this.authChanged);
     this.authChanged();
   }
 
   componentWillUnmount() {
-    //console.log('FBLogin - will unmount');
     authStore.removeChangeListener(this.authChanged);
     this.mounted = false;
   }
 
   authChanged() {
-    //console.log('FBLogin.authChanged');
     if (this.mounted) {
       this.setState({
         userId: authStore.getUserID(),

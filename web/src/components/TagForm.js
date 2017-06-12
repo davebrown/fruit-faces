@@ -10,11 +10,7 @@ var FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloup
                'googly eyes', 'grape', 'honeydew', 'kiwi', 'mango',
                'peach', 'pear', 'pineapple', 'plum', 'raspberry', 'strawberry', 'try harder Dad!', 'watermelon' ];
 
-//FRUITS = [ 'strawberry', 'raspberry', 'apple' ]
-
 var TAGS = [ 'blue', 'gray', 'white' ];
-
-//TAGS = TAGS.concat(FRUITS);
 
 class TagForm extends React.Component {
 
@@ -36,7 +32,7 @@ class TagForm extends React.Component {
   }
 
   render() {
-    var image = ImageStore.getSelectedImage();
+    const { image } = this.props;
     var className = "flex-container flex-column tag-form " + (this.props.className || '');
     return (
       <div className={className} onClick={(e) => e.stopPropagation() }>

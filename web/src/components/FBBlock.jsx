@@ -29,7 +29,6 @@ export default class FBBlock extends React.Component {
     }
     var fbParseFunc = () => {
       fbTimer = null;
-      //console.log('timer re-parse woke up on ' + dataHref);
       // occasionally see 'FB not defined' on first load. If not there yet, just defer
       if (typeof(FB) === 'undefined') {
         //console.warn('FB not loaded, deferring');

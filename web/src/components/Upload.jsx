@@ -155,7 +155,6 @@ export default class Upload extends React.Component {
     var progress = '';
     var filename = '';
     if (uploading) {
-      //return (<div className="loading">Uploading</div>);
       progress = (<progress className="block-center" value={dataUploaded} max={dataSize}></progress>);
       filename = (<span className="footnote block-center text-center">{fileName}</span>);
     } else if (this.state.error) {

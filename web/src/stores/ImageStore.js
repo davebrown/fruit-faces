@@ -20,7 +20,6 @@ class ImageStore extends EventEmitter {
 
   constructor() {
     super();
-    console.log('ImageStore CTOR');
     this._loadImageDefs();
   }
   
@@ -330,7 +329,7 @@ Dispatcher.register((action) => {
       imageStore.emitChange();
       break;
     case ORIENTATION_CHANGED:
-      console.debug('emitting on orientation change');
+      //console.debug('emitting on orientation change');
       images = imageList(bowser.mobile ? getMobileMap(): DEFAULT_THUMB_MAP, images);
       imageStore.emitChange();
       break;

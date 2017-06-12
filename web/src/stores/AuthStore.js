@@ -56,7 +56,6 @@ class AuthStore extends EventEmitter {
   }
 
   getProfilePicUrl() {
-    //console.log('getprofilepic, login is', login);
     return login.picture.data && login.picture.data.url;
   }
 
@@ -119,7 +118,6 @@ class AuthStore extends EventEmitter {
 const authStore = new AuthStore();
 
 // initialize FB
-// FIXME: where to put these so they're 'early'?
 const FB_APP_ID = process.env.FB_APP_ID || 'error-missing-fb-app-id';
 
 var meta = document.createElement('meta');
@@ -140,7 +138,6 @@ window.fbAsyncInit = function() {
     console.log('auth status change - ' + new Date(), response);
     fbStatusCallback(response);
   });
-  //console.log('AuthStore: fbInitialized');
   FFActions.fbInitialized();
 };
 

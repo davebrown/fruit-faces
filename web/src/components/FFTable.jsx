@@ -36,7 +36,6 @@ export default class FFTable extends React.Component {
   }
 
   componentWillMount() {
-    //this.loadImageDefs();
     this.dispatcherToken = Dispatcher.register((action) => {
       switch (action.actionType) {
         case KEY_NAV_HAPPENED:
@@ -55,7 +54,6 @@ export default class FFTable extends React.Component {
   }
 
   componentWillUnmount() {
-    console.log('componentWillUnmount');
     Dispatcher.unregister(this.dispatcherToken);
   }
   
@@ -106,13 +104,9 @@ export default class FFTable extends React.Component {
     } else if (showClickTooltip) {
       ttText = ttClickText;
       ttDisable = false;
-      //console.log('ttdisable false tttext=click');
     } else if (showKeyTooltip && clickCount >= 3) {
       ttText = ttKeyText;
       ttDisable = false;
-      //console.log('ttdisable false tttext=key');
-    } else {
-      //console.log('ttdisable TRUE');
     }
 
     const ttShowEvent = () => {
@@ -153,11 +147,8 @@ class FFThumb extends React.Component {
     hashHistory.push('/images' + this.props.image.path);
     showClickTooltip = false;
     ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
-    ReactTooltip.hide();
+    //ReactTooltip.hide();
     ReactTooltip.rebuild();
-    if (clickCount == 3) {
-      //ReactTooltip.show()
-    }
   }
 
   render() {

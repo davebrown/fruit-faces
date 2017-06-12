@@ -11,7 +11,6 @@ import { IMAGE_CHANGED, IMAGES_LOADED, STATUS_REPORT } from './constants/FFConst
 import FFActions from './actions/FFActions.js';
 import ImageStore from './stores/ImageStore.js';
 import Dialog from './components/Dialog.js';
-import FFNav from './components/FFNav.js';
 import FFDataVictory from './components/FFDataVictory.jsx';
 import Tech from './components/Tech.jsx';
 import Home from './components/Home.jsx';
@@ -43,7 +42,6 @@ class FFContainer extends React.Component {
  constructor(props) {
     super(props);
     Dispatcher.register(this.statusListener.bind(this));
-    //ImageStore.addChangeListener(this.changeListener.bind(this));
  }
 
   statusListener(action) {
@@ -142,7 +140,6 @@ function keyDownHandler(evt) {
     hashHistory.replace('/images' + newImage.path);
   }
 }
-
 
 // FIXME: don't like using global document handler, but I don't receive arrow key
 // events if certain elements don't have focus

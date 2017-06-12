@@ -11,8 +11,6 @@ if (process.env.NODE_ENV === 'production') {
   REDIRECT_URI = 'https://ff.moonspider.com/';
 }
 // initialize amplitude
-// FIXME: where to put these so they're 'early'?
-
 amplitude.init(AMPLITUDE_KEY);
 
 /*
@@ -73,7 +71,7 @@ function reportError(input, title) {
 }
 
 function responsiveWidth() {
-  return window.innerWidth < 1240;
+  return window.innerWidth < 1240; // <- keep value in sync with CSS media break
 }
 
 export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportSuccess, reportInfo, reportWarning, REDIRECT_URI, hashHistory, responsiveWidth };

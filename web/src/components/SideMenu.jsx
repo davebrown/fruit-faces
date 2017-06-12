@@ -12,7 +12,8 @@ import FFTable from './FFTable.jsx';
 const BM_STYLES = {
   bmBurgerButton: {
     zIndex: 1
-  }/*,
+  }
+  /*,
   bmBurgerBars: {
     zIndex: 1
   }
@@ -71,7 +72,6 @@ export default class SideMenu extends React.Component {
                      (<FBLogin renderLink={true} text="Login..."/>);
     const profileTag = profilePicUrl ? (<img className="headshot menu-item" src={profilePicUrl}/>) : '';
     const mosaicLink = responsiveWidth() ? (<Link className="menu-item" to="/mosaic" onClick={this.linkClicked}>Mosaic</Link>) : '';
-    //console.log('SideMenu.render(): userId=' + userId);
     const menuWidth = bowser.mobile ? '30%': '150px';
     /* smaller submenus if needed
     <Link className="menu-item-small" to="/data">Small 1</Link>

@@ -37,27 +37,22 @@ class FFMainImage extends React.Component {
     this.onImageClick = this.onImageClick.bind(this);
     this.resolveSelectedImage = this.resolveSelectedImage.bind(this);
     this.retractTagForm = this.retractTagForm.bind(this);
-    //this.log = this.log.bind(this);
   }
 
   mainImageActionListener(action) {
-    // hack?
-    //console.log('FFMainImage.action: ' + action.actionType + ' dispatching? ' + this.dispatching);
     switch (action.actionType) {
       case IMAGES_LOADED:
-        // FIXME: necessary for when we arrive with an image route selected,
+        // necessary for when we arrive with an image route selected,
         // but the images are not loaded yet...
         this.forceUpdate();
         break;
       case IMAGE_CHANGED:
-        //console.log('FFMainImage action ' + action.actionType + ' to', action.image, ' mounted?' + this.mounted);
         if (this.mounted) {
           this.setState( { image: action.image, animateTools: false } );
           this.props = { }; // clear out router state
         }
         break;
       case IMAGE_DELETED:
-        //console.log('FFMainImage action ' + action.actionType + ' from ', action.image, ' to ', action.newImage, ' mounted?' + this.mounted);
         if (this.mounted) {
           this.setState( { image: action.newImage, animateTools: false } );
           this.props = { }; // clear out router state
@@ -70,12 +65,10 @@ class FFMainImage extends React.Component {
 
   /* update selected image from router path params, if needed */
   resolveSelectedImage(props) {
-    //const params = this.props && this.props.match && this.props.match.params;
     const params = props && props.match && props.match.params;
     if (params && params.imageBase) {
       const path = '/' + params.userId + '/' + params.imageBase;
       const image = ImageStore.getImage(path);
-      //console.log('resolveSelectedImage: path params', params, 'path', path, 'image', image);
       this.setState({
         image: image,
         imagePath: path
@@ -86,10 +79,7 @@ class FFMainImage extends React.Component {
     }
   }
   componentWillMount() {
-    this.log('willMount');
-    //console.log('FFMainImage.componentWillMount, props', this.props);
     this.dispatcherToken = Dispatcher.register(this.mainImageActionListener);
-    //this.log('dispatcherToken', '"' + this.dispatcherToken + '"');
     this.resolveSelectedImage(this.props);
     this.setState( {
       tagState: TAG_FORM_NONE,
@@ -99,46 +89,23 @@ class FFMainImage extends React.Component {
   }
 
   componentDidMount() {
-    this.log('didMount');
     this.mounted = true;
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
-    //console.log('willReceiveProps', nextProps, nextContext);
     this.resolveSelectedImage(nextProps);
   }
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    this.log('shouldUpdate');
-    console.debug(this.props);
-    console.debug(nextProps);
-    //var ret = super.shouldComponentUpdate(nextProps, nextState, nextContext);
-    var ret = true;
-    this.log('shouldUpdate->' + ret);
-    return ret;
-  }
-
-  componentWillUpdate(nextProps, nextState, nextContext) {
-    this.log('willUpdate');
-  }
-
-  componentDidUpdate(nextProps, nextState, nextContext) {
-    this.log('didUpdate');
-  }
-
   componentWillUnmount() {
-    this.log('willUnmount');
     this.mounted = false;
     var tmpToken = this.dispatcherToken;
     this.dispatcherToken = null;
     if (tmpToken) {
-      this.log('unregistering token "' + tmpToken + '"');
       Dispatcher.unregister(tmpToken);
     }
   }
   
   render() {
-    //console.log('FFMainImage.render', this.props, this.state);
     var image = this.state.image;
     
     const { tagState, animateTools, imagePath } = this.state;
@@ -197,8 +164,6 @@ class FFMainImage extends React.Component {
   }
 
   onImageClick(evt) {
-    // FIXME: dismiss tag menu here, if open
-    //console.log('on image click', this.refs.imageToolbar);
     if (this.state.tagState == TAG_FORM_ON) {
       this.setState({ tagState: TAG_FORM_OFF });
       this.retractTagForm();
@@ -206,7 +171,6 @@ class FFMainImage extends React.Component {
   }
   onTagClick(evt) {
     var tagState = this.state.tagState;
-    //console.log('onTagClick', tagState, (tagState + 1) % 3);
     tagState = (tagState + 1) % 3;
     this.setState({ tagState: tagState, animateTools: true });
     if (tagState == TAG_FORM_OFF) {
@@ -232,8 +196,7 @@ class FFMainImage extends React.Component {
   }
 
   onDeleteClick(e) {
-    const image = ImageStore.getSelectedImage();//this.state.image;
-    //console.log('delete clicked, image', image);
+    const image = ImageStore.getSelectedImage();
     if (!image || !window.confirm('Are you sure you want to delete ' + image.base + '.jpg?')) {
       return;
     }
@@ -242,7 +205,6 @@ class FFMainImage extends React.Component {
       // special case the last image
       next = null;
     }
-    //console.log('delete image: ' + image.base);
     request({
       method: 'DELETE',
       url: API_BASE_URL + '/api/v1/images' + image.root + '/' + image.base,
@@ -260,19 +222,16 @@ class FFMainImage extends React.Component {
         reportError(errObj, 'problem deleting image');
         this.setState({ error: errObj });
       } else {
-        //console.log('delete image OK? code=' + response.statusCode);
         FFActions.imageDeleted(image, next);
         reportInfo('deleted ' + image.base + '.jpg');
       }
     });
   }
   onMouseEnter(evt) {
-    /*console.log('onMouseEnter', evt);*/
     //this.setState({showToolbar: true});
   }
 
   onMouseOut(evt) {
-    /*console.log('onMouseOut', evt);*/
     //this.setState({showToolbar: false});
   }
   
@@ -286,11 +245,9 @@ class FFMainImage extends React.Component {
   }
 
   onTouchStart(event) {
-    //console.log('onTouchStart', event);
   }
 
   onTouchEnd(event) {
-    //console.log('onTouchEnd', event);
   }
 
   translateImage(delta) {
@@ -302,7 +259,6 @@ class FFMainImage extends React.Component {
     }
   }
   onSwiping(event, deltaX, deltaY, absX, absY, velocity) {
-    //console.log('onSwiping(' + deltaX + ', ' + deltaY + ', ' + absX + ', ' + absY + ', ' + velocity + ')');
   }
   
   swipeLeft() {
@@ -320,9 +276,6 @@ class FFMainImage extends React.Component {
     hashHistory.replace(newImage ? '/images' + newImage.path : '/');
   }
   
-  log(msg) {
-    //console.log('FFMainImage: ' + msg + ' | mounted=' + this.mounted);
-  }
 }
 
 export default FFMainImage;

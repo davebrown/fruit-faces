@@ -39,8 +39,7 @@ class FFChartDOW extends React.Component {
         var dowData = JSON.parse(bodyString);
         this.setState({data: dowData});
       }
-    }
-        .bind(this)
+    }.bind(this)
     );
   }
 

@@ -50,9 +50,6 @@ export default class ThumbTable extends React.Component {
       }
       ret[key].images.push(images[i]);
     }
-    //console.log('sortByMonth', ret);
-    //console.log('sortByMonth.keys()', Object.keys(ret));
-    
     return ret;
   }
   render() {
@@ -68,21 +65,6 @@ export default class ThumbTable extends React.Component {
             return (<MonthContainer monthLabel={month['label']} images={month['images']}
                       key={'month-thumb-container-' + key} showLabel={showLabel}/>);
             return (<span key={'month-thumb-container-' + key}>{key}</span>);
-          })
-        }
-      </div>
-    );
-    return (
-      <div className={'flex-container flex-wrap thumb-table ' + (className || '')}>
-        {
-          images.map((image) => {
-            const label = showLabel ? (<span className="footnote">{image.base}</span>) : '';
-            return (
-              <Link key={'thumbtable-cell-' + image.id} to={'/images' + image.path} className="flex-column thumb-cell">
-                <img src={'/thumbs' + image.root + '/' + image.base + '_60x80_t.jpg'}/>
-                {label}
-              </Link>
-            );
           })
         }
       </div>

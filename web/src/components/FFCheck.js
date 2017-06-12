@@ -21,7 +21,7 @@ function imageAddTag(image, tag) {
 function tagImage(image, verb, tag) {
   //console.log('calling ' + verb + ' tag=' + tag + ' on ' + image.base);
   request({
-    method:verb,
+    method: verb,
     url: API_BASE_URL + '/api/v1/images' + image.root + '/' + image.base + '/tags/' + tag,
     headers: {
       'Content-Type': 'application/json',
@@ -36,7 +36,6 @@ function tagImage(image, verb, tag) {
       var errObj = JSON.parse(bodyString);
       reportError(errObj, 'problem changing tags');
     }
-    //console.log('updateTag OK? code=' + response.statusCode);
   });
 }
 
@@ -69,21 +68,18 @@ class FFCheck extends React.Component {
   }
 
   render() {
-    //console.log('FFCheck(' + this.props.fruit + ').render()');
     const { image, fruit } = this.props;
     var key = 'checkbox-' + fruit;
     var checked = imageHasTag(image, fruit);
     var checkStr = '';
     if (checked) {
-      //console.log('checkbox rendering checked image for ' + image.base);
       checkStr = 'checked';
-    } else {
-      //console.log(fruit + ' NOT checked');
     }
-    return (<div key={key} className="tag-check">
-  <input checked={checkStr} onChange={this.checkHandler.bind(this)} type="checkbox"/>
-            <label>{fruit}</label>
-            </div>);
+    return (
+      <div key={key} className="tag-check">
+        <input checked={checkStr} onChange={this.checkHandler.bind(this)} type="checkbox"/>
+        <label>{fruit}</label>
+      </div>);
   }
 }
 
