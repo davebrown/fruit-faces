@@ -23,8 +23,12 @@ p {
 }
 /* iremmel boilerplate */
 .flex-container {
-  display: flex;
-  align-items: flex-start; /* don't stretch height of flex items */
+    display: flex;
+    display: -ms-flexbox;
+    align-items: flex-start; /* don't stretch height of flex items */
+    align-items: -ms-flex-start;
+  flex-direction: row;
+  
 }
 
 .flex-fixed {
@@ -39,6 +43,7 @@ p {
 
 .flex-wrap {
     flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
 }
 
 .scrollable {
@@ -264,8 +269,8 @@ p {
 }
 
 .right .bm-burger-button {
-  left: initial;
-  right: 20px;
+    left: auto;
+    right: 20px;
 }
 
 
@@ -505,6 +510,11 @@ html [type=button] {
     }
 
     .tag-form {
+    }
+
+    /* for IE */
+    .tag-check {
+        width: 190px;
     }
     #main-image {
         display: block;

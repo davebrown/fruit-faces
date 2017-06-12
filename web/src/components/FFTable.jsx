@@ -118,7 +118,7 @@ export default class FFTable extends React.Component {
     };
 
     var content = (
-      <div ref="ff_table" className="flex-fixed scrollable thumbs" data-for="table-tt"
+      <div ref="ff_table" className="flex-container flex-fixed flex-wrap scrollable thumbs" data-for="table-tt"
       data-multiline={true} data-tip={ttText}
       >
         {

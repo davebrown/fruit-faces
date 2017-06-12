@@ -2,7 +2,7 @@ var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
-  entry: "./src/app.js",
+  entry: ["babel-polyfill", "./src/app.js"],
   output: {
     filename: "index.js"
   },
@@ -15,7 +15,7 @@ module.exports = {
     new webpack.EnvironmentPlugin([
       "NODE_ENV", "FF_BACKEND_URL", "AMPLITUDE_API_KEY", "FB_APP_ID"
     ]),
-    new ExtractTextPlugin('bundle.css')    
+    new ExtractTextPlugin('bundle.css')
   ],
   module: {
     loaders: [

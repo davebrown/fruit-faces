@@ -33,7 +33,7 @@ class TagForm extends React.Component {
 
   render() {
     const { image } = this.props;
-    var className = "flex-container flex-column tag-form " + (this.props.className || '');
+    var className = "flex-container flex-column tag-form flex-grow " + (this.props.className || '');
     return (
       <div className={className} onClick={(e) => e.stopPropagation() }>
         <h4 className="text-center">plates</h4>

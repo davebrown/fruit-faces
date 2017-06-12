@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "amplitude-js": "github:amplitude/Amplitude-Javascript",
+    "babel-polyfill": "^6.23.0",
     "bowser": "^1.6.0",
     "browser-request": "^0.3.3",
     "dateformat": "^2.0.0",

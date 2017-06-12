@@ -18,12 +18,11 @@ import About from './components/About.jsx';
 import Filters from './components/Filters.jsx';
 import FFTable from './components/FFTable.jsx';
 import FFMainImage from './components/FFMainImage.js';
-import FBLogin from './components/FBLogin.jsx';
 import Upload from './components/Upload.jsx';
 import Toastr from './components/Toastr.jsx';
 import SideMenu from './components/SideMenu.jsx';
 import Slideshow from './components/Slideshow.jsx';
-import ImageToolbar from './components/ImageToolbar.jsx';
+import ThumbTable from './components/ThumbTable.jsx';
 
 import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportWarning, reportSuccess, reportInfo, hashHistory } from './util/Util.js';
 import { authStore, FB_APP_ID } from './stores/AuthStore.js';
@@ -35,7 +34,12 @@ const NotFound = () => (
   </div>
 );
 
-
+const UnsupportedBrowser = () => (
+  <div>
+    <h2>Sorry, your browser won&apos;t work here :-(</h2>
+    <p>We recommend that you try <a href="https://www.google.com/chrome/browser/desktop/index.html">Google Chrome</a> instead.</p>
+  </div>
+);
 const ToastMessageFactory = React.createFactory(ToastMessage.animation);
 
 class FFContainer extends React.Component {
@@ -81,7 +85,7 @@ class FFContainer extends React.Component {
         <ToastContainer ref="container"
           toastMessageFactory={ToastMessageFactory}
           className="toast-top-right" />
-        <FFTable/>
+        <FFTable images={ImageStore.getImages()}/>
         <Switch>
           <Route exact={true} path='/mosaic' component={null}/>
           <Route path="*">
@@ -157,6 +161,9 @@ class FFApp extends React.Component {
   }
 
   render() {
+    if (bowser.msie && bowser.version <= '10') {
+      return (<UnsupportedBrowser/>);
+    }
     return (
       <HashRouter history={hashHistory}>
         <main id="main" className="main">
