@@ -12,10 +12,11 @@ import FFTable from './FFTable.jsx';
 const BM_STYLES = {
   bmBurgerButton: {
     zIndex: 1
-  },
+  }/*,
   bmBurgerBars: {
     zIndex: 1
   }
+  */
 }
 
 export default class SideMenu extends React.Component {

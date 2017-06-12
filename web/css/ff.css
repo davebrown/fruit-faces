@@ -261,6 +261,13 @@ p {
     overflow-x: hidden;
 }
 
+.headshot {
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    margin-left: 12px;
+}
+
 /* Burger menu custom styles */
 .bm-burger-button {
   position: fixed;
@@ -276,12 +283,6 @@ p {
   right: 20px;
 }
 
-.headshot {
-    width: 60px;
-    height: 60px;
-    border-radius: 30px;
-    margin-left: 12px;
-}
 
 .bm-burger-bars {
     background: #5764c6;
@@ -336,6 +337,11 @@ html [type=button] {
     padding: 12px;
 }
 
+.home-thumbs {
+    max-width: 400px;
+    margin: 0px auto;
+}
+
 @media only screen and (max-width: 1240px) {
 
      .tag-form {
@@ -375,6 +381,15 @@ html [type=button] {
  
      .month-thumb-table {
          /*margin-left: 8px;*/
+     }
+     .home-thumbs {
+         max-width: 300px;
+     }
+
+     .home-thumbs img {
+         width: 120px;
+         height: 160px;
+         margin: 4px;
      }
  }
 
