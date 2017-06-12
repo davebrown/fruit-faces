@@ -111,7 +111,13 @@ public abstract class BaseResource {
     }
 
     protected UserEJB findOrCreateUser(String accessToken) {
-        UserDTO user = user(accessToken);
+        UserDTO user;
+        try {
+            user = user(accessToken);
+        } catch (Exception e) {
+            log.error("could not lookup user", e);
+            return null;
+        }
         if (user == null) {
             return null;
         }
