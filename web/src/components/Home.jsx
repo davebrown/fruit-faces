@@ -9,7 +9,7 @@ class HT extends React.Component {
 
   render() {
     const base = this.props.base;
-    const to = "/1/" + base;
+    const to = "/images/1/" + base;
     const img = "https://ff.moonspider.com/thumbs/1/" + base + "_240x320_t.jpg";
     return (
       <Link to={to}>
