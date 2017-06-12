@@ -36,7 +36,7 @@ export default class FFTable extends React.Component {
   }
 
   componentWillMount() {
-    this.loadImageDefs();
+    //this.loadImageDefs();
     this.dispatcherToken = Dispatcher.register((action) => {
       switch (action.actionType) {
         case KEY_NAV_HAPPENED:
@@ -138,40 +138,7 @@ export default class FFTable extends React.Component {
       </div>
     );
     return content;
-  }
-  loadImageDefs() {
-    var startTime = new Date().getTime();
-    request(API_BASE_URL + '/api/v1/images', function(err, response, bodyString) {
-      if (!err && response.statusCode != 200) {
-        err = JSON.parse(bodyString);
-      }
-      if (err) {
-        const errMsg = errToString(err);
-        amplitude.logEvent('IMAGE_CATALOG_LOAD_ERROR', { errMsg: errMsg });
-        reportError(errMsg, 'problem loading images');
-      }
-      var body = JSON.parse(bodyString);
-      var duration = new Date().getTime() - startTime;
-      console.log("loaded " + body.length + " image(s) in " + duration + " ms");
-      FFActions.imagesLoaded(body);
-      /* need to set selected image state, if any, from hash path
-       * FIXME: cleaner way to do this?
-       */
-      /*
-      var location = hashHistory.getCurrentLocation();
-      if (location && location.pathname) {
-        var elems = location.pathname.split('/');
-        if (elems.length === 4 && elems[1] === 'images') {
-          var selImage = ImageStore.getImage('/' + elems[2] + '/' + elems[3]);
-          console.log('FFTable.loadImageDefs(): selecting on load', selImage, '/' + elems[2] + '/' + elems[3]);
-          FFActions.imageChanged(selImage);
-        }
-      }
-      */
-      amplitude.logEvent('IMAGE_CATALOG_LOADED', { durationMillis: duration });
-    }.bind(this));
-  }
-  
+  }  
 };
 
 class FFThumb extends React.Component {

@@ -6,7 +6,7 @@ import bowser from 'bowser';
 import { FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 import FBLogin from './FBLogin.jsx';
 import { authStore } from '../stores/AuthStore.js';
-import { amplitude } from '../util/Util.js';
+import { amplitude, responsiveWidth } from '../util/Util.js';
 import FFTable from './FFTable.jsx';
 
 const BM_STYLES = {
@@ -70,6 +70,7 @@ export default class SideMenu extends React.Component {
                      (<a onClick={this.doLogout}>Logout</a>) :
                      (<FBLogin renderLink={true} text="Login..."/>);
     const profileTag = profilePicUrl ? (<img className="headshot menu-item" src={profilePicUrl}/>) : '';
+    const mosaicLink = responsiveWidth() ? (<Link className="menu-item" to="/mosaic" onClick={this.linkClicked}>Mosaic</Link>) : '';
     //console.log('SideMenu.render(): userId=' + userId);
     const menuWidth = bowser.mobile ? '30%': '150px';
     /* smaller submenus if needed
@@ -83,7 +84,7 @@ export default class SideMenu extends React.Component {
           {authLink}
           {homeLink}
           <Link className="menu-item" to={aboutRef} onClick={this.linkClicked}>About</Link>
-          <Link className="menu-item" to="/mosaic" onClick={this.linkClicked}>Mosaic</Link>
+          {mosaicLink}
           <Link className="menu-item" to='/filters' onClick={this.linkClicked}>Filters</Link>
           <Link className="menu-item" to='/upload' onClick={this.linkClicked}>Upload</Link>
           {slideShow}

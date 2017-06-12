@@ -29,18 +29,13 @@ import ImageToolbar from './components/ImageToolbar.jsx';
 import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportWarning, reportSuccess, reportInfo, hashHistory } from './util/Util.js';
 import { authStore, FB_APP_ID } from './stores/AuthStore.js';
 
-class NotFound extends React.Component {
+const NotFound = () => (
+  <div>
+    <h1>Not found</h1>
+    <p>Hmmm...why not go <Link to="/">back home?</Link></p>
+  </div>
+);
 
-  render() {
-    console.log('NotFound.render, props are', this.props);
-    return (
-      <div>
-        <h1>Not found</h1>
-        <p>Hmmm...why not go <Link to="/">back home?</Link></p>
-      </div>
-    );
-  }
-}
 
 const ToastMessageFactory = React.createFactory(ToastMessage.animation);
 
@@ -82,9 +77,6 @@ class FFContainer extends React.Component {
   }
 
   render() {
-    // FIXME: hack to work around router weirdness. Proper fix here should
-    // use responsve CSS to make the home component invisible when < certain resolution
-    //const homeComponent = bowser.mobile ? null : About;
     const homeComponent = Home;
     return (
       <div className="flex-container">
@@ -146,8 +138,7 @@ function keyDownHandler(evt) {
     amplitude.logEvent('KEY_NAV', { direction: direction, image: newImage.base || 'none' });
     FFActions.keyNavHappened(evt.keyCode);
     FFActions.imageChanged(newImage);
-    // FIXME: will hash history exhaust memory if my kid just hits right arrow for an hour?
-    //hashHistory.push('/images/' + newImage.base);
+    // Will hash history exhaust memory if my kid just hits right arrow for an hour?
     hashHistory.replace('/images' + newImage.path);
   }
 }
@@ -162,9 +153,6 @@ function routeLocationDidUpdate(location) {
   console.log(location);
 }
 
-
-//hashHistory.listen(location => routeLocationDidUpdate(location));
-//hashHistory.listen(location => function(location) { console.log('hashHistory changed', location); });
 
 class FFApp extends React.Component {
   constructor(props) {

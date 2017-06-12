@@ -4,7 +4,7 @@ import Swipable from 'react-swipeable';
 import { Icon } from 'react-fa';
 import request from 'browser-request';
 
-import { amplitude, API_BASE_URL, hashHistory, reportError, reportInfo } from '../util/Util.js';
+import { amplitude, API_BASE_URL, hashHistory, reportError, reportInfo, responsiveWidth } from '../util/Util.js';
 import FBBlock from './FBBlock.jsx';
 import ImageStore from '../stores/ImageStore.js';
 import { IMAGE_CHANGED, IMAGES_LOADED, IMAGE_DELETED } from '../constants/FFConstants.js';
@@ -154,10 +154,10 @@ class FFMainImage extends React.Component {
     if (tagState != TAG_FORM_NONE) {
       var tagClass = '';
       if (animateTools) {
-        if (window.innerWidth >= 1240) {
-          tagClass = (tagState == TAG_FORM_ON) ? 'animated fadeInRight' : 'animated fadeOutRight';
-        } else {
+        if (responsiveWidth()) {
           tagClass = (tagState == TAG_FORM_ON) ? 'animated slideInLeft' : 'animated slideOutLeft';
+        } else {
+          tagClass = (tagState == TAG_FORM_ON) ? 'animated fadeInRight' : 'animated fadeOutRight';
         }
       }
       tagForm = (<TagForm className={tagClass} image={image}/>);

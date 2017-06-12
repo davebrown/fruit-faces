@@ -70,8 +70,10 @@ function reportError(input, title) {
   const msg = errToString(input) || 'Unknown error occurred';
   title = title || '';
   FFActions.statusReport(msg, title, 'error');
-  // FIXME: find nicer place for this in the UI
-  //alert('oops: ' + msg);
 }
 
-export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportSuccess, reportInfo, reportWarning, REDIRECT_URI, hashHistory };
+function responsiveWidth() {
+  return window.innerWidth < 1240;
+}
+
+export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportSuccess, reportInfo, reportWarning, REDIRECT_URI, hashHistory, responsiveWidth };

@@ -1,9 +1,12 @@
 import { EventEmitter } from 'events';
-import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';
-import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { hashHistory } from '../util/Util.js';
 import bowser from 'bowser';
 import amplitude from 'amplitude-js/amplitude.min';
+import request from 'browser-request';
+
+import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';
+import Dispatcher from '../dispatcher/AppDispatcher.js';
+import { API_BASE_URL, hashHistory } from '../util/Util.js';
+import FFActions from '../actions/FFActions.js';
 
 // STATE
 // array
@@ -15,6 +18,12 @@ var filterTag = null;
 
 class ImageStore extends EventEmitter {
 
+  constructor() {
+    super();
+    console.log('ImageStore CTOR');
+    this._loadImageDefs();
+  }
+  
   emitChange() {
     this.emit(CHANGE_EVENT);
   }
@@ -45,13 +54,15 @@ class ImageStore extends EventEmitter {
 
   getNextImage() {
     var ret = selectedImage ? images[(selectedImage.index + 1) % images.length]: null;
-    //console.log('ImageStore.getNext() selected, next index=' + selectedImage.index + '/' + (ret && ret.index));
     return ret;
   }
 
   getPreviousImage() {
-    var ret = selectedImage ? images[Math.max(selectedImage.index - 1, 0)]: null;
-    //console.log('selected, prev index=' + selectedImage.index + '/' + (ret && ret.index));
+    var ret = null;
+    if (images && images.length && selectedImage) {
+      var ind = selectedImage.index > 0 ? selectedImage.index - 1 : images.length - 1;
+      ret = images[ind];
+    }
     return ret;
   }
 
@@ -116,6 +127,26 @@ class ImageStore extends EventEmitter {
   getNonColors() {
     return images.filter((img) => { return img.tags === null || img.tags.length === 0; });
   }
+
+  _loadImageDefs() {
+    var startTime = new Date().getTime();
+    request(API_BASE_URL + '/api/v1/images', function(err, response, bodyString) {
+      if (!err && response.statusCode != 200) {
+        err = JSON.parse(bodyString);
+      }
+      if (err) {
+        const errMsg = errToString(err);
+        amplitude.logEvent('IMAGE_CATALOG_LOAD_ERROR', { errMsg: errMsg });
+        reportError(errMsg, 'problem loading images');
+      }
+      var body = JSON.parse(bodyString);
+      var duration = new Date().getTime() - startTime;
+      console.log("loaded " + body.length + " image(s) in " + duration + " ms");
+      FFActions.imagesLoaded(body);
+      amplitude.logEvent('IMAGE_CATALOG_LOADED', { durationMillis: duration });
+    }.bind(this));
+  }
+
 }
 
 const imageStore = new ImageStore();
