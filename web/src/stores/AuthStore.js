@@ -88,6 +88,10 @@ class AuthStore extends EventEmitter {
         } else if (response.statusCode < 200 || response.statusCode > 299) {
           var errObj = JSON.parse(bodyString);
           amplitude.logEvent('REGISTER_ERROR', { errorMsg: errToString(errObj) });
+          // go back to being not logged in
+          login = UNKNOWN_LOGIN;
+          this.emitChange();
+          console.log('auth token appears expired, logging out');
         } else {
           // squirrel away
           /*

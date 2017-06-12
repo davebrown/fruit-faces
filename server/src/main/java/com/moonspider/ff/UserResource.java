@@ -30,13 +30,19 @@ public class UserResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = true)
     public Response loginHook(@HeaderParam("X-FF-Auth") String accessToken) {
-        UserEJB user = findOrCreateUser(accessToken);
-        if (user != null) {
-            entityManager.persist(user);
-            log.info("user logged in: " + user.getFbId());
-            return Response.ok(new UserDTO(user)).build();
+        try {
+            UserEJB user = findOrCreateUser(accessToken);
+            if (user != null) {
+                entityManager.persist(user);
+                log.info("user logged in: " + user.getFbId());
+                return Response.ok(new UserDTO(user)).build();
+            }
+            return error(401, "invalid auth token");
+        } catch (Exception e) {
+            log.error("error looking up user", e);
+            // assume expired auth token
+            return error(401, "invalid auth token");
         }
-        return error(401, "invalid auth token");
     }
     @GET
     @Timed
