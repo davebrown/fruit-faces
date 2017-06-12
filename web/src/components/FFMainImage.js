@@ -7,6 +7,7 @@ import request from 'browser-request';
 import { amplitude, API_BASE_URL, hashHistory, reportError, reportInfo, responsiveWidth } from '../util/Util.js';
 import FBBlock from './FBBlock.jsx';
 import ImageStore from '../stores/ImageStore.js';
+import authStore from '../stores/AuthStore.js';
 import { IMAGE_CHANGED, IMAGES_LOADED, IMAGE_DELETED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import FFActions from '../actions/FFActions.js';
