@@ -53,6 +53,9 @@ public class FFConfiguration extends Configuration {
     @JsonProperty
     private String baseProtocol;
 
+    @JsonProperty
+    private String assetUrlPrefix;
+
     public DataSourceFactory getDataSourceFactory() {
         return database;
     }
@@ -82,5 +85,13 @@ public class FFConfiguration extends Configuration {
 
     public void setTagServiceUrl(String tagServiceUrl) {
         this.tagServiceUrl = tagServiceUrl;
+    }
+
+    public String getAssetUrlPrefix() {
+        return assetUrlPrefix != null ? assetUrlPrefix : "";
+    }
+
+    public void setAssetUrlPrefix(String assetUrlPrefix) {
+        this.assetUrlPrefix = assetUrlPrefix;
     }
 }

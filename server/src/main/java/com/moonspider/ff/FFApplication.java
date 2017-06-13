@@ -76,6 +76,7 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
         environment.jersey().register(new StatsResource(entityManagerBundle.getSharedEntityManager(), config));
         environment.jersey().register(new InfoResource(entityManagerBundle.getSharedEntityManager(), config));
         environment.jersey().register(new UserResource(entityManagerBundle.getSharedEntityManager(), config));
+        environment.jersey().register(new PreviewResource(entityManagerBundle.getSharedEntityManager(), config));
     }
 
     public static void main(String[] args) throws Exception {

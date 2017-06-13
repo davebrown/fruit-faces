@@ -22,6 +22,8 @@ public interface FBService {
     @GET("https://graph.facebook.com/me?fields=name,email,picture")
     Call<UserDTO> me(@Query("access_token")String accessToken);
 
+
+
     public static class FBUserDeserializer extends StdDeserializer {
 
         public FBUserDeserializer() {
@@ -65,8 +67,7 @@ public interface FBService {
         FBService fb = retrofit.create(FBService.class);
 
         String accessToken;
-        accessToken = "EAAXZAbuB1ingBAP4OEMbCP9imITzKrZCVVXcKf8H5ZCbpR5qZBs1rPF4q14wm9ZADUc5B6hOoCAPymEQw97Ccv06vZCZCb8VVTKFDkqsZAUjqnUFAsfscnZABd2sStclMRG9nApEXyH8R7ee10Qp6EpZBiFoFLZCuPeaBLa86muOsl6wXgNWAbpeWkIasRi7GZBVd6QZD";
-        //if (args.length > 0) accessToken = args[0];
+        accessToken = "na";
         Call<UserDTO> call = fb.me(accessToken);
         System.out.println("call: " + call);
         Response<UserDTO> rsp = call.execute();
