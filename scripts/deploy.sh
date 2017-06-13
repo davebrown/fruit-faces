@@ -62,7 +62,7 @@ npm run build
 echo 'ARTIFACTS built, syncing frontend to prod'
 ssh $REMOTE_USER mkdir -p website/thumbs
 
-rsync -av css index.html index.js $REMOTE_USER:website/
+rsync -av css index.html index.js tos.html privacy.html $REMOTE_USER:website/
 
 
 cd ..
