@@ -56,7 +56,7 @@ class AuthStore extends EventEmitter {
   }
 
   getProfilePicUrl() {
-    return login.picture.data && login.picture.data.url;
+    return login.picture && login.picture.data && login.picture.data.url;
   }
 
   logout() {
@@ -110,6 +110,8 @@ class AuthStore extends EventEmitter {
   }
 
   _setProfilePicUrl(u) {
+    login.picture = {};
+    login.picture.data = {};
     login.picture.data.url = u;
     this.emitChange();
   }

@@ -6,8 +6,8 @@ import { API_BASE_URL, reportError, errToString } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
 import { authStore } from '../stores/AuthStore.js';
 
-var FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloupe', 'cereal', 'cheese', 'clementine',
-               'googly eyes', 'grape', 'honeydew', 'kiwi', 'mango',
+var FRUITS = [ 'apple', 'bacon', 'banana', 'blackberry', 'blueberry', 'cantaloupe', 'cereal', 'cheese', 'cherry',
+               'clementine', 'googly eyes', 'grape', 'honeydew', 'kiwi', 'mango', 'pancake',
                'peach', 'pear', 'pineapple', 'plum', 'raspberry', 'strawberry', 'try harder Dad!', 'watermelon' ];
 
 var TAGS = [ 'blue', 'gray', 'white' ];

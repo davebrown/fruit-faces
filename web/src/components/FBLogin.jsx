@@ -46,12 +46,15 @@ export default class FBLogin extends React.Component {
         display: 'block',
         outline: 'none'
       };
+      //const scope = 'publish_actions';
+      const scope = null;
       return (
         <FacebookLogin
           appId={FB_APP_ID}
           autoLoad={true}
           fields="name,email,picture"
           isMobile={bowser.mobile}
+          scope={scope}
           redirectUri={ REDIRECT_URI }
           callback={fbLoginCallback}
           tag="a"
