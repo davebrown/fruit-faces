@@ -161,7 +161,7 @@ class FFApp extends React.Component {
   }
 
   render() {
-    if (bowser.msie && bowser.version <= '10') {
+    if (bowser.msie && bowser.version <= '10.0') {
       return (<UnsupportedBrowser/>);
     }
     return (
