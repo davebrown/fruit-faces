@@ -25,6 +25,14 @@ public class PreviewResource extends BaseResource {
         super(entityManager, config);
     }
 
+    // 'ignore' is for FB UI
+    @GET
+    @Path("/{userId}/{baseName}/{ignore}")
+    @Timed
+    @UnitOfWork(transactional = false)
+    public Response preview(@PathParam("userId") int userId, @PathParam("baseName") String base, @PathParam("ignore") String ignore) {
+        return preview(userId, base);
+    }
     @GET
     @Path("/{userId}/{baseName}")
     @Timed
@@ -34,21 +42,23 @@ public class PreviewResource extends BaseResource {
         log.info("running " + userId + " / " + base);
         StringBuilder sb = new StringBuilder();
         sb.append("<html><head>");
+        ImageEJB ejb = findEJB(userId, base);
+        String to = ejb != null ? prefix + "/#/images/" + userId + "/" + base : prefix + "/";
         sb.append("  <link type=\"text/css\" rel=\"stylesheet\" href=\"" + prefix + "/css/spectre.min.css\"/>\n" +
                         "  <link type=\"text/css\" rel=\"stylesheet\" href=\"" + prefix + "/css/ff.css\"/>\n" +
                         "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>\n");
-        ImageEJB ejb = findEJB(userId, base);
+        sb.append("<script language=\"javascript\" type=\"text/javascript\"> setTimeout(function() { window.location = '" + to + "'; }, 8888);</script>");
         if (ejb == null) {
             sb.append("<title>/" + userId + "/" + base + " not found</title>");
-            sb.append("<body><p>/\" + userId + \"/\" + base + \" not found</p>");
-            sb.append("<p>Why not browse some <a href=\"/\">other fruit faces?</a></p></body></html>");
+            sb.append("<body><p>/" + userId + "/" + base + " not found</p>");
+            sb.append("<p>Why not browse some <a href=\"" + to + "\">other fruit faces?</a></p></body></html>");
             return Response.status(404).entity(sb.toString()).build();
         }
         sb.append("<title>");
         sb.append(base);
         sb.append("</title></head><body>");
-        sb.append("<p><img src=\"" + prefix + "/thumbs/" + userId + "/" + ejb.getFull() + "\"/></p>\n");
-        sb.append("<p>" + ejb.getUser().getName() + "&apos;s fruit face. See more <a href=\"" + prefix + "/#/images/" + userId + "/" + base + "\">here</a>.</p>");
+        sb.append("<p><a href=\"" + to + "\"><img src=\"" + prefix + "/thumbs/" + userId + "/" + ejb.getFull() + "\"/></a></p>\n");
+        sb.append("<p>" + ejb.getUser().getName() + "&apos;s fruit face. See more <a href=\"" + to + "\">here</a>.</p>");
         sb.append("</body></html>\n");
         return Response.ok(sb.toString()).build();
     }
