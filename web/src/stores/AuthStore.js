@@ -153,7 +153,7 @@ window.fbAsyncInit = function() {
 
 /* receives callback from FB.getLoginStatus() */
 function fbStatusCallback(response) {
-  //console.log('AuthStore.fbStatusCallback', response, response.status === 'connected');
+  console.log('AuthStore.fbStatusCallback at ' + (new Date()), response, response.status === 'connected');
   // compose an object that looks like the 'login' prototype above
   const ar = response.authResponse;
   var login = {
@@ -204,7 +204,9 @@ function fbStatusCallback(response) {
       }
     }
   }
-  if (!Dispatcher.isDispatching())  FFActions.fbAuthChanged();
+  if (!Dispatcher.isDispatching())  {
+    FFActions.fbAuthChanged();
+  }
 }
 /* receives callback from FacebookLogin component */
 function fbLoginCallback(response) {
@@ -222,10 +224,16 @@ function fbLoginCallback(response) {
 
 authStore._fbLoginCallback = fbLoginCallback;
 
+var authCheckInterval = null;
 Dispatcher.register((action) => {
   switch (action.actionType) {
     case FB_INITIALIZED:
       FB.getLoginStatus(fbStatusCallback, true);
+      if (authCheckInterval) {
+        clearInterval(authCheckInterval);
+      }
+      // check every 30 mins if we're logged out
+      authCheckInterval = window.setInterval(() => { FB.getLoginStatus(fbStatusCallback, true); }, 30 * 60 * 1000 );
       break;
   }
 });

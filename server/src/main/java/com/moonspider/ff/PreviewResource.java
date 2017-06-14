@@ -8,10 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -30,28 +27,38 @@ public class PreviewResource extends BaseResource {
     @Path("/{userId}/{baseName}")
     @Timed
     @UnitOfWork(transactional = false)
-    public Response preview(@PathParam("userId") int userId, @PathParam("baseName") String base) {
-        return preview(userId, base, "Art for Breakfast");
+    public Response preview(@HeaderParam("Host") String serverHost, @PathParam("userId") int userId, @PathParam("baseName") String base) {
+        return preview(serverHost, userId, base, "Art for Breakfast");
     }
     @GET
     @Path("/{userId}/{baseName}/{title}")
     @Timed
     @UnitOfWork(transactional = false)
-    public Response preview(@PathParam("userId") int userId, @PathParam("baseName") String base, @PathParam("title") String title) {
+    public Response preview(@HeaderParam("Host") String serverHost, @PathParam("userId") int userId, @PathParam("baseName") String base, @PathParam("title") String title) {
         String prefix = config.getAssetUrlPrefix();
         log.info("running " + userId + " / " + base);
         StringBuilder sb = new StringBuilder();
         sb.append("<html><head>");
         ImageEJB ejb = findEJB(userId, base);
-        String to = ejb != null ? prefix + "/#/images/" + userId + "/" + base : prefix + "/";
-        String description = ejb != null ? ejb.getUser().getName() + " shared a fun, nutritious and delicious fruit face on Art for Breakfast." :
-                "Art for Breakfast is a fun way to share nutritious and delicious fruit art for kids";
+        String to, description, imageUrl, thisUrl;
+        imageUrl = config.getAssetUrlPrefix() + "/thumbs/" + userId + "/" + ejb.getFull();
+        thisUrl = config.getAssetUrlPrefix() + "/images/" + userId + "/" + ejb.getBase();
+        if (ejb != null) {
+            to = prefix + "/images/" + userId + "/" + base;
+            description = ejb.getUser().getName() + " shared a fun, nutritious and delicious fruit face on Art for Breakfast.";
+        } else {
+            to = prefix + "/";
+            description = "Art for Breakfast is a fun way to share nutritious and delicious fruit art for kids";
+        }
+
         sb.append("  <link type=\"text/css\" rel=\"stylesheet\" href=\"" + prefix + "/css/spectre.min.css\"/>\n" +
                 "  <link type=\"text/css\" rel=\"stylesheet\" href=\"" + prefix + "/css/ff.css\"/>\n" +
                 "<meta property=\"fb:app_id\" content=\"" + config.getFbAppId() + "\"/>\n" +
                 "<meta property=\"og:title\" content=\"" + title + "\"/>\n" +
                 "<meta property=\"og:description\" content=\"" + description + "\"/>\n" +
-                "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>\n");
+                "<meta property=\"og:image\" content=\"" + imageUrl + "\"/>\n" +
+                "<meta property=\"og:url\" content=\"" + thisUrl + "\"/>\n" +
+                "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>\n");
         sb.append("<script language=\"javascript\" type=\"text/javascript\"> setTimeout(function() { window.location = '" + to + "'; }, 8888);</script>");
         if (ejb == null) {
             sb.append("<title>/" + userId + "/" + base + " not found</title>");
@@ -62,7 +69,7 @@ public class PreviewResource extends BaseResource {
         sb.append("<title>");
         sb.append(base);
         sb.append("</title></head><body>");
-        sb.append("<p><a href=\"" + to + "\"><img src=\"" + prefix + "/thumbs/" + userId + "/" + ejb.getFull() + "\"/></a></p>\n");
+        sb.append("<p><a href=\"" + to + "\"><img src=\"" + imageUrl + "\"/></a></p>\n");
         sb.append("<p>" + ejb.getUser().getName() + "&apos;s fruit face. See more <a href=\"" + to + "\">here</a>.</p>");
         sb.append("</body></html>\n");
         return Response.ok(sb.toString()).build();

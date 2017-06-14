@@ -81,6 +81,7 @@ export default class FBLogin extends React.Component {
             fields="name,email,picture"
             isMobile={bowser.mobile}
             redirectUri={ REDIRECT_URI }
+            cssClass="btn btn-sm"
             callback={fbLoginCallback} />
       );
     }
