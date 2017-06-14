@@ -1,9 +1,19 @@
 import amplitude from 'amplitude-js/amplitude.min';
-import createHistory from 'history/createHashHistory';
+//import createHistory from 'history/createHashHistory';
+import createHistory from 'history/createBrowserHistory';
 import FFActions from '../actions/FFActions.js';
+//import { browserHistory } from 'react-router-dom';
+//const history = browserHistory;
+//console.log('loaded browser history', browserHistory);
+const history = createHistory();
+const hashHistory = history;
 
-const hashHistory = createHistory();
-
+/*
+history.listen((location, action) => {
+  console.log(`The current URL is ${location.pathname}${location.search}${location.hash}`);
+  console.log(`The last navigation action was ${action}`);
+});
+*/
 const API_BASE_URL = process.env.FF_BACKEND_URL || 'http://localhost:9080';
 const AMPLITUDE_KEY = process.env.AMPLITUDE_API_KEY || 'error-missing-amplitude-key';
 var REDIRECT_URI = process.env.FF_URL || 'http://localhost:3000/'
@@ -74,4 +84,4 @@ function responsiveWidth() {
   return window.innerWidth < 1240; // <- keep value in sync with CSS media break
 }
 
-export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportSuccess, reportInfo, reportWarning, REDIRECT_URI, hashHistory, responsiveWidth };
+export { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportSuccess, reportInfo, reportWarning, REDIRECT_URI, responsiveWidth, history };

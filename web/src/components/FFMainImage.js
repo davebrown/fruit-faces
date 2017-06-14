@@ -4,7 +4,7 @@ import Swipable from 'react-swipeable';
 import { Icon } from 'react-fa';
 import request from 'browser-request';
 
-import { amplitude, API_BASE_URL, hashHistory, reportError, reportInfo, responsiveWidth } from '../util/Util.js';
+import { amplitude, API_BASE_URL, history, reportError, reportInfo, responsiveWidth } from '../util/Util.js';
 import FBBlock from './FBBlock.jsx';
 import ImageStore from '../stores/ImageStore.js';
 import { authStore } from '../stores/AuthStore.js';
@@ -57,7 +57,7 @@ class FFMainImage extends React.Component {
         if (this.mounted) {
           this.setState( { image: action.newImage, animateTools: false } );
           this.props = { }; // clear out router state
-          hashHistory.replace(action.newImage ? '/images' + action.newImage.path : '/');
+          history.replace(action.newImage ? '/images' + action.newImage.path : '/');
 
         }
         break;
@@ -193,7 +193,7 @@ class FFMainImage extends React.Component {
 
   onUploadClick(evt) {
     evt.stopPropagation();
-    hashHistory.push('/upload');
+    history.push('/upload');
   }
 
   onDeleteClick(e) {
@@ -274,7 +274,7 @@ class FFMainImage extends React.Component {
 
   pushImage(newImage) {
     FFActions.imageChanged(newImage);
-    hashHistory.replace(newImage ? '/images' + newImage.path : '/');
+    history.replace(newImage ? '/images' + newImage.path : '/');
   }
   
 }

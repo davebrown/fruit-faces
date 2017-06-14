@@ -5,7 +5,7 @@ import request from 'browser-request';
 
 import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { API_BASE_URL, hashHistory } from '../util/Util.js';
+import { API_BASE_URL, history } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
 
 // STATE
@@ -318,7 +318,7 @@ Dispatcher.register((action) => {
       /* need to set selected image state, if any, from hash path
        * FIXME: cleaner way to do this?
        */
-      var location = hashHistory.location;
+      var location = history.location;
       if (!imageStore.getSelectedImage() && location && location.pathname) {
         var elems = location.pathname.split('/');
         if (elems.length === 4 && elems[1] === 'images') {

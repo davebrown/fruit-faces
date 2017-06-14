@@ -3,17 +3,14 @@ import ReactDOM from 'react-dom';
 import request from 'browser-request';
 
 import { Link } from 'react-router-dom';
-import createHistory from 'history/createHashHistory';
 import bowser from 'bowser';
 import ReactTooltip from 'react-tooltip';
 
 import ImageStore from '../stores/ImageStore.js';
-import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError } from '../util/Util.js';
+import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, history } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, KEY_NAV_HAPPENED } from '../constants/FFConstants.js';
-
-const hashHistory = createHistory();
 
 function len(a) { return a && a.length; }
 
@@ -144,7 +141,7 @@ class FFThumb extends React.Component {
   clickHandler() {
     clickCount++;
     FFActions.imageChanged(this.props.image);
-    hashHistory.push('/images' + this.props.image.path);
+    history.push('/images' + this.props.image.path);
     showClickTooltip = false;
     ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
     //ReactTooltip.hide();

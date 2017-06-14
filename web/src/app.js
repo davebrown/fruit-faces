@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Router, Route, Switch } from 'react-router';
-import { HashRouter, Link } from 'react-router-dom';
+import { BrowserRouter, Link } from 'react-router-dom';
 import request from 'browser-request';
 import bowser from 'bowser';
 import { ToastContainer, ToastMessage } from 'react-toastr';
@@ -24,7 +24,8 @@ import SideMenu from './components/SideMenu.jsx';
 import Slideshow from './components/Slideshow.jsx';
 import ThumbTable from './components/ThumbTable.jsx';
 
-import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, reportWarning, reportSuccess, reportInfo, hashHistory } from './util/Util.js';
+import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError,
+         reportWarning, reportSuccess, reportInfo, history } from './util/Util.js';
 import { authStore, FB_APP_ID } from './stores/AuthStore.js';
 
 const NotFound = () => (
@@ -141,7 +142,7 @@ function keyDownHandler(evt) {
     FFActions.keyNavHappened(evt.keyCode);
     FFActions.imageChanged(newImage);
     // Will hash history exhaust memory if my kid just hits right arrow for an hour?
-    hashHistory.replace('/images' + newImage.path);
+    history.replace('/images' + newImage.path);
   }
 }
 
@@ -165,12 +166,12 @@ class FFApp extends React.Component {
       return (<UnsupportedBrowser/>);
     }
     return (
-      <HashRouter history={hashHistory}>
+      <BrowserRouter history={history}>
         <main id="main" className="main">
           <SideMenu/>
           <FFContainer/>
         </main>
-      </HashRouter>
+      </BrowserRouter>
     );
   }
 }
@@ -178,10 +179,10 @@ if (process.env.NODE_ENV != 'production') {
   // debug niceties
   window.imageStore = ImageStore;
   window.authStore = authStore;
-  window.hashHistory = hashHistory;
+  window.browserHistory = history;
   window.bowser = bowser;
   window.amplitude = amplitude;
-  window.HashRouter = HashRouter;
+  window.BrowserRouter = BrowserRouter;
 }
 
 
