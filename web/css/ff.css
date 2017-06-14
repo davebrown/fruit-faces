@@ -152,6 +152,10 @@ p {
     margin-top: 24px;
 }
 
+.image-toolbar a {
+    color: #50596c;
+}
+
 .fa:hover {
     color: #5764c6;
 }

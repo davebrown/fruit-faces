@@ -30,7 +30,7 @@ class Dialog extends React.Component {
   }
   
   dialogCloseHandler() {
-    history.push('/');
+    history.replace('/');
   }
 }
 

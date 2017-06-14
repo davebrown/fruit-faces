@@ -140,24 +140,17 @@ class FFThumb extends React.Component {
 
   clickHandler() {
     clickCount++;
-    FFActions.imageChanged(this.props.image);
-    history.push('/images' + this.props.image.path);
     showClickTooltip = false;
     ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
-    //ReactTooltip.hide();
     ReactTooltip.rebuild();
   }
 
   render() {
     // thumb divs are 30x40, making browser scale down makes for sharper resolution
-    var dim = '60x80';
-    if (false && bowser.mobile) {
-      dim = '20x27';
-    }
+    const dim = '60x80';
     const { root, base } = this.props.image;
     var path = '/thumbs' + root + '/' + base + '_' + dim + '_t.jpg';
     var selClass = '';
-    /* race condition on route load...look at hash instead?? */
     {
       if (ImageStore.getFilterTag() != null && !imageHasTag(this.props.image, ImageStore.getFilterTag())) {
         selClass = 'thumb-outside-filter';
@@ -165,8 +158,12 @@ class FFThumb extends React.Component {
         selClass = 'thumb-selected';
       }
     }
-    return <div className={selClass} key={this.props.image.base}>
+    const to = '/images' + this.props.image.path;
+    return (
+      <Link to={ to }>
+      <div className={selClass} key={this.props.image.base}>
         <img src={path} onClick={this.clickHandler.bind(this)}/>
-    </div>;
+      </div>
+    </Link>);
   }
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Icon } from 'react-fa';
 
 export default class ImageToolbar extends React.Component {
@@ -19,7 +20,7 @@ export default class ImageToolbar extends React.Component {
         <Icon name="tags" title="edit tags" onClick={onTagClick}/>
         <Icon name="close" title="delete image" onClick={onDeleteClick}/>
         <Icon name="facebook" title="comment on Facebook" onClick={onFBClick}/>
-        <Icon name="upload" title="upload an image" onClick={onUploadClick}/>
+        <Link to="/upload"><Icon name="upload" title="upload an image" onClick={onUploadClick}/></Link>
         <span></span>
       </div>
     );
