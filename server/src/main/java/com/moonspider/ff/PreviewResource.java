@@ -31,7 +31,7 @@ public class PreviewResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Response preview(@PathParam("userId") int userId, @PathParam("baseName") String base) {
-        return preview(userId, base, "Fruit face post");
+        return preview(userId, base, "Art for Breakfast");
     }
     @GET
     @Path("/{userId}/{baseName}/{title}")
