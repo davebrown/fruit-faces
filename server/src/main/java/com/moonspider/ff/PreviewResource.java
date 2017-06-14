@@ -27,26 +27,31 @@ public class PreviewResource extends BaseResource {
 
     // 'ignore' is for FB UI
     @GET
-    @Path("/{userId}/{baseName}/{ignore}")
-    @Timed
-    @UnitOfWork(transactional = false)
-    public Response preview(@PathParam("userId") int userId, @PathParam("baseName") String base, @PathParam("ignore") String ignore) {
-        return preview(userId, base);
-    }
-    @GET
     @Path("/{userId}/{baseName}")
     @Timed
     @UnitOfWork(transactional = false)
     public Response preview(@PathParam("userId") int userId, @PathParam("baseName") String base) {
+        return preview(userId, base, "Fruit face post");
+    }
+    @GET
+    @Path("/{userId}/{baseName}/{title}")
+    @Timed
+    @UnitOfWork(transactional = false)
+    public Response preview(@PathParam("userId") int userId, @PathParam("baseName") String base, @PathParam("title") String title) {
         String prefix = config.getAssetUrlPrefix();
         log.info("running " + userId + " / " + base);
         StringBuilder sb = new StringBuilder();
         sb.append("<html><head>");
         ImageEJB ejb = findEJB(userId, base);
         String to = ejb != null ? prefix + "/#/images/" + userId + "/" + base : prefix + "/";
+        String description = ejb != null ? ejb.getUser().getName() + " shared a fun, nutritious and delicious fruit face on Art for Breakfast." :
+                "Art for Breakfast is a fun way to share nutritious and delicious fruit art for kids";
         sb.append("  <link type=\"text/css\" rel=\"stylesheet\" href=\"" + prefix + "/css/spectre.min.css\"/>\n" +
-                        "  <link type=\"text/css\" rel=\"stylesheet\" href=\"" + prefix + "/css/ff.css\"/>\n" +
-                        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>\n");
+                "  <link type=\"text/css\" rel=\"stylesheet\" href=\"" + prefix + "/css/ff.css\"/>\n" +
+                "<meta property=\"fb:app_id\" content=\"" + config.getFbAppId() + "\"/>\n" +
+                "<meta property=\"og:title\" content=\"" + title + "\"/>\n" +
+                "<meta property=\"og:description\" content=\"" + description + "\"/>\n" +
+                "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>\n");
         sb.append("<script language=\"javascript\" type=\"text/javascript\"> setTimeout(function() { window.location = '" + to + "'; }, 8888);</script>");
         if (ejb == null) {
             sb.append("<title>/" + userId + "/" + base + " not found</title>");

@@ -40,6 +40,20 @@ public class FFConfiguration extends Configuration {
     @JsonProperty
     private String tagServiceUrl;
 
+    public String getFbAppId() {
+        return fbAppId;
+    }
+
+    public void setFbAppId(String fbAppId) {
+        this.fbAppId = fbAppId;
+    }
+
+    @Valid
+    @NotNull
+    @JsonProperty
+
+    private String fbAppId;
+
     public String getBaseProtocol() {
         return baseProtocol;
     }
