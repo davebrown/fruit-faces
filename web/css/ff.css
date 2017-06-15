@@ -166,7 +166,8 @@ p {
 }
 
 .thumb-view-chooser {
-    margin: 10px;
+    margin: 20px;
+    font-size: 1.2em;
 }
 
 .timeline-container {
@@ -407,7 +408,7 @@ html [type=button] {
     .thumbs {
         width: 360px;
         max-width: 360px;
-        margin-top: 8vh;
+        /*margin-top: 10px;*/
     }
     
     .dialog {
