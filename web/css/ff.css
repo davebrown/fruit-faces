@@ -134,6 +134,12 @@ p {
     font-style: italic;
 }
 
+/* force space between end of content and bottom of page, b/c it annoys me on mobile */
+.footer-padding {
+    height: 80px;
+    width: 90vw;
+}
+
 #main-image-holder {
     position: relative;
 }
@@ -215,7 +221,8 @@ p {
 }
 
 #ff-fb-block {
-    margin: 12px;
+    margin: 10px;
+    width: 480px;
 }
 
 .chart {
@@ -453,6 +460,10 @@ html [type=button] {
     .bm-menu {
         /* top right bottom left */
         padding: 2.5em 24px 0px 12px;
+    }
+
+    #ff-fb-block {
+        width: 90%;
     }
 }
 

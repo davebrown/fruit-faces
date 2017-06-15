@@ -58,6 +58,7 @@ export default class Home extends React.Component {
         <p>
           Be sure to check out the low-res <Link to="/mosaic">photo mosaic</Link> before you go!
         </p>
+        <div className="footer-padding"></div>
       </div>
     );
   }

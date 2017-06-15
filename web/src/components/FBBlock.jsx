@@ -55,6 +55,7 @@ export default class FBBlock extends React.Component {
              <div id="ff-fb-block" className={this.props.className || ''}>
                {likeDiv}
                {commentsDiv}
+               <div className="footer-padding"></div>
              </div>
            );
     
