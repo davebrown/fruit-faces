@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { RadioGroup, Radio } from 'react-radio-group';
 
-import ThumbTable from './ThumbTable.jsx';
+import Timeline from './Timeline.jsx';
 import Mosaic from './Mosaic.jsx';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import { IMAGES_LOADED, IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, KEY_NAV_HAPPENED, FILTER_CHANGED } from '../constants/FFConstants.js';
@@ -56,7 +56,7 @@ export default class ThumbContainer extends React.Component {
 
   render() {
     const { imagesLoaded, images, selectedImage, filter, view } = this.state;
-    const timeline = (<ThumbTable images={images} selectedImage={selectedImage}/>);
+    const timeline = (<Timeline images={images} selectedImage={selectedImage}/>);
     const viewComp = view == 'timeline' ? timeline : (<Mosaic images={images} selectedImage={selectedImage} filter={filter}/>);
     return (
       <div className="flex-column flex-fixed scrollable thumb-container">

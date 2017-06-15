@@ -17,13 +17,11 @@ import Home from './components/Home.jsx';
 import About from './components/About.jsx';
 import Filters from './components/Filters.jsx';
 import ThumbContainer from './components/ThumbContainer.jsx';
-import FFTable from './components/FFTable.jsx';
 import FFMainImage from './components/FFMainImage.js';
 import Upload from './components/Upload.jsx';
 import Toastr from './components/Toastr.jsx';
 import SideMenu from './components/SideMenu.jsx';
 import Slideshow from './components/Slideshow.jsx';
-import ThumbTable from './components/ThumbTable.jsx';
 
 import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError,
          reportWarning, reportSuccess, reportInfo, history } from './util/Util.js';

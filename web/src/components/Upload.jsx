@@ -7,7 +7,7 @@ import FFActions from '../actions/FFActions.js';
 import { API_BASE_URL, reportError, reportSuccess, errToString } from '../util/Util.js';
 import { authStore } from '../stores/AuthStore.js';
 import FBLogin from './FBLogin.jsx';
-import ThumbTable from './ThumbTable.jsx';
+import Timeline from './Timeline.jsx';
 import ImageStore from '../stores/ImageStore.js';
 
 export default class Upload extends React.Component {
@@ -171,7 +171,7 @@ export default class Upload extends React.Component {
     } else if (uploadedImages.length === 0) {
       thumbDisplay = (<span className="text-center">None uploaded yet</span>);
     } else {
-      thumbDisplay = (<ThumbTable images={uploadedImages} showLabel="true"/>);
+      thumbDisplay = (<Timeline images={uploadedImages} showLabel="true"/>);
     }
     return (
         <div className="flex-column upload">
