@@ -26,9 +26,23 @@ export default class Mosaic extends React.Component {
   }
 
   componentWillMount() {
+    this.dispatcherToken = Dispatcher.register((action) => {
+      switch (action.actionType) {
+        case KEY_NAV_HAPPENED:
+          showKeyTooltip = false;
+          ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
+          ReactTooltip.hide();
+          ReactTooltip.rebuild();
+          break;
+      }
+    });
   }
 
   componentWillUnmount() {
+    if (this.dispatcherToken) {
+      Dispatcher.unregister(this.dispatcherToken);
+    }
+    this.dispatcherToken = null;
   }
   
   shouldComponentUpdate(nextProps, next) {
