@@ -7,7 +7,6 @@ import { FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 import FBLogin from './FBLogin.jsx';
 import { authStore } from '../stores/AuthStore.js';
 import { amplitude, responsiveWidth } from '../util/Util.js';
-import FFTable from './FFTable.jsx';
 
 const BM_STYLES = {
   bmBurgerButton: {

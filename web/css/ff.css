@@ -160,6 +160,19 @@ p {
     color: #5764c6;
 }
 
+.thumb-container {
+    width: 100%;
+    margin: 0px auto;
+}
+
+.thumb-view-chooser {
+    margin: 10px;
+}
+
+.timeline-container {
+    margin-left: 10px;
+}
+    
 .thumbs {
     display: flex;
     flex-direction: row;
@@ -484,10 +497,18 @@ html [type=button] {
         max-height: 95vh;
         cursor: pointer;
         overflow-y: scroll;
-        margin-left: 10px;
-        margin-top: 10px;
+        /*margin-left: 10px;
+        margin-top: 10px;*/
     }
 
+    .thumb-container {
+        width: 496px;
+        max-width: 496px;
+        max-height: 95vh;
+        margin-top: 10px;
+        overflow-x: hidden;
+        margin-left: 10px;
+    }
     
     .thumb-selected {
         border: 2px solid red;

@@ -19,65 +19,34 @@ var showClickTooltip = true;
 var showKeyTooltip = true;
 var clickCount = 0;
 
-export default class FFTable extends React.Component {
+export default class Mosaic extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      images: [],
-      selectedImage: null,
-      filter: null
-    };
-    ImageStore.addChangeListener(this.tableChangeListener.bind(this));
-    this.render.bind(this);
   }
 
   componentWillMount() {
-    this.dispatcherToken = Dispatcher.register((action) => {
-      switch (action.actionType) {
-        case KEY_NAV_HAPPENED:
-          showKeyTooltip = false;
-          ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
-          ReactTooltip.hide();
-          ReactTooltip.rebuild();
-          break;
-        case IMAGE_CHANGED:
-        case IMAGE_ADDED:
-        case IMAGE_DELETED:
-          this.tableChangeListener(null);
-          break;
-      }
-    });
   }
 
   componentWillUnmount() {
-    Dispatcher.unregister(this.dispatcherToken);
   }
   
-  tableChangeListener(arg) {
-    const images = ImageStore.getImages();
-    this.setState( {
-      images: images,
-      selectedImage: ImageStore.getSelectedImage(),
-      filter: ImageStore.getFilterTag()
-    });
-    this.forceUpdate();
-  }
-
   shouldComponentUpdate(nextProps, next) {
     var ret = false;
-    const now = this.state;
+    const now = this.props;
+    //console.log('Mosaic.update? ', now, nextProps);
     // avoid deep comparison of all images
-    if (len(now.images) != len(next.images) ||
-        now.selectedImage !== next.selectedImage ||
-        now.filter !== next.filter) {
+    if (len(now.images) != len(nextProps.images) ||
+        now.selectedImage !== nextProps.selectedImage ||
+        now.filter !== nextProps.filter) {
       ret = true;
     }
     return ret;
   }
 
   render() {
-    const { images, selectedImage, filter } = this.state;
+    var { images, selectedImage, filter } = this.props;
+    images = ImageStore.getImages();
     if (!images) {
       return (<h1 className="loading" style={{ color: '#808080', minWidth: '340px', marginTop: '20vh' }}>Loading thumbnails</h1>);
     } else if (images.length == 0) {
@@ -119,7 +88,7 @@ export default class FFTable extends React.Component {
       data-multiline={true} data-tip={ttText}
       >
         {
-          this.state.images.map((image) => {
+          images.map((image) => {
             var key = 'ff-thumb-' + image.id;
             return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.path === image.path}/>;
           })

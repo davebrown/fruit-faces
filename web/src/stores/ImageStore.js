@@ -20,6 +20,7 @@ class ImageStore extends EventEmitter {
 
   constructor() {
     super();
+    this._ingestImages = this._ingestImages.bind(this);
     this._loadImageDefs();
   }
   
@@ -140,12 +141,30 @@ class ImageStore extends EventEmitter {
       }
       var body = JSON.parse(bodyString);
       var duration = new Date().getTime() - startTime;
+      this._ingestImages(body);
       console.log("loaded " + body.length + " image(s) in " + duration + " ms");
-      FFActions.imagesLoaded(body);
+      FFActions.imagesLoaded(images);
       amplitude.logEvent('IMAGE_CATALOG_LOADED', { durationMillis: duration });
     }.bind(this));
   }
 
+  _ingestImages(body) {
+    images = body;
+    images = imageList(bowser.mobile ? getMobileMap(): DEFAULT_THUMB_MAP, images);
+    indexImages(images);
+    /* need to set selected image state, if any, from hash path
+     * FIXME: cleaner way to do this?
+     */
+    var location = history.location;
+    if (!this.getSelectedImage() && location && location.pathname) {
+      var elems = location.pathname.split('/');
+      if (elems.length === 4 && elems[1] === 'images') {
+        var selPath = '/' + elems[2] + '/' + elems[3];
+        selectedImage = imageMap[selPath];
+      }
+    }
+    imageStore.emitChange();
+  }
 }
 
 const imageStore = new ImageStore();
@@ -309,23 +328,6 @@ Dispatcher.register((action) => {
       }
       indexImages(images);
       selectedImage = action.newImage;
-      imageStore.emitChange();
-      break;
-    case IMAGES_LOADED:
-      images = action.images;
-      images = imageList(bowser.mobile ? getMobileMap(): DEFAULT_THUMB_MAP, images);
-      indexImages(images);
-      /* need to set selected image state, if any, from hash path
-       * FIXME: cleaner way to do this?
-       */
-      var location = history.location;
-      if (!imageStore.getSelectedImage() && location && location.pathname) {
-        var elems = location.pathname.split('/');
-        if (elems.length === 4 && elems[1] === 'images') {
-          var selPath = '/' + elems[2] + '/' + elems[3];
-          selectedImage = imageMap[selPath];
-        }
-      }
       imageStore.emitChange();
       break;
     case ORIENTATION_CHANGED:

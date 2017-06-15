@@ -16,6 +16,7 @@ import Tech from './components/Tech.jsx';
 import Home from './components/Home.jsx';
 import About from './components/About.jsx';
 import Filters from './components/Filters.jsx';
+import ThumbContainer from './components/ThumbContainer.jsx';
 import FFTable from './components/FFTable.jsx';
 import FFMainImage from './components/FFMainImage.js';
 import Upload from './components/Upload.jsx';
@@ -86,7 +87,7 @@ class FFContainer extends React.Component {
         <ToastContainer ref="container"
           toastMessageFactory={ToastMessageFactory}
           className="toast-top-right" />
-        <FFTable images={ImageStore.getImages()}/>
+        <ThumbContainer/>
         <Switch>
           <Route exact={true} path='/mosaic' component={null}/>
           <Route path="*">
