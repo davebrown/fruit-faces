@@ -46,8 +46,8 @@ export default class FBLogin extends React.Component {
         display: 'block',
         outline: 'none'
       };
-      const scope = 'publish_actions';
-      //const scope = null;
+      //const scope = 'publish_actions';
+      const scope = '';
       return (
         <FacebookLogin
           appId={FB_APP_ID}
