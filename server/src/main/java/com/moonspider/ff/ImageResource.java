@@ -385,7 +385,7 @@ public class ImageResource extends BaseResource {
             return Response.status(404).build();
         }
         String link = config.getAssetUrlPrefix() + "/images/" + ejb.getUserId() + "/" + ejb.getBase();
-        Call<IdDTO> call = fb.postFFTimeline(accessToken, "customize this message", link);
+        Call<IdDTO> call = fb.postFFTimeline(accessToken, message.message, link);
         retrofit2.Response<IdDTO> rsp = call.execute();
         if (rsp.code() != 200) {
             log.error("FB post for " + link + " returned " + rsp.code() + ": " + rsp.errorBody().string());
