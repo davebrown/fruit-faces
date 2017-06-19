@@ -48,7 +48,6 @@ export default class Upload extends React.Component {
         url: API_BASE_URL + '/api/v1/images/mine',
         headers: {
           'X-FF-Auth': authStore.getAccessToken()
-          
         }
       }, (er, response, bodyString) => {
         if (response && response.statusCode === 200) {
@@ -130,6 +129,22 @@ export default class Upload extends React.Component {
     }
     FFActions.imageAdded(newImage);
     FFActions.imageChanged(newImage);
+    if (this.state.postToFB) {
+      request({
+        method: 'POST',
+        url: API_BASE_URL + '/api/v1/images' + newImage.path + '/timeline',
+        headers: {
+          'X-FF-Auth': authStore.getAccessToken()
+        },
+        json:{message: 'customize this message please'}
+      }, (er, response, bodyString) => {
+        if (response && (response.statusCode >= 200 && response.statusCode <= 299)) {
+          reportSuccess('posted ' + (newImage.base || '') + ' to Facebook');
+        } else {
+          reportError(er, 'could not post to Facebook');
+        }
+      });
+    }
     reportSuccess(newImage.base || '', 'Uploaded image');
   }
   
@@ -166,8 +181,7 @@ export default class Upload extends React.Component {
         'X-FF-Auth': this.state.accessToken
       },
       paramAddToField: {
-        avoidDups: avoidDups,
-        postToFB: postToFB
+        avoidDups: avoidDups
       },
       uploadSuccess: this.uploadSuccess,
       uploadError: this.uploadError,

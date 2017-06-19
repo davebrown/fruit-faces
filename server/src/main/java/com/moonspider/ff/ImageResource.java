@@ -5,10 +5,7 @@ import com.moonspider.ff.client.TagService;
 import com.moonspider.ff.ejb.ImageEJB;
 import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.ejb.UserEJB;
-import com.moonspider.ff.model.IdDTO;
-import com.moonspider.ff.model.ImageDTO;
-import com.moonspider.ff.model.TagsDTO;
-import com.moonspider.ff.model.UserDTO;
+import com.moonspider.ff.model.*;
 import com.moonspider.ff.util.ImageData;
 import com.moonspider.ff.util.ImageResizer;
 import com.moonspider.ff.util.ResizeResult;
@@ -254,7 +251,6 @@ public class ImageResource extends BaseResource {
     public Response addImage(@FormDataParam("imagefile") InputStream inputStream,
                              @FormDataParam("imagefile") FormDataContentDisposition contentDispositionHeader,
                              @FormDataParam("avoidDups") boolean avoidDups,
-                             @FormDataParam("postToFB") boolean postToFB,
                              @HeaderParam("X-FF-Auth") String accessToken,
                              @HeaderParam("X-FF-Prevent-Duplicates") String preventDups,
                              @HeaderParam("Host") String serverHost,
@@ -265,7 +261,7 @@ public class ImageResource extends BaseResource {
         UserEJB userEJB = findOrCreateUser(accessToken);
         String fname = contentDispositionHeader != null ? contentDispositionHeader.getFileName() : System.currentTimeMillis() + ".jpg";
         log.info("received new image POST: len=" + contentLength + "/" + contentDispositionHeader + "/" + fname
-                + " avoidDups? " + avoidDups + " postToFB? " + postToFB);
+                + " avoidDups? " + avoidDups);
         if (!config.isAllowWriteOperations()) {
             log.warn("attempted tag operation when disallowed!");
             return _400("no write operations allowed");
@@ -371,25 +367,35 @@ public class ImageResource extends BaseResource {
         record.setUser(userEJB);
         entityManager.persist(record);
         log.info("successfully uploaded and persisted " + record);
-        // step 9: post to FB
-        if (postToFB) {
-            postToTimeline(accessToken, userEJB, record);
-        }
         return Response.ok(new ImageDTO(record)).build();
-        //return Response.noContent().build();
     }
 
-    private void postToTimeline(final String accessToken, UserEJB userEJB, ImageEJB record) throws IOException {
-        String link = config.getAssetUrlPrefix() + "/images/" + userEJB.getId() + "/" + record.getBase();
+    @POST
+    @Path("/{userId}/{imageBase}/timeline")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @UnitOfWork(transactional = false)
+    public Response postToTimeline(
+            @PathParam("userId") int userId,
+            @PathParam("imageBase") String imageBase,
+            @HeaderParam("X-FF-Auth") String accessToken,
+            MessageDTO message) throws IOException {
+        log.info("post to timeline /" + userId + "/" + imageBase + "'" + message.message + "'");
+        ImageEJB ejb = findEJB(userId, imageBase);
+        if (ejb == null) {
+            return Response.status(404).build();
+        }
+        String link = config.getAssetUrlPrefix() + "/images/" + ejb.getUserId() + "/" + ejb.getBase();
         Call<IdDTO> call = fb.postFFTimeline(accessToken, "customize this message", link);
         retrofit2.Response<IdDTO> rsp = call.execute();
         if (rsp.code() != 200) {
-            log.error("FB post for " + link + " returned " + rsp.code() + ": " + rsp.errorBody().toString());
+            log.error("FB post for " + link + " returned " + rsp.code() + ": " + rsp.errorBody().string());
+            return Response.status(500).build();
         } else {
             log.info("FB post succeeded for " + link);
         }
-
+        return Response.noContent().build();
     }
+
     private long getBaseNameCount(UserEJB user, String basename) {
         Query q = entityManager.createNativeQuery("SELECT count(*) + 1 from image where user_id=?1 and base like ?2");
         q.setParameter(1, user.getId());

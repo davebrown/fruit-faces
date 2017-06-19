@@ -43,6 +43,7 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
                     return "migrations.postgresql.sql";
                 }
             };
+
     @Override
     public void initialize(Bootstrap<FFConfiguration> bootstrap) {
         // Enable variable substitution with environment variables
