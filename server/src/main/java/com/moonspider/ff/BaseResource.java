@@ -35,7 +35,7 @@ public abstract class BaseResource {
             .addConverterFactory(JacksonConverterFactory.create(Util.JSON))
             .build();
 
-    private static FBService fb = retrofit.create(FBService.class);
+    protected static FBService fb = retrofit.create(FBService.class);
 
     protected EntityManager entityManager;
     protected  FFConfiguration config;

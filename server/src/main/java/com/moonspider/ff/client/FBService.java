@@ -7,13 +7,16 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.moonspider.ff.Util;
+import com.moonspider.ff.model.IdDTO;
 import com.moonspider.ff.model.PermissionsDTO;
+import com.moonspider.ff.model.PingDTO;
 import com.moonspider.ff.model.UserDTO;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 import java.io.IOException;
@@ -29,6 +32,8 @@ public interface FBService {
     @GET("https://graph.facebook.com/me/permissions")
     Call<PermissionsDTO> permissions(@Query("access_token") String accessToken);
 
+    @POST("https://graph.facebook.com/me/feed")
+    Call<IdDTO> postFFTimeline(@Query("access_token") String accessToken, @Query("message") String message, @Query("link") String link);
 
     public static class PermissionsDeserializer extends StdDeserializer {
         public PermissionsDeserializer() {
@@ -104,6 +109,25 @@ public interface FBService {
 
         String accessToken;
         accessToken = "EAAXZAbuB1ingBABD4S6UpIDnEkUsABQINC4crZAzhZAREXi25ZACu8YEySfkIyZAXZABArIdaOJunCKtjkw2bb7cWrIgEmLC6O28uZCAgL82tdfKrPcZA1OVqqkjXU2K8HvMhd49XjLW06h8kE7F0a3o2r1z6m3OaITz6GuNzhn3mmtIvnapCVOHvZCBJihRr6obVQB96tAkXN5lMutmOOdm6";
+        if (true) {
+            testPost(fb, accessToken);
+        } else {
+            testCalls(fb, accessToken);
+        }
+    }
+
+    static void testPost(FBService fb, String accessToken) throws Exception {
+        Call<IdDTO> call = fb.postFFTimeline(accessToken, "Working end to end?",
+                "https://ff.moonspider.com/images/1/IMG_5196");
+        Response<IdDTO> rsp = call.execute();
+        if (rsp.code() != 200) {
+            System.out.println("error message: " + rsp.message());
+            System.out.println("error body: " + rsp.errorBody().string());
+        } else {
+            System.out.println("post body: " + rsp.body());
+        }
+    }
+    static void testCalls(FBService fb, String accessToken) throws Exception {
         {
             Call<UserDTO> call = fb.me(accessToken);
             System.out.println("call: " + call);

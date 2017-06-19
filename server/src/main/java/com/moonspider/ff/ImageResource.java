@@ -5,6 +5,7 @@ import com.moonspider.ff.client.TagService;
 import com.moonspider.ff.ejb.ImageEJB;
 import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.ejb.UserEJB;
+import com.moonspider.ff.model.IdDTO;
 import com.moonspider.ff.model.ImageDTO;
 import com.moonspider.ff.model.TagsDTO;
 import com.moonspider.ff.model.UserDTO;
@@ -370,10 +371,25 @@ public class ImageResource extends BaseResource {
         record.setUser(userEJB);
         entityManager.persist(record);
         log.info("successfully uploaded and persisted " + record);
+        // step 9: post to FB
+        if (postToFB) {
+            postToTimeline(accessToken, userEJB, record);
+        }
         return Response.ok(new ImageDTO(record)).build();
         //return Response.noContent().build();
     }
 
+    private void postToTimeline(final String accessToken, UserEJB userEJB, ImageEJB record) throws IOException {
+        String link = config.getAssetUrlPrefix() + "/images/" + userEJB.getId() + "/" + record.getBase();
+        Call<IdDTO> call = fb.postFFTimeline(accessToken, "customize this message", link);
+        retrofit2.Response<IdDTO> rsp = call.execute();
+        if (rsp.code() != 200) {
+            log.error("FB post for " + link + " returned " + rsp.code() + ": " + rsp.errorBody().toString());
+        } else {
+            log.info("FB post succeeded for " + link);
+        }
+
+    }
     private long getBaseNameCount(UserEJB user, String basename) {
         Query q = entityManager.createNativeQuery("SELECT count(*) + 1 from image where user_id=?1 and base like ?2");
         q.setParameter(1, user.getId());
