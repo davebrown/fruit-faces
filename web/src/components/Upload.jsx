@@ -136,7 +136,8 @@ export default class Upload extends React.Component {
         headers: {
           'X-FF-Auth': authStore.getAccessToken()
         },
-        json:{message: 'customize this message please'}
+        //console.log('comment input via ref:', this.commentInput.value);
+        json:{message: this.commentInput.value || ''}
       }, (er, response, bodyString) => {
         if (response && (response.statusCode >= 200 && response.statusCode <= 299)) {
           reportSuccess('posted ' + (newImage.base || '') + ' to Facebook');
@@ -213,29 +214,41 @@ export default class Upload extends React.Component {
     }
 
     var fbPublish = '';
-    if (postToFB && !havePublishPermission) {
-      fbPublish = (<span>Please grant Art for Breakfast <FBLogin renderLink={false} scope='publish_actions' authText="permission"/> to post to you timeline</span>);
+    var commentInput = '';
+    if (postToFB) {
+      if (!havePublishPermission) {
+        fbPublish = (<span>Please grant Art for Breakfast <FBLogin renderLink={false} scope='publish_actions' authText="permission"/> to post to you timeline</span>);
+      } else {
+        commentInput = (
+          <div className="flex-column fb-comment">
+            <textarea className="form-input" placeholder="Comment for your image..." rows="3" ref={(input) => { this.commentInput = input; } }></textarea>
+          </div>
+        );
+      }
     }
     return (
-        <div className="flex-column upload">
+      <div className="flex-column upload">
+        <div className="flex-column form-group">
           <FileUpload style={{ margin: '0 auto', padding: '12px' }} className="text-center" options={options}>
             <button className="btn btn-primary btn-lg" ref="chooseAndUpload">Choose photos to upload</button>
           </FileUpload>
-          <label>
+          <label className="form-label">
             <input checked={avoidDups ? 'checked' : ''} onChange={this.dupCheckHandler} type="checkbox"/>
             <i className="form-icon"></i> Prevent duplicate images
           </label>
-          <label>
+          <label className="form-label">
             <input checked={postToFB ? 'checked' : ''} onChange={this.fbCheckHandler} type="checkbox"/>
             <i className="form-icon"></i> Post to my Facebook timeline
           </label>
           {fbPublish}
+          {commentInput}
           {progress}
           {filename}
-          <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '8px' }}>Your images</h4>
-          { thumbDisplay }
-          <div className="" style={{ height: '100px' }}></div>
         </div>
+        <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '8px' }}>Your images</h4>
+        { thumbDisplay }
+        <div className="" style={{ height: '100px' }}></div>
+      </div>
       );
   }
   
