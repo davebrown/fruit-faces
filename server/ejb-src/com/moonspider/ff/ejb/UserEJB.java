@@ -1,5 +1,7 @@
 package com.moonspider.ff.ejb;
 
+import com.moonspider.ff.model.PermissionsDTO;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -10,6 +12,7 @@ public class UserEJB {
 
     private String fbId, email, name, profileUrl;
     private Integer id;
+    private PermissionsDTO permissions;
 
     @Column(name="fb_id")
     @NotNull
@@ -60,6 +63,13 @@ public class UserEJB {
         this.profileUrl = profileUrl;
     }
 
+    @Transient
+    public PermissionsDTO getPermissions() {
+        return permissions;
+    }
+    public void setPermissions(PermissionsDTO p) {
+        permissions = p;
+    }
     /*
         @OneToMany(
                 mappedBy = "user",

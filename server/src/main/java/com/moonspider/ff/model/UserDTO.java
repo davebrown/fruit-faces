@@ -10,6 +10,7 @@ public class UserDTO {
 
     private String id, email, name, profileUrl;
     private int ffId;
+    private PermissionsDTO permissions;
 
     public UserDTO() { }
 
@@ -19,6 +20,7 @@ public class UserDTO {
         email = ejb.getEmail();
         name = ejb.getName();
         profileUrl = ejb.getProfileUrl();
+        permissions = ejb.getPermissions();
     }
 
     @JsonProperty
@@ -67,6 +69,11 @@ public class UserDTO {
         this.name = name;
     }
 
+    @JsonProperty("permissions")
+    public PermissionsDTO getPermissions() { return permissions; }
+    public void setPermissions(PermissionsDTO p) {
+        permissions = p;
+    }
 
     @Override
     public String toString() {
@@ -76,6 +83,7 @@ public class UserDTO {
                 ", email='" + email + '\'' +
                 ", name='" + name + '\'' +
                 ", profilePic='" + profileUrl + '\'' +
+                ", permissions=" + permissions +
                 '}';
     }
 

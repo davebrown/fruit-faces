@@ -41,13 +41,13 @@ export default class FBLogin extends React.Component {
   }
   
   render() {
+    const scope = this.props.scope || '';
     if (this.props.renderLink) {
       const containerStyle = {
         display: 'block',
         outline: 'none'
       };
       //const scope = 'publish_actions';
-      const scope = '';
       return (
         <FacebookLogin
           appId={FB_APP_ID}
@@ -73,26 +73,18 @@ export default class FBLogin extends React.Component {
     }
     const { userId, name, profilePicUrl } = this.state;
     
-    if (!userId) {
-      return (
-          <FacebookLogin
-            appId={FB_APP_ID}
-            autoLoad={true}
-            fields="name,email,picture"
-            isMobile={bowser.mobile}
-            redirectUri={ REDIRECT_URI }
-            cssClass="btn btn-sm"
-            callback={fbLoginCallback} />
-      );
-    }
-
-    const profileTag = profilePicUrl ? (<img src={profilePicUrl}/>) : '';
-    
     return (
-      <div>
-        Logged in as {name || 'Name unknown'} &nbsp; {profileTag}
-      <button className="btn btn-primary" onClick={this.doLogout}>Logout</button>
-      </div>
+      <FacebookLogin
+        appId={FB_APP_ID}
+        autoLoad={true}
+        fields="name,email,picture"
+        isMobile={bowser.mobile}
+        redirectUri={ REDIRECT_URI }
+        cssClass="btn btn-sm"
+        scope={scope}
+        textButton={this.props.authText || 'Login...'}
+        callback={fbLoginCallback} />
     );
+
   }
 }

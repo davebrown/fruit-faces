@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.moonspider.ff.client.FBService;
 import com.moonspider.ff.client.TagService;
+import com.moonspider.ff.model.PermissionsDTO;
 import com.moonspider.ff.model.UserDTO;
 import com.moonspider.ff.util.ImageData;
 import org.apache.commons.io.FileUtils;
@@ -166,6 +167,7 @@ public class Util {
     static {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(UserDTO.class, new FBService.FBUserDeserializer());
+        module.addDeserializer(PermissionsDTO.class, new FBService.PermissionsDeserializer());
         JSON.registerModule(module);
     }
 

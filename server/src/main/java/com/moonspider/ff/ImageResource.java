@@ -252,6 +252,8 @@ public class ImageResource extends BaseResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response addImage(@FormDataParam("imagefile") InputStream inputStream,
                              @FormDataParam("imagefile") FormDataContentDisposition contentDispositionHeader,
+                             @FormDataParam("avoidDups") boolean avoidDups,
+                             @FormDataParam("postToFB") boolean postToFB,
                              @HeaderParam("X-FF-Auth") String accessToken,
                              @HeaderParam("X-FF-Prevent-Duplicates") String preventDups,
                              @HeaderParam("Host") String serverHost,
@@ -261,7 +263,8 @@ public class ImageResource extends BaseResource {
         //UserDTO userDTO = user(accessToken);
         UserEJB userEJB = findOrCreateUser(accessToken);
         String fname = contentDispositionHeader != null ? contentDispositionHeader.getFileName() : System.currentTimeMillis() + ".jpg";
-        log.info("received new image POST: len=" + contentLength + "/" + contentDispositionHeader + "/" + fname);
+        log.info("received new image POST: len=" + contentLength + "/" + contentDispositionHeader + "/" + fname
+                + " avoidDups? " + avoidDups + " postToFB? " + postToFB);
         if (!config.isAllowWriteOperations()) {
             log.warn("attempted tag operation when disallowed!");
             return _400("no write operations allowed");
@@ -281,7 +284,7 @@ public class ImageResource extends BaseResource {
         {
             ImageEJB existingImage = findEJB(userEJB.getId(), basename);
             if (existingImage != null) {
-                if ("true".equalsIgnoreCase(preventDups)) {
+                if ("true".equalsIgnoreCase(preventDups) || avoidDups) {
                     URI uri = URI.create(config.getBaseProtocol() + "://" + serverHost + "/api/v1/images/" + userEJB.getId() + "/" + existingImage.getBase());
                     log.info("duplicate file: " + userEJB.getId() + "/" + basename + ", returning 303 to " + uri);
                     return Response.seeOther(uri).build();

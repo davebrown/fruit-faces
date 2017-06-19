@@ -15,6 +15,9 @@ const UNKNOWN_LOGIN = {
     data: {
       url: null
     }
+  },
+  permissions: {
+    publish_actions: false
   }
 }
 
@@ -59,6 +62,10 @@ class AuthStore extends EventEmitter {
     return login.picture && login.picture.data && login.picture.data.url;
   }
 
+  getPublishPermission() {
+    return login && login.permissions && login.permissions.publish_actions
+  }
+  
   logout() {
     window.localStorage.removeItem('ff_auth');
     this._setLogin(UNKNOWN_LOGIN);
@@ -92,12 +99,11 @@ class AuthStore extends EventEmitter {
           this.emitChange();
           console.log('auth token appears expired, logging out');
         } else {
-          // squirrel away
-          /*
-          const pickle = {
-            expiry: Date.now() + login.authResponse
-          }
-          */
+          const userDTO = JSON.parse(bodyString);
+          //console.log('register got userDTO', userDTO);
+          const perms = userDTO && userDTO.permissions && userDTO.permissions.data || {};
+          //console.log('register got permissions', perms);
+          this._setPermissions(perms);
         }
       });
       
@@ -113,6 +119,11 @@ class AuthStore extends EventEmitter {
     login.picture = {};
     login.picture.data = {};
     login.picture.data.url = u;
+    this.emitChange();
+  }
+
+  _setPermissions(perms) {
+    login.permissions = perms;
     this.emitChange();
   }
 }
@@ -131,7 +142,8 @@ window.fbAsyncInit = function() {
   FB.init({
     appId      : FB_APP_ID,
     xfbml      : true,
-    version    : 'v2.8'
+    version    : 'v2.8',
+    status     : true
   });
   FB.AppEvents.logPageView();
   // https://developers.facebook.com/docs/reference/javascript/FB.getLoginStatus
@@ -151,6 +163,23 @@ window.fbAsyncInit = function() {
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
 
+// FIXME: doesn't work across reload - should it? Routing permissions
+// lookup through server '/register' endpoint instead
+function lookupPermissions() {
+  FB.api('/me/permissions', (rsp) => {
+    if (!rsp || rsp.error || !rsp.data) {
+      console.warn('FB api error getting permissions', rsp);
+      amplitude.logEvent('FB_PERMISSION_ERROR', { errorMsg: errToString(rsp) });
+    } else {
+      var myPerms = {};
+      rsp.data.forEach((perm) => {
+        myPerms[perm.permission] = perm.status === 'granted' ? true : false;
+      });
+      authStore._setPermissions(myPerms);
+    }
+  }, true);
+}
+
 /* receives callback from FB.getLoginStatus() */
 function fbStatusCallback(response) {
   console.log('AuthStore.fbStatusCallback at ' + (new Date()), response, response.status === 'connected');
@@ -165,6 +194,8 @@ function fbStatusCallback(response) {
       data: {
         url: null
       }
+    },
+    permissions: {
     }
   }
   authStore._setLogin(login);
@@ -192,6 +223,7 @@ function fbStatusCallback(response) {
         if (!Dispatcher.isDispatching())  FFActions.fbAuthChanged();
       }
     }, true);
+    //lookupPermissions();
   } else {
     var pickle = window.localStorage.getItem('ff_auth');
     if (pickle) {
@@ -199,8 +231,9 @@ function fbStatusCallback(response) {
       if (pickle['expires'] && Date.now() < pickle['expires']) {
         //console.log('**** logging in from pickle');
         authStore._setLogin(pickle);
+        //lookupPermissions();
       } else {
-        //console.log('pickle expired: ' + (new Date(pickle['expires'])));
+        authStore._setLogin(UNKNOWN_LOGIN);
       }
     }
   }
@@ -210,7 +243,7 @@ function fbStatusCallback(response) {
 }
 /* receives callback from FacebookLogin component */
 function fbLoginCallback(response) {
-  //console.log('AuthStore.fbLoginCallback', response);
+  console.log('AuthStore.fbLoginCallback', response);
   authStore._setLogin(response);
   if (response.name && response.email && response.expiresIn) {
     var now = Date.now();
@@ -218,6 +251,8 @@ function fbLoginCallback(response) {
     //console.log('pickling expiry at ' + (new Date(response['expires'])) + ' after ' + response.expiresIn + ' sec(s)');
     //console.log('now=' + now + ' expires=' + response['expires'] + ' delta=' + (response['expires'] - now));
     window.localStorage.setItem('ff_auth', JSON.stringify(response));
+    // update our known permissions, too
+    //lookupPermissions();
   }
 }
 

@@ -107,6 +107,7 @@ public abstract class BaseResource {
             ejb.setProfileUrl(dto.getProfileUrl());
             entityManager.persist(ejb);
         }
+        ejb.setPermissions(dto.getPermissions());
         return ejb;
     }
 

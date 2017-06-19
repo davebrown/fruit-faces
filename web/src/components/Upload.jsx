@@ -21,6 +21,8 @@ export default class Upload extends React.Component {
     this.uploadStopped = this.uploadStopped.bind(this);
     this.authChanged = this.authChanged.bind(this);
     this.fetchUserImages = this.fetchUserImages.bind(this);
+    this.dupCheckHandler = this.dupCheckHandler.bind(this);
+    this.fbCheckHandler = this.fbCheckHandler.bind(this);
   }
 
   
@@ -28,6 +30,15 @@ export default class Upload extends React.Component {
     authStore.addChangeListener(this.authChanged);
     this.uploadStopped();
     this.authChanged();
+    this.setState({
+      avoidDups: true,
+      postToFB: false,
+      havePublishPermission: false,
+      uploading: false,
+      dataUploaded: 0,
+      dataSize: 0,
+      fileName: null
+    });
   }
 
   fetchUserImages() {
@@ -56,7 +67,8 @@ export default class Upload extends React.Component {
   authChanged() {
     //console.log('Upload.authChanged()->' + authStore.getUserID());
     this.setState({
-      accessToken: authStore.getAccessToken()
+      accessToken: authStore.getAccessToken(),
+      havePublishPermission: authStore.getPublishPermission()
     });
     if (authStore.getAccessToken()) {
       if (!this.state || !this.state.uploadedImages) {
@@ -71,7 +83,15 @@ export default class Upload extends React.Component {
   componentWillUnmount() {
     authStore.removeChangeListener(this.authChanged);
   }
-  
+
+  dupCheckHandler(e) {
+    this.setState({ avoidDups: !this.state.avoidDups });
+  }
+
+  fbCheckHandler(e) {
+    this.setState({ postToFB: !this.state.postToFB });
+  }
+
   uploadStopped(newImage) {
     this.setState({
       uploading: false,
@@ -79,11 +99,12 @@ export default class Upload extends React.Component {
   }
   
   doUpload(files, mill, xhrID) {
-    console.log('doUpload: files: ', files, 'mill', mill, 'xhrID', xhrID);
+    /*console.log('doUpload: files: ', files, 'mill', mill, 'xhrID', xhrID);
     console.log('files.length', files.length);
     for (var i = 0; i < files.length; i++) {
       console.log('files[' + i + ']:', files[i]);
     }
+    */
     this.setState({
       uploading: true,
       dataUploaded: 0,
@@ -100,7 +121,7 @@ export default class Upload extends React.Component {
     
   uploadSuccess(newImage) {
     this.uploadStopped(newImage);
-    console.log('uploadSuccess', newImage);    
+    //console.log('uploadSuccess', newImage);    
     var images = (this.state && this.state.uploadedImages) || [];
     if (newImage && newImage.base) {
       this.fixupImage(newImage);
@@ -122,7 +143,6 @@ export default class Upload extends React.Component {
   }
 
   uploading(progress) {
-    console.log('uploading progress', progress);
     this.setState({
       uploading: true,
       dataUploaded: progress.loaded,
@@ -136,13 +156,18 @@ export default class Upload extends React.Component {
       return (<div className="center-single-child"><span>Please <FBLogin/> to upload images.</span></div>);
     }
     const target = API_BASE_URL + "/api/v1/images";
-
+    const { uploading, dataUploaded, dataSize, fileName, uploadedImages,
+            avoidDups, postToFB, havePublishPermission } = this.state;
     const options = {
       baseUrl: target,
       fileFieldName: 'imagefile',
       chooseAndUpload: true,
       requestHeaders: {
         'X-FF-Auth': this.state.accessToken
+      },
+      paramAddToField: {
+        avoidDups: avoidDups,
+        postToFB: postToFB
       },
       uploadSuccess: this.uploadSuccess,
       uploadError: this.uploadError,
@@ -151,7 +176,6 @@ export default class Upload extends React.Component {
       doUpload: this.doUpload
     };
 
-    const { uploading, dataUploaded, dataSize, fileName, uploadedImages } = this.state;
     var progress = '';
     var filename = '';
     if (uploading) {
@@ -173,11 +197,25 @@ export default class Upload extends React.Component {
     } else {
       thumbDisplay = (<Timeline images={uploadedImages} showLabel="true"/>);
     }
+
+    var fbPublish = '';
+    if (postToFB && !havePublishPermission) {
+      fbPublish = (<span>Please grant Art for Breakfast <FBLogin renderLink={false} scope='publish_actions' authText="permission"/> to post to you timeline</span>);
+    }
     return (
         <div className="flex-column upload">
           <FileUpload style={{ margin: '0 auto', padding: '12px' }} className="text-center" options={options}>
             <button className="btn btn-primary btn-lg" ref="chooseAndUpload">Choose photos to upload</button>
           </FileUpload>
+          <label>
+            <input checked={avoidDups ? 'checked' : ''} onChange={this.dupCheckHandler} type="checkbox"/>
+            <i className="form-icon"></i> Prevent duplicate images
+          </label>
+          <label>
+            <input checked={postToFB ? 'checked' : ''} onChange={this.fbCheckHandler} type="checkbox"/>
+            <i className="form-icon"></i> Post to my Facebook timeline
+          </label>
+          {fbPublish}
           {progress}
           {filename}
           <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '8px' }}>Your images</h4>
