@@ -27,7 +27,7 @@ export default class Home extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="flex-column ff-home">
         <h2 className="text-center">Fruit Faces <br/> the app!</h2>
         <p className="text-center">
           <em>TL;DR:</em> Some guy made an app to collect &amp; show weird fruit sculptures for kids.

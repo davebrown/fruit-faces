@@ -347,9 +347,14 @@ html [type=button] {
     padding: 12px;
 }
 
+.ff-home {
+    align-items: center;
+    width: 500px;
+}
+
 .home-thumbs {
     max-width: 400px;
-    margin: 0px auto;
+    justify-content: center;
 }
 
 @media only screen and (max-width: 1240px) {
@@ -390,6 +395,11 @@ html [type=button] {
      .month-thumb-table {
          /*margin-left: 8px;*/
      }
+
+     .ff-home {
+         width: 400px;
+     }
+     
      .home-thumbs {
          max-width: 300px;
      }
@@ -403,7 +413,6 @@ html [type=button] {
     #main-image {
         margin-top: 60px;
     }
-     
  }
 
 @media only screen and (max-width: 799px) {
@@ -417,8 +426,12 @@ html [type=button] {
         max-width: 360px;
         /*margin-top: 10px;*/
     }
+
+    .ff-home {
+        width: 100%;
+    }
     
-    .dialog {
+    .ff-dialog {
         position: fixed;
         top: 0px;
         left: 0px;
@@ -428,7 +441,7 @@ html [type=button] {
         overflow-x: hidden;
     }
 
-    .dialog-content {
+    .ff-dialog-content {
     }
     
     .close-icon {
@@ -537,12 +550,12 @@ html [type=button] {
         width: 100%;
     }
 
-    .dialog {
+    .ff-dialog {
         margin-top: 10px;
         margin-left: 6px;
     }
     
-    .dialog .close-icon {
+    .ff-dialog .close-icon {
         display: none;
     }
 

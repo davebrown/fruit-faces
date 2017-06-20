@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import FileUpload from 'react-fileupload';
 import request from 'browser-request';
+import { Icon } from 'react-fa';
 
 import FFActions from '../actions/FFActions.js';
 import { API_BASE_URL, reportError, reportSuccess, errToString } from '../util/Util.js';
@@ -76,7 +77,7 @@ export default class Upload extends React.Component {
     } else {
       this.setState({ uploadedImages: null });
     }
-      
+    
   }    
 
   componentWillUnmount() {
@@ -99,11 +100,11 @@ export default class Upload extends React.Component {
   
   doUpload(files, mill, xhrID) {
     /*console.log('doUpload: files: ', files, 'mill', mill, 'xhrID', xhrID);
-    console.log('files.length', files.length);
-    for (var i = 0; i < files.length; i++) {
-      console.log('files[' + i + ']:', files[i]);
-    }
-    */
+       console.log('files.length', files.length);
+       for (var i = 0; i < files.length; i++) {
+       console.log('files[' + i + ']:', files[i]);
+       }
+     */
     this.setState({
       uploading: true,
       dataUploaded: 0,
@@ -117,7 +118,7 @@ export default class Upload extends React.Component {
       newImage.path = newImage.root + '/' + newImage.base;
     }
   }
-    
+  
   uploadSuccess(newImage) {
     this.uploadStopped(newImage);
     //console.log('uploadSuccess', newImage);    
@@ -217,10 +218,11 @@ export default class Upload extends React.Component {
     var commentInput = '';
     if (postToFB) {
       if (!havePublishPermission) {
-        fbPublish = (<span>Please grant Art for Breakfast <FBLogin renderLink={false} scope='publish_actions' authText="permission"/> to post to you timeline</span>);
+        fbPublish = (<span>Please grant Art for Breakfast <FBLogin renderLink={false} scope='publish_actions' authText="permission"/> to post to your Facebook timeline</span>);
       } else {
         commentInput = (
           <div className="flex-column fb-comment">
+            <span><Icon name="facebook" title="comment on Facebook"/> Facebook comment</span>
             <textarea className="form-input" placeholder="Comment for your image..." rows="3" ref={(input) => { this.commentInput = input; } }></textarea>
           </div>
         );

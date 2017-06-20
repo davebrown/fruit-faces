@@ -20,7 +20,7 @@ class Dialog extends React.Component {
     var closeHandler = this.props.onClose || this.dialogCloseHandler.bind(this);
     var closeIcon = (<Icon name="times-circle-o" className="close-icon" onClick={closeHandler}/>);
     return (
-      <div id="ff-dialog" className="flex-column dialog expandable compressible">
+      <div id="ff-dialog" className="flex-column ff-dialog">
         {closeIcon}
         <div className="dialog-content">
           {this.props.children}
