@@ -18,6 +18,12 @@ const TAG_FORM_NONE = 0;
 const TAG_FORM_ON = 1;
 const TAG_FORM_OFF = 2;
 
+// difference, in minutes, between UTC and local time
+// offset is positive if local time is behind UTC, and negative if ahead
+// assuming our timestamps are pacific time (behind UTC by 7 * 60 minutes)
+// we can adjust time by (timestamp + (offset - 420))
+const TZ_OFFSET = (new Date()).getTimezoneOffset();
+
 class FFMainImage extends React.Component {
 
   constructor(props) {
@@ -133,8 +139,9 @@ class FFMainImage extends React.Component {
     var dateStr = 'Unknown date...';
     var timeStr = '';
     if (image.timestamp) {
-      dateStr = dateformat(new Date(image.timestamp), 'dddd mmmm d, yyyy');
-      timeStr = dateformat(new Date(image.timestamp), 'h:MM TT');
+      const offset = (TZ_OFFSET - 420) * 60 * 1000;
+      dateStr = dateformat(new Date(image.timestamp + offset), 'dddd mmmm d, yyyy');
+      timeStr = dateformat(new Date(image.timestamp + offset), 'h:MM TT');
     }
     const key = 'main-image-' + image.base;
     const userLink = 'https://facebook.com/' + image.user.fbId;
