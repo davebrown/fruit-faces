@@ -7,6 +7,7 @@ import { FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 import FBLogin from './FBLogin.jsx';
 import { authStore } from '../stores/AuthStore.js';
 import { amplitude, responsiveWidth } from '../util/Util.js';
+import FFActions from '../actions/FFActions.js';
 
 const BM_STYLES = {
   bmBurgerButton: {
@@ -39,6 +40,12 @@ export default class SideMenu extends React.Component {
       profilePicUrl: authStore.getProfilePicUrl()
     });
   }    
+
+  menuStateChanged(menuState) {
+    if (menuState.isOpen) {
+      FFActions.sideMenuOpened();
+    }
+  }
 
   componentWillMount() {
     authStore.addChangeListener(this.authChanged);
@@ -78,7 +85,8 @@ export default class SideMenu extends React.Component {
     */
     return (
       <div className="right">
-        <Menu right isOpen={open} outerContainerId={"container"} pageWrapId="main" width={ menuWidth } styles={ BM_STYLES }>
+        <Menu right isOpen={open} outerContainerId={"container"} pageWrapId="main"
+          onStateChange={this.menuStateChanged} width={ menuWidth } styles={ BM_STYLES }>
           {profileTag}
           {authLink}
           {homeLink}

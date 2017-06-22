@@ -12,7 +12,7 @@ import ImageStore from '../stores/ImageStore.js';
 import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, history } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, KEY_NAV_HAPPENED } from '../constants/FFConstants.js';
+import { SIDE_MENU_OPENED, KEY_NAV_HAPPENED } from '../constants/FFConstants.js';
 
 function len(a) { return a && a.length; }
 
@@ -41,6 +41,9 @@ export default class Mosaic extends React.Component {
           ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
           ReactTooltip.hide();
           ReactTooltip.rebuild();
+          break;
+        case SIDE_MENU_OPENED:
+          this.setState({filterState: FILTER_FORM_NONE });
           break;
       }
     });

@@ -1,5 +1,5 @@
 import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED, KEY_NAV_HAPPENED, FB_INITIALIZED, FB_AUTH_CHANGED, STATUS_REPORT } from '../constants/FFConstants.js';
+import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED, KEY_NAV_HAPPENED, FB_INITIALIZED, FB_AUTH_CHANGED, STATUS_REPORT, SIDE_MENU_OPENED } from '../constants/FFConstants.js';
 //import { * } from '../constants/FFConstants.js'; can't do this :-/
 
 class FFActions {
@@ -73,6 +73,12 @@ class FFActions {
       statusType: statusType,
       title: title,
       message: msg
+    });
+  }
+
+  sideMenuOpened() {
+    Dispatcher.dispatch({
+      actionType: SIDE_MENU_OPENED
     });
   }
 }
