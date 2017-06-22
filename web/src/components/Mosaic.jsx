@@ -5,7 +5,9 @@ import request from 'browser-request';
 import { Link } from 'react-router-dom';
 import bowser from 'bowser';
 import ReactTooltip from 'react-tooltip';
+import { Icon } from 'react-fa';
 
+import Filters from './Filters.jsx';
 import ImageStore from '../stores/ImageStore.js';
 import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError, history } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
@@ -19,10 +21,16 @@ var showClickTooltip = true;
 var showKeyTooltip = true;
 var clickCount = 0;
 
+const FILTER_FORM_NONE = 0;
+const FILTER_FORM_ON = 1;
+const FILTER_FORM_OFF = 2;
+
 export default class Mosaic extends React.Component {
 
   constructor(props) {
     super(props);
+    this.onFilterClick = this.onFilterClick.bind(this);
+    this.retractFilterForm = this.retractFilterForm.bind(this);
   }
 
   componentWillMount() {
@@ -36,6 +44,7 @@ export default class Mosaic extends React.Component {
           break;
       }
     });
+    this.setState({ filterState: FILTER_FORM_NONE });
   }
 
   componentWillUnmount() {
@@ -45,21 +54,42 @@ export default class Mosaic extends React.Component {
     this.dispatcherToken = null;
   }
   
-  shouldComponentUpdate(nextProps, next) {
+  shouldComponentUpdate(nextProps, nextState) {
     var ret = false;
     const now = this.props;
-    //console.log('Mosaic.update? ', now, nextProps);
     // avoid deep comparison of all images
     if (len(now.images) != len(nextProps.images) ||
         now.selectedImage !== nextProps.selectedImage ||
         now.filter !== nextProps.filter) {
       ret = true;
     }
+    if (this.state.filterState !== nextState.filterState) {
+      ret = true;
+    }
     return ret;
   }
 
+  onFilterClick(e) {
+    var filterState = this.state.filterState;
+    const old = filterState;
+    filterState = (filterState + 1) % 3;
+    this.setState({ filterState: filterState });
+    if (filterState == FILTER_FORM_OFF) {
+      this.retractFilterForm();
+    }
+  }
+
+  retractFilterForm() {
+    const m = this;
+    setTimeout(() => {
+      m.setState({filterState: FILTER_FORM_NONE});
+    },
+    800);
+  }
+  
   render() {
     var { images, selectedImage, filter } = this.props;
+    const filterState = this.state.filterState;
     images = ImageStore.getImages();
     if (!images) {
       return (<h1 className="loading" style={{ color: '#808080', minWidth: '340px', marginTop: '20vh' }}>Loading thumbnails</h1>);
@@ -97,18 +127,30 @@ export default class Mosaic extends React.Component {
       }
     };
 
+    
+    var filterForm = '';
+    if (filterState != FILTER_FORM_NONE) {
+      var filterClass = (filterState == FILTER_FORM_ON) ? 'animated fadeInDown' : 'animated fadeOutUp';
+      filterForm = (<Filters className={filterClass}/>);
+    }
     var content = (
-      <div ref="ff_table" className="flex-container flex-fixed flex-wrap scrollable thumbs" data-for="table-tt"
-      data-multiline={true} data-tip={ttText}
-      >
-        {
-          images.map((image) => {
-            var key = 'ff-thumb-' + image.id;
-            return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.path === image.path}/>;
-          })
-        }
-        <ReactTooltip disable={ttDisable} id="table-tt" place="right" multiline={true}
-          type="success" effect="float" afterShow={ ttShowEvent } />
+      <div className="flex-column">
+        <div className="flex-container thumbs mosaic-toolbar">
+          <Icon name="filter" title="filters" onClick={this.onFilterClick}/>
+        </div>
+        {filterForm}
+        <div ref="ff_table" className="flex-container flex-fixed flex-wrap scrollable thumbs" data-for="table-tt"
+          data-multiline={true} data-tip={ttText}
+        >
+          {
+            images.map((image) => {
+              var key = 'ff-thumb-' + image.id;
+              return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.path === image.path}/>;
+            })
+          }
+          <ReactTooltip disable={ttDisable} id="table-tt" place="right" multiline={true}
+            type="success" effect="float" afterShow={ ttShowEvent } />
+        </div>
       </div>
     );
     return content;

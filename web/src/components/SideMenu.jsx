@@ -84,7 +84,6 @@ export default class SideMenu extends React.Component {
           {homeLink}
           <Link className="menu-item" to={aboutRef} onClick={this.linkClicked}>About</Link>
           {mosaicLink}
-          <Link className="menu-item" to='/filters' onClick={this.linkClicked}>Filters</Link>
           <Link className="menu-item" to='/upload' onClick={this.linkClicked}>Upload</Link>
           {slideShow}
           <Link className="menu-item" to='/data' onClick={this.linkClicked}>Data</Link>

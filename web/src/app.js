@@ -94,7 +94,6 @@ class FFContainer extends React.Component {
                 <Route exact={true} path='/' component={homeComponent}/>
                 <Route exact={true} path='/_=_' component={homeComponent}/>
                 <Route path='/about' component={About}/>
-                <Route path='/filters' component={Filters}/>
                 <Route path='/data' component={FFDataVictory}/>
                 <Route path='/tech' component={Tech}/>
                 <Route path='/upload' component={Upload}/>
