@@ -31,6 +31,9 @@ function tagImage(image, verb, tag) {
     if (er) {
       console.log('update tags problem: ' + er);
       reportError(er, 'problem changing tags');
+    } else if (response.statusCode === 403) {
+      var errMessage = authStore.getAccessToken() ? 'Not owner of image' : 'Must login to change tags';
+      reportError(errMessage, 'Problem changing tags');
     } else if (response.statusCode < 200 || response.statusCode > 299) {
       // FIXME: need to undo local check state in ImageStore and in UI when this happens
       var errObj = JSON.parse(bodyString);
