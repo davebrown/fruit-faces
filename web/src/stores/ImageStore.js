@@ -125,7 +125,10 @@ class ImageStore extends EventEmitter {
   }
 
   getNonColors() {
-    return images.filter((img) => { return img.tags === null || img.tags.length === 0; });
+    return images.filter((img) => { return img.tags === null ||
+                                     !(img.tags.includes('blue') || img.tags.includes('white')
+                                    || img.tags.includes('gray'));
+    });
   }
 
   _loadImageDefs() {

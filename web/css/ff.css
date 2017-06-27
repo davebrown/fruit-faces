@@ -173,18 +173,13 @@ p {
     color: #5764c6;
 }
 
-.mosaic-toolbar {
-    flex-direction: row;
-    font-size: 1.8em;
-    padding: 10px;
-}
 .thumb-container {
     width: 100%;
     margin: 0px auto;
 }
 
 .thumb-view-chooser {
-    margin: 20px;
+    margin: 20 20 0 20;
     font-size: 1.2em;
 }
 
@@ -212,6 +207,13 @@ p {
 
 .thumb-outside-filter img {
     opacity: 0.2;
+}
+
+.mosaic-toolbar {
+    flex-direction: row;
+    font-size: 1.8em;
+    padding: 10px;
+    margin-left: 7px;
 }
 
 .sans-font {
@@ -542,7 +544,7 @@ html [type=button] {
     .thumbs {
         width: 496px;
         max-width: 496px;
-        max-height: 95vh;
+        max-height: 75vh;
         cursor: pointer;
         overflow-y: scroll;
         /*margin-left: 10px;
