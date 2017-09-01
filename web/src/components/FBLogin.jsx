@@ -82,7 +82,7 @@ export default class FBLogin extends React.Component {
         redirectUri={ REDIRECT_URI }
         cssClass="btn btn-sm"
         scope={scope}
-        textButton={this.props.authText || 'Login...'}
+        textButton={this.props.authText || 'Login with Facebook'}
         callback={fbLoginCallback} />
     );
 
