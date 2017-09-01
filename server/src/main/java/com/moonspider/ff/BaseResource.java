@@ -70,14 +70,17 @@ public abstract class BaseResource {
             return null;
         try {
             UserDTO ret = USER_CACHE.get(accessToken, () -> {
-                retrofit2.Response<UserDTO> response = fb.me(accessToken).execute();
-                if (response.isSuccessful()) {
-                    return response.body();
+                synchronized (accessToken.intern()) {
+                    // work around lazy user creation race conditions by serializing here
+                    retrofit2.Response<UserDTO> response = fb.me(accessToken).execute();
+                    if (response.isSuccessful()) {
+                        return response.body();
+                    }
+                    // FIXME: make smarter return code?
+                    // FIXME: ok to log this?
+                    log.warn("response for token '" + accessToken + "' msg=" + response.message());
+                    throw new WebApplicationException(response.message(), 401);
                 }
-                // FIXME: make smarter return code?
-                // FIXME: ok to log this?
-                log.warn("response for token '" + accessToken + "' msg=" + response.message());
-                throw new WebApplicationException(response.message(), 401);
             });
             return ret;
         } catch (/*Execution*/Exception e) { /* ExecutionException || UncheckExecutionException */
@@ -87,25 +90,40 @@ public abstract class BaseResource {
         }
     }
 
-    private UserEJB findUser(UserDTO dto) {
-        Query query = entityManager.createQuery("SELECT u from UserEJB u where u.email=:email and u.fbId=:fbId");
-        query.setParameter("email", dto.getEmail());
+    private UserEJB findUser(UserDTO dto, EntityManager em) {
+        if (em == null) em = entityManager;
+        Query query = em.createQuery("SELECT u from UserEJB u where u.fbId=:fbId");
         query.setParameter("fbId", dto.getFbId());
         UserEJB ejb = getSingleResult(query, UserEJB.class);
         return ejb;
     }
-    // caller method must have @UnitOfWork(transactional = true)
-    // since this might write to DB. But should be true that caller is so annotated anyway
-    // at least until app ever imposes auth on read operations
+
     private UserEJB findOrCreateUser(UserDTO dto) {
-        UserEJB ejb = findUser(dto);
-        if (ejb == null) {
-            ejb = new UserEJB();
-            ejb.setFbId(dto.getFbId());
-            ejb.setEmail(dto.getEmail());
-            ejb.setName(dto.getName());
-            ejb.setProfileUrl(dto.getProfileUrl());
-            entityManager.persist(ejb);
+        UserEJB ejb = findUser(dto, null);
+        log.debug("findOrCreate(" + dto.getFbId() + "/" + dto.getEmail() + ") -> " + ejb);
+        if (ejb == null && dto.getFbId() != null) {
+            synchronized (dto.getFbId().intern()) {
+                // manage tx ourselves here, to manage race condition on user
+                // create between /user/register and /images/mine endpoints
+                EntityManager managed = entityManager.getEntityManagerFactory().createEntityManager();
+                managed.getTransaction().begin();
+                try {
+                    ejb = findUser(dto, managed);
+                    if (ejb == null) {
+                        ejb = new UserEJB();
+                        ejb.setFbId(dto.getFbId());
+                        ejb.setEmail(dto.getEmail());
+                        ejb.setName(dto.getName());
+                        ejb.setProfileUrl(dto.getProfileUrl());
+                        managed.persist(ejb);
+                        managed.getTransaction().commit();
+                    }
+                } finally {
+                    if (managed.getTransaction().isActive()) {
+                        managed.getTransaction().rollback();
+                    }
+                }
+            }
         }
         ejb.setPermissions(dto.getPermissions());
         return ejb;

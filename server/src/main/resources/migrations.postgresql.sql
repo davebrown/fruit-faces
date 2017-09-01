@@ -130,7 +130,8 @@ insert into day_of_week values (6, 'Sat');
 alter table ff_user add column profile_url varchar(256);
 update ff_user set profile_url='https://scontent.xx.fbcdn.net/v/t1.0-1/c94.32.401.401/s50x50/68944_545086002170002_1026279651_n.jpg?oh=08f2f22c127bd8ba71c28df4117900f3&oe=59DD2E9A' where email='facebook@moonspider.com';
 
-
+-- changeset dave:24
+alter table ff_user ADD CONSTRAINT fb_user_id_unique UNIQUE (fb_id);
 
 
 

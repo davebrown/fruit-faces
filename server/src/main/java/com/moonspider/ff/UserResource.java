@@ -33,7 +33,6 @@ public class UserResource extends BaseResource {
         try {
             UserEJB user = findOrCreateUser(accessToken);
             if (user != null) {
-                entityManager.persist(user);
                 log.info("user logged in: " + user.getFbId());
                 return Response.ok(new UserDTO(user)).build();
             }
