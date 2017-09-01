@@ -140,6 +140,8 @@ export default class Mosaic extends React.Component {
       <div className="flex-column">
         <div className="flex-container thumbs mosaic-toolbar">
           <Icon name="filter" title="filters" onClick={this.onFilterClick}/>
+          &nbsp; &nbsp;
+          <Icon name="upload" title="upload a fruit face" onClick={() => { history.push('/upload'); }}/>
         </div>
         {filterForm}
         <div ref="ff_table" className="flex-container flex-fixed flex-wrap scrollable thumbs" data-for="table-tt"

@@ -164,12 +164,12 @@ class FFApp extends React.Component {
       return (<UnsupportedBrowser/>);
     }
     return (
-      <BrowserRouter history={history}>
+      <Router history={history}>
         <main id="main" className="main">
           <SideMenu/>
           <FFContainer/>
         </main>
-      </BrowserRouter>
+      </Router>
     );
   }
 }
