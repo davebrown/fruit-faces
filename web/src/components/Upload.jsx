@@ -223,7 +223,7 @@ export default class Upload extends React.Component {
         commentInput = (
           <div className="flex-column fb-comment">
             <span><Icon name="facebook" title="comment on Facebook"/> Facebook comment</span>
-            <textarea className="form-input" placeholder="Comment for your image..." rows="3" ref={(input) => { this.commentInput = input; } }></textarea>
+            <textarea className="form-input" placeholder="Type a facebook comment for your image..." rows="3" ref={(input) => { this.commentInput = input; } }></textarea>
           </div>
         );
       }
