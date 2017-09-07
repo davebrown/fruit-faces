@@ -24,6 +24,7 @@ export default class Upload extends React.Component {
     this.fetchUserImages = this.fetchUserImages.bind(this);
     this.dupCheckHandler = this.dupCheckHandler.bind(this);
     this.fbCheckHandler = this.fbCheckHandler.bind(this);
+    this.beforeUpload = this.beforeUpload.bind(this);
   }
 
   
@@ -165,7 +166,24 @@ export default class Upload extends React.Component {
       dataSize: progress.total
     });
   }
-  
+
+  beforeUpload(files, mill) {
+    /*if (files.length > 0) {
+      const f = files.item(0);
+      console.log('before upload: file ' + f.name + ' type=' + f.type + ' path=' + f.webkitRelativePath);
+    }
+    */
+    var ret = true;
+    var comment = this.state.commentInput;
+    if (comment) comment = comment.trim();
+    if (this.state.postToFB && !comment) {
+      ret = confirm("Proceed with empty Facebook post text?");
+      if (!ret) {
+        document.getElementById('fb-comment-text').focus();
+      }
+    }
+    return ret;
+  }
   render() {
     //console.log('Upload.render: state', this.state);
     if (!authStore.getUserID()) {
@@ -184,6 +202,7 @@ export default class Upload extends React.Component {
       paramAddToField: {
         avoidDups: avoidDups
       },
+      beforeUpload: this.beforeUpload,
       uploadSuccess: this.uploadSuccess,
       uploadError: this.uploadError,
       uploadFail: this.uploadError,
@@ -246,7 +265,7 @@ export default class Upload extends React.Component {
           {progress}
           {filename}
         </div>
-        <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '8px' }}>Your images</h4>
+        <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '8px' }}>Faces uploaded by you already</h4>
         { thumbDisplay }
         <div className="" style={{ height: '100px' }}></div>
       </div>

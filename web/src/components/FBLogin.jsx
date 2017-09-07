@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import FacebookLogin from 'react-facebook-login';
 import request from 'browser-request';
 import bowser from 'bowser';
+import { Icon } from 'react-fa';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import { FB_INITIALIZED, FB_AUTH_CHANGED } from '../constants/FFConstants.js';
 import { authStore, FB_APP_ID, fbLoginCallback } from '../stores/AuthStore.js';
@@ -48,6 +49,7 @@ export default class FBLogin extends React.Component {
         outline: 'none'
       };
       //const scope = 'publish_actions';
+      const icon = (<Icon name="facebook-square"/>);
       return (
         <FacebookLogin
           appId={FB_APP_ID}
@@ -56,13 +58,17 @@ export default class FBLogin extends React.Component {
           isMobile={bowser.mobile}
           scope={scope}
           redirectUri={ REDIRECT_URI }
-          callback={fbLoginCallback}
+        callback={fbLoginCallback}
+          icon={icon}
           tag="a"
           cssClass="bm-menu menu-item"
           containerStyle={containerStyle}
-          textButton={this.props.authText || 'Login...'}
+          textButton={this.props.authText || ' Login...'}
           typeButton="link"
-        />
+        >
+        <Icon name="facebook"/>
+        </FacebookLogin>
+
       );
       
     }
