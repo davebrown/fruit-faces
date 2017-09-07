@@ -12,8 +12,8 @@ import shutil
 import time
 import traceback
 
-DIR='/tmp'
-URL='http://localhost:3000'
+DIR=os.path.dirname(os.path.realpath(__file__))
+URL= os.environ.get('FF_TEST_URL', 'http://localhost:3000')
 CREDS = {
   'username': None,
   'password': None
@@ -46,13 +46,17 @@ def testLoginAndUpload():
   fbComment = driver.find_element(By.ID, 'fb-comment-text')
   fbComment.click()
   fbComment.send_keys('This is a comment from Selenium')
-  
+
+  fileUpload = driver.find_element(By.XPATH, "//input[@name='ajax_upload_file_input']")
+  fileUpload.send_keys('%s/ff-test-image.jpg' % DIR)
   time.sleep(10)
   
 if __name__ == '__main__':
   if len(sys.argv) != 3:
     sys.stderr.write('usage: %s <test-user-email> <test-user-password>\n' % sys.argv[0])
     sys.exit(1)
+
+  exitVal = 0
   CREDS['username'] = sys.argv[1]
   CREDS['password'] = sys.argv[2]
   global driver
@@ -67,6 +71,8 @@ if __name__ == '__main__':
   except Exception as e:
     traceback.print_exc()
     time.sleep(10)
+    exitVal = 1
   finally:
     driver.quit()
+  sys.exit(exitVal)
 
