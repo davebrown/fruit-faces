@@ -30,7 +30,6 @@ export default class Upload extends React.Component {
   componentWillMount() {
     authStore.addChangeListener(this.authChanged);
     this.uploadStopped();
-    this.authChanged();
     this.setState({
       avoidDups: true,
       postToFB: false,
@@ -40,6 +39,7 @@ export default class Upload extends React.Component {
       dataSize: 0,
       fileName: null
     });
+    this.authChanged();
   }
 
   fetchUserImages() {
@@ -65,7 +65,6 @@ export default class Upload extends React.Component {
   }
 
   authChanged() {
-    //console.log('Upload.authChanged()->' + authStore.getUserID());
     this.setState({
       accessToken: authStore.getAccessToken(),
       havePublishPermission: authStore.getPublishPermission()
@@ -223,7 +222,7 @@ export default class Upload extends React.Component {
         commentInput = (
           <div className="flex-column fb-comment">
             <span><Icon name="facebook" title="comment on Facebook"/> Facebook comment</span>
-            <textarea className="form-input" placeholder="Type a facebook comment for your image..." rows="3" ref={(input) => { this.commentInput = input; } }></textarea>
+            <textarea id="fb-comment-text" className="form-input" placeholder="Type a facebook comment for your image..." rows="3" ref={(input) => { this.commentInput = input; } }></textarea>
           </div>
         );
       }
@@ -239,7 +238,7 @@ export default class Upload extends React.Component {
             <i className="form-icon"></i> Prevent duplicate images
           </label>
           <label className="form-label">
-            <input checked={postToFB ? 'checked' : ''} onChange={this.fbCheckHandler} type="checkbox"/>
+            <input id="post-to-fb-check" checked={postToFB ? 'checked' : ''} onChange={this.fbCheckHandler} type="checkbox"/>
             <i className="form-icon"></i> Post to my Facebook timeline
           </label>
           {fbPublish}

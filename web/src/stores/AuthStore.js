@@ -63,7 +63,7 @@ class AuthStore extends EventEmitter {
   }
 
   getPublishPermission() {
-    return login && login.permissions && login.permissions.publish_actions
+    return login && login.permissions && login.permissions.publish_actions;
   }
   
   logout() {
