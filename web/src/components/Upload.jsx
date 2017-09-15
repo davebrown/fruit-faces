@@ -137,7 +137,6 @@ export default class Upload extends React.Component {
         headers: {
           'X-FF-Auth': authStore.getAccessToken()
         },
-        //console.log('comment input via ref:', this.commentInput.value);
         json:{message: this.commentInput.value || ''}
       }, (er, response, bodyString) => {
         if (response && (response.statusCode >= 200 && response.statusCode <= 299)) {
@@ -174,7 +173,7 @@ export default class Upload extends React.Component {
     }
     */
     var ret = true;
-    var comment = this.state.commentInput;
+    var comment = (this.commentInput && this.commentInput.value) || null;
     if (comment) comment = comment.trim();
     if (this.state.postToFB && !comment) {
       ret = confirm("Proceed with empty Facebook post text?");
@@ -241,7 +240,11 @@ export default class Upload extends React.Component {
         commentInput = (
           <div className="flex-column fb-comment">
             <span><Icon name="facebook" title="comment on Facebook"/> Facebook comment</span>
-            <textarea id="fb-comment-text" className="form-input" placeholder="Type a facebook comment for your image..." rows="3" ref={(input) => { this.commentInput = input; } }></textarea>
+            <textarea id="fb-comment-text" className="form-input"
+              placeholder="Type a facebook comment for your image..." rows="3"
+              ref={(input) => { this.commentInput = input; } }
+              >
+            </textarea>
           </div>
         );
       }
