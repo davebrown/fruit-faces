@@ -26,7 +26,7 @@ def testLoginAndUpload():
   driver.get(URL)
   print('logging in as %s' % CREDS['username'])
   driver.find_element(By.CLASS_NAME, 'bm-burger-button').click()
-  WAIT.until(EC.element_to_be_clickable((By.LINK_TEXT, 'Login...'))).click()
+  WAIT.until(EC.element_to_be_clickable((By.LINK_TEXT, 'Login'))).click()
 
   windows = driver.window_handles
   driver.switch_to_window(windows[1])
