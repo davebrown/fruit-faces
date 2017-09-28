@@ -78,7 +78,7 @@ export default class SideMenu extends React.Component {
                      (<FBLogin renderLink={true} text="Login..."/>);
     const profileTag = profilePicUrl ? (<img className="headshot menu-item" src={profilePicUrl}/>) : '';
     const mosaicLink = responsiveWidth() ? (<Link className="menu-item" to="/mosaic" onClick={this.linkClicked}>Mosaic</Link>) : '';
-    const menuWidth = bowser.mobile ? '30%': '150px';
+    const menuWidth = bowser.mobile ? '35%': '150px';
     /* smaller submenus if needed
     <Link className="menu-item-small" to="/data">Small 1</Link>
     <Link className="menu-item-small" to="/data">Small 2</Link>

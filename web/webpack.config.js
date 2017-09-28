@@ -13,9 +13,14 @@ module.exports = {
     disableHostCheck: true
   },
   plugins: [
-    new webpack.EnvironmentPlugin([
-      "NODE_ENV", "FF_BACKEND_URL", "AMPLITUDE_API_KEY", "FB_APP_ID", "FF_BUILD_DESCRIPTION"
-    ]),
+    new webpack.EnvironmentPlugin({
+      "NODE_ENV": 'development',
+      "FF_BACKEND_URL": 'http://localhost:9080',
+      "FF_URL": 'http://localhost:3000',
+      "AMPLITUDE_API_KEY": null,
+      "FB_APP_ID": null,
+      "FF_BUILD_DESCRIPTION": 'dev build ' + (new Date())
+    }),
     new ExtractTextPlugin('bundle.css')
   ],
   module: {

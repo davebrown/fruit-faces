@@ -243,7 +243,6 @@ function fbStatusCallback(response) {
 }
 /* receives callback from FacebookLogin component */
 function fbLoginCallback(response) {
-  console.log('AuthStore.fbLoginCallback', response);
   authStore._setLogin(response);
   if (response.name && response.email && response.expiresIn) {
     var now = Date.now();
@@ -263,7 +262,6 @@ var authCheckInterval = null;
 Dispatcher.register((action) => {
   switch (action.actionType) {
     case FB_INITIALIZED:
-      console.log('AuthStore: FB_INITIALIZED');
       FB.getLoginStatus(fbStatusCallback, true);
       if (authCheckInterval) {
         clearInterval(authCheckInterval);

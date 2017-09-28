@@ -42,38 +42,37 @@ export default class FBLogin extends React.Component {
   }
   
   render() {
-    const scope = this.props.scope || '';
+    const icon = (<Icon name="facebook-square"/>);
+    const scope = this.props.scope || 'email,public_profile';
     if (this.props.renderLink) {
       const containerStyle = {
         display: 'block',
         outline: 'none'
       };
       //const scope = 'publish_actions';
-      const icon = (<Icon name="facebook-square"/>);
       return (
         <FacebookLogin
           appId={FB_APP_ID}
           autoLoad={true}
           fields="name,email,picture"
           isMobile={bowser.mobile}
+          disableMobileRedirect={true}
           scope={scope}
           redirectUri={ REDIRECT_URI }
         callback={fbLoginCallback}
-          icon={icon}
           tag="a"
           cssClass="bm-menu menu-item"
           containerStyle={containerStyle}
-          textButton={this.props.authText || ' Login...'}
+          textButton={this.props.authText || ' Login'}
           typeButton="link"
+          icon={icon}
         >
-        <Icon name="facebook"/>
         </FacebookLogin>
 
       );
       
     }
     
-    //console.log('FBLogin.render', this.state);
     if (typeof(FB) === 'undefined') {
       return (<div><span>Loading Facebook form...</span><span className="loading">loading</span></div>);
     }
@@ -85,10 +84,12 @@ export default class FBLogin extends React.Component {
         autoLoad={true}
         fields="name,email,picture"
         isMobile={bowser.mobile}
+        disableMobileRedirect={true}
         redirectUri={ REDIRECT_URI }
         cssClass="btn btn-sm"
         scope={scope}
-        textButton={this.props.authText || 'Login with Facebook'}
+        textButton={this.props.authText || ' Login with Facebook'}
+        icon={icon}
         callback={fbLoginCallback} />
     );
 
