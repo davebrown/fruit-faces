@@ -229,7 +229,7 @@ function fbStatusCallback(response) {
     if (pickle) {
       pickle = JSON.parse(pickle);
       if (pickle['expires'] && Date.now() < pickle['expires']) {
-        //console.log('**** logging in from pickle');
+        console.log('**** logging in from pickle');
         authStore._setLogin(pickle);
         //lookupPermissions();
       } else {
@@ -248,8 +248,8 @@ function fbLoginCallback(response) {
   if (response.name && response.email && response.expiresIn) {
     var now = Date.now();
     response['expires'] = now + response.expiresIn * 1000;
-    //console.log('pickling expiry at ' + (new Date(response['expires'])) + ' after ' + response.expiresIn + ' sec(s)');
-    //console.log('now=' + now + ' expires=' + response['expires'] + ' delta=' + (response['expires'] - now));
+    console.log('pickling expiry at ' + (new Date(response['expires'])) + ' after ' + response.expiresIn + ' sec(s)');
+    console.log('now=' + now + ' expires=' + response['expires'] + ' delta=' + (response['expires'] - now));
     window.localStorage.setItem('ff_auth', JSON.stringify(response));
     // update our known permissions, too
     //lookupPermissions();
@@ -263,9 +263,11 @@ var authCheckInterval = null;
 Dispatcher.register((action) => {
   switch (action.actionType) {
     case FB_INITIALIZED:
+      console.log('AuthStore: FB_INITIALIZED');
       FB.getLoginStatus(fbStatusCallback, true);
       if (authCheckInterval) {
         clearInterval(authCheckInterval);
+        authCheckInterval = null;
       }
       // check every 30 mins if we're logged out
       authCheckInterval = window.setInterval(() => { FB.getLoginStatus(fbStatusCallback, true); }, 30 * 60 * 1000 );

@@ -14,7 +14,7 @@ module.exports = {
   },
   plugins: [
     new webpack.EnvironmentPlugin([
-      "NODE_ENV", "FF_BACKEND_URL", "AMPLITUDE_API_KEY", "FB_APP_ID"
+      "NODE_ENV", "FF_BACKEND_URL", "AMPLITUDE_API_KEY", "FB_APP_ID", "FF_BUILD_DESCRIPTION"
     ]),
     new ExtractTextPlugin('bundle.css')
   ],

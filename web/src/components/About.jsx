@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import FBBlock from './FBBlock.jsx';
 
+const BUILD_DESCRIPTION = process.env.FF_BUILD_DESCRIPTION || 'Art for Breakfast dev build ' + 'Thu Sep 28 08:51:29 PDT 2017'
+
 export default class About extends React.Component {
 
   constructor(props) {
@@ -39,6 +41,8 @@ export default class About extends React.Component {
 
         <hr width="50%"/>
         <p className="footnote"> * On this count, getting my kid to eat fruit: the experiment is a success. I think she would eat her weight in assorted fruit if she were left to her own devices.</p>
+        <p className="footnote"><i>{BUILD_DESCRIPTION}</i></p>
+
         <FBBlock/>
       </div>
     );

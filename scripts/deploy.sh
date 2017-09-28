@@ -53,8 +53,13 @@ if [ -z "$FB_APP_ID" ] ; then
     exit 1
 fi
 
+REV=$(git log -1 --oneline | cut -c 1-8)
+NOW=$(date)
+export FF_BUILD_DESCRIPTION="Art for Breakfast build $REV $NOW"
+
 echo AMP is $AMPLITUDE_API_KEY
 echo FB is $FB_APP_ID
+echo build description is $FF_BUILD_DESCRIPTION
 
 cd web
 npm run build
