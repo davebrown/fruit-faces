@@ -19,9 +19,6 @@ CREDS = {
   'password': None
 }
 
-def findText(text):
-  return driver.find_element_by_xpath("//*[contains(text(), '%s')]" % text)
-
 def testLoginAndUpload():
   driver.get(URL)
   print('logging in as %s' % CREDS['username'])
@@ -49,6 +46,11 @@ def testLoginAndUpload():
 
   fileUpload = driver.find_element(By.XPATH, "//input[@name='ajax_upload_file_input']")
   fileUpload.send_keys('%s/ff-test-image.jpg' % DIR)
+
+  time.sleep(1)
+  uploadButton = driver.find_element(By.ID, "upload-button")
+  uploadButton.click()
+
   time.sleep(10)
   
 if __name__ == '__main__':

@@ -309,7 +309,7 @@ export default class Upload extends React.Component {
             {commentInput}
             <button className="btn btn-primary btn-lg" ref="chooseBtn">Choose photo</button>
             {thumbPreview}
-            <button className={uploadClasses} ref="uploadBtn">Upload</button>
+            <button id="upload-button" className={uploadClasses} ref="uploadBtn">Upload</button>
             {progress}
             {filename}
           </FileUpload>
