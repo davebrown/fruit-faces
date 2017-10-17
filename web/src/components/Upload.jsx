@@ -25,6 +25,7 @@ export default class Upload extends React.Component {
     this.dupCheckHandler = this.dupCheckHandler.bind(this);
     this.fbCheckHandler = this.fbCheckHandler.bind(this);
     this.beforeUpload = this.beforeUpload.bind(this);
+    this.chooseFile = this.chooseFile.bind(this);
   }
 
   
@@ -38,7 +39,8 @@ export default class Upload extends React.Component {
       uploading: false,
       dataUploaded: 0,
       dataSize: 0,
-      fileName: null
+      file: null,
+      fileUri: null
     });
     this.authChanged();
   }
@@ -97,19 +99,40 @@ export default class Upload extends React.Component {
       uploading: false,
     });
   }
-  
+
+  chooseFile(files) {
+    /*console.log('chooseFile: files: ', files);
+    console.log('files.length', files.length);
+    for (var i = 0; i < files.length; i++) {
+      console.log('files[' + i + ']:', files[i], typeof(files[i]));
+    }
+    */
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.match('image.*')) {
+        const uploader = this;
+        const reader = new FileReader();
+        reader.onload = (img) => {
+          if (img && img.target && img.target.result) {
+            uploader.setState({fileUri: img.target.result, file: file});
+          }
+          return (e) => {
+            uploader.setState({fileUri: e.target.result, file: file});
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        this.setState({
+          error: file.name + ' is not an image file'
+        });
+      }
+    }
+  }
   doUpload(files, mill, xhrID) {
-    /*console.log('doUpload: files: ', files, 'mill', mill, 'xhrID', xhrID);
-       console.log('files.length', files.length);
-       for (var i = 0; i < files.length; i++) {
-       console.log('files[' + i + ']:', files[i]);
-       }
-     */
     this.setState({
       uploading: true,
       dataUploaded: 0,
-      dataSize: 100 * 1000,
-      fileName: (files.length > 0 && files[0].name) || ''
+      dataSize: 100 * 1000
     });
   }
 
@@ -121,7 +144,6 @@ export default class Upload extends React.Component {
   
   uploadSuccess(newImage) {
     this.uploadStopped(newImage);
-    //console.log('uploadSuccess', newImage);    
     var images = (this.state && this.state.uploadedImages) || [];
     if (newImage && newImage.base) {
       this.fixupImage(newImage);
@@ -146,6 +168,10 @@ export default class Upload extends React.Component {
         }
       });
     }
+    this.setState({
+      file: null,
+      fileUri: null
+    });
     reportSuccess(newImage.base || '', 'Uploaded image');
   }
   
@@ -184,23 +210,23 @@ export default class Upload extends React.Component {
     return ret;
   }
   render() {
-    //console.log('Upload.render: state', this.state);
     if (!authStore.getUserID()) {
       return (<div className="center-single-child"><span>Please <FBLogin/> to upload images.</span></div>);
     }
     const target = API_BASE_URL + "/api/v1/images";
-    const { uploading, dataUploaded, dataSize, fileName, uploadedImages,
-            avoidDups, postToFB, havePublishPermission } = this.state;
+    const { uploading, dataUploaded, dataSize, uploadedImages,
+            avoidDups, postToFB, havePublishPermission, file, fileUri } = this.state;
     const options = {
       baseUrl: target,
       fileFieldName: 'imagefile',
-      chooseAndUpload: true,
+      chooseAndUpload: false,
       requestHeaders: {
         'X-FF-Auth': this.state.accessToken
       },
       paramAddToField: {
         avoidDups: avoidDups
       },
+      chooseFile: this.chooseFile,
       beforeUpload: this.beforeUpload,
       uploadSuccess: this.uploadSuccess,
       uploadError: this.uploadError,
@@ -213,7 +239,7 @@ export default class Upload extends React.Component {
     var filename = '';
     if (uploading) {
       progress = (<progress className="block-center" value={dataUploaded} max={dataSize}></progress>);
-      filename = (<span className="footnote block-center text-center">{fileName}</span>);
+      filename = (<span className="footnote block-center text-center">{file && file.name || ''}</span>);
     } else if (this.state.error) {
       const err = this.state.error;
       const msg = errToString(err);
@@ -249,26 +275,47 @@ export default class Upload extends React.Component {
         );
       }
     }
+    var thumbPreview = '';
+    if (file && fileUri) {
+      thumbPreview = (
+        <div className="flex-column thumb-cell">
+          <img src={fileUri} style={{ width: '80px', height: '80px' }}/>
+          <span className="footnote">{file.name}</span>
+        </div>
+      );
+    } else {
+      thumbPreview = (
+        <div className="empty empty-thumb-cell">
+        </div>
+      );
+    }
+    var uploadClasses = 'btn btn-primary btn-lg';
+    if (!file) {
+      uploadClasses += ' disabled';
+    }
     return (
       <div className="flex-column upload">
         <div className="flex-column form-group">
-          <FileUpload style={{ margin: '0 auto', padding: '12px' }} className="text-center" options={options}>
-            <button className="btn btn-primary btn-lg" ref="chooseAndUpload">Choose photos to upload</button>
+          <FileUpload style={{ margin: '0 auto', padding: '12px', width: '100%' }} className="text-centerx" options={options}>
+            <label className="form-label">
+              <input checked={avoidDups ? 'checked' : ''} onChange={this.dupCheckHandler} type="checkbox"/>
+              <i className="form-icon"></i> Prevent duplicate images
+            </label>
+            <label className="form-label">
+              <input id="post-to-fb-check" checked={postToFB ? 'checked' : ''} onChange={this.fbCheckHandler} type="checkbox"/>
+              <i className="form-icon"></i> Post to my Facebook timeline
+            </label>
+            {fbPublish}
+            {commentInput}
+            <button className="btn btn-primary btn-lg" ref="chooseBtn">Choose photo</button>
+            {thumbPreview}
+            <button className={uploadClasses} ref="uploadBtn">Upload</button>
+            {progress}
+            {filename}
           </FileUpload>
-          <label className="form-label">
-            <input checked={avoidDups ? 'checked' : ''} onChange={this.dupCheckHandler} type="checkbox"/>
-            <i className="form-icon"></i> Prevent duplicate images
-          </label>
-          <label className="form-label">
-            <input id="post-to-fb-check" checked={postToFB ? 'checked' : ''} onChange={this.fbCheckHandler} type="checkbox"/>
-            <i className="form-icon"></i> Post to my Facebook timeline
-          </label>
-          {fbPublish}
-          {commentInput}
-          {progress}
-          {filename}
         </div>
-        <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '8px' }}>Faces uploaded by you already</h4>
+        <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '18px' }}>
+          Faces uploaded by you already</h4>
         { thumbDisplay }
         <div className="" style={{ height: '100px' }}></div>
       </div>
