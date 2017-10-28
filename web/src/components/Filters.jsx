@@ -16,6 +16,7 @@ export default class Filters extends React.Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
+    this.handleClear = this.handleClear.bind(this);
     this.state = {
       selectedValue: ImageStore.getFilterTag()
     }
@@ -35,12 +36,20 @@ export default class Filters extends React.Component {
       amplitude.logEvent('FILTER_UNSELECTED', { } );
     }      
   }
+
+  handleClear(evt) {
+    this.setState({ selectedValue: null });
+    FFActions.filterChanged(null);
+  }
+
   render() {
     //         <p className="sans-font"><b>Check one of the radio buttons</b> to highlight only particular images.</p>
     return (
       <div className={'flex-column tag-form filters ' + (this.props.className || '')}>
         <h4 style={{ marginTop: '2px', marginBottom: '2px' }} className="text-center">Filters</h4>
-        <RadioGroup name="plates" selectedValue={this.state.selectedValue} onChange={this.handleChange} className="flex-column form-group">
+        <button className="btn btn-primary btn-small" onClick={this.handleClear}>Clear</button>
+        <RadioGroup name="plates" selectedValue={this.state.selectedValue} onChange={this.handleChange}
+          className="flex-column form-group">
           {
             TAGS.map((tag) => {
               const key = 'filter-radio-' + tag;
