@@ -179,15 +179,15 @@ def cmd_json():
   return ret
 
 def cmd_missing_images():
-  DB = psycopg2.connect("dbname='ff' host='localhost'")
+  DB = psycopg2.connect("dbname='ff-prod' host='localhost'")
   cur = DB.cursor(cursor_factory=psycopg2.extras.DictCursor)
   ret = cur.execute("""SELECT id, base FROM image""")
   ret = cur.fetchall()
   missing = []
   for row in ret:
     id, base = row
-    print id, base
-    thumbFile = os.path.join(ARGS.dir, '%s_60x80_t.jpg' % base)
+    #print id, base
+    thumbFile = os.path.join(ARGS.dir, '%s_28x28_t.jpg' % base)
     if not os.path.exists(thumbFile):
       print 'missing', thumbFile
       missing.append(id)
@@ -210,10 +210,9 @@ def cmd_make_thumbs():
     dirname, fname,  base, ext = paths(f)
     # typically 3024 x 4032
     #sz = im.size
+    thumbName = base + '_' + thumwidth + 'x' + thumbheight + '_t' + ext
     thumb = im.resize( (thumbwidth, thumbheight) )
     im.close()
-    sz = thumb.size
-    thumbName = base + '_' + str(sz[0]) + 'x' + str(sz[1]) + '_t' + ext
     outPath = os.path.join(dirname, thumbName)
     print('saving thumb to %s' % outPath)
     thumb.save(outPath)

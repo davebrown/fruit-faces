@@ -28,10 +28,12 @@ from keras import backend as K
 import tensorflow as tf
 
 def getPlateColor(img):
+  verbose('getcolor(%s)' % str(img))
   for c in ['blue', 'gray', 'white']:
     if u.imageHasTag(img, c):
+      verbose('image %s color %s' % (img['base'], c))
       return c
-  raise Exception('image %s has no plate color tag' % img['base'])
+  raise Exception('image %s has no plate color tag (has: %s)' % (img['base'], img.get('tags', None)))
 
 NUM_CLASSES = 3
 
@@ -78,14 +80,14 @@ def make_model_mnist(width=80, height=60):
   init = RandomUniform(minval=-0.1, maxval=.1)
   model.add(Conv2D(32, kernel_size=(3, 3),
                    activation='relu',
-                   #kernel_initializer=init,
+                   kernel_initializer=init,
                    input_shape=input_shape))
   model.add(Conv2D(64, (3, 3), activation='relu', data_format='channels_last'))
   model.add(MaxPooling2D(pool_size=(2, 2)))
   model.add(Dropout(0.25))
   model.add(Flatten())
   model.add(Dense(128,
-                  #kernel_initializer=init,
+                  kernel_initializer=init,
                   activation='relu'))
   model.add(Dropout(0.5))
   
@@ -136,12 +138,14 @@ def cmd_predict(args):
   
   model = load_model(ARGS.file)
   print('model loaded from %s' % ARGS.file)
-
+  model.summary()
+  
   FLAT_DATA = True
   # FIXME: hack
   if ARGS.model == 'mnist':
     FLAT_DATA = False
-  
+
+  verbose('flattening data? %s' % str(FLAT_DATA))
   for imgId in args:
     print('predict on %s' % imgId)
     # FIXME: parameterize dimension, or attach to persisted model somehow?
@@ -322,7 +326,7 @@ if __name__ == '__main__':
   #parser.add_argument('-n', '--dry-run', help='do not actually change anything, but print what I would do', default=False, action="store_true")
   parser.add_argument('-v', '--verbose', help='emit verbose output', default=False, action="store_true")
   parser.add_argument('-s', '--size', help='image size to work with', default='60x80')
-  parser.add_argument('-m', '--model', help='mnist, mnist2, iris', required=True)
+  parser.add_argument('-m', '--model', help='mnist, mnist2, iris', default='mnist', required=False)
   parser.add_argument('-e', '--epochs', help='# epochs to run', type=int, default=5)
   parser.add_argument('-f', '--file', help='save/load model from file')
   #parser.add_argument('-s', '--size', help='"WxH" dimension', default=None)

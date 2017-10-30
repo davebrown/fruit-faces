@@ -23,7 +23,7 @@ def join(a,b):
 
 BASEDIR = os.path.abspath(join(os.path.dirname(__file__), '..'))
 
-IMAGEDIR = join(BASEDIR, 'thumbs')
+IMAGEDIR = join(BASEDIR, 'web/thumbs/1')
 
 FF_URL = 'http://localhost:9080/api/v1'
 
@@ -73,7 +73,7 @@ def getJson(url):
   """url can be absolute or relative to FF service"""
   if not url.startswith('http://') and not url.startswith('https://'):
     url = join(FF_URL, url)
-  #verbose('getting URL: %s' % url)
+  verbose('getting URL: %s' % url)
   r = requests.get(url)
   if r.status_code != 200:
     raise Exception('non-200 HTTP response %d from %s' % (r.status_code, url))
@@ -119,6 +119,9 @@ def thumbFile(relPath, imageDim):
   base, ext = os.path.splitext(full)
   return base + '_' + imageDim + '_t.jpg';
 
+def thumbBase(base, imageDim):
+  return join(IMAGEDIR, base + '_' + imageDim + '_t.jpg')
+
 def slice(array, ind):
   """return a column as array from a 2d array"""
   # try to match type of caller
@@ -158,7 +161,8 @@ def loadInputs(flatten=True, imageDim='60x80', imgId=None):
   labels = np.empty( (len(json), len(tags) ) ) 
   for i in range(len(json)):
     img = json[i]
-    imgData = imread(thumbFile(img['full'], imageDim))
+    thumb = thumbBase(img['base'], imageDim)
+    imgData = imread(thumb)
     #print('imgData shape', imgData.shape, 'type', type(imgData))
     
     if flatten:
