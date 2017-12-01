@@ -19,5 +19,5 @@ def backup(localDir=LOCALDIR):
     #get('thumb-manager.py', local_path='thumb-manager.py')
     get(dumpfile, local_path=dumpfile)
     local('echo hello world')
-    local('rsync -av %s:website/thumbs ./' % env.hosts[0]) # hack
+    local('rsync -rtv %s:website/thumbs ./' % env.hosts[0]) # hack
   
