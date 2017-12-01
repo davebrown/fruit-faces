@@ -9,7 +9,8 @@ from fabric.context_managers import cd, shell_env, lcd
 
 env.hosts = [ 'ff@ff.moonspider.com' ]
 
-def backup(localDir='%s/%s' % (os.environ['HOME'], 'ff-backup')):
+LOCALDIR = os.environ.get('FF_BACKUP_DIR', '%s/%s' % (os.environ['HOME'], 'ff-backup'))
+def backup(localDir=LOCALDIR):
   print('saving backup files to %s' % localDir)
   local('mkdir -p %s' % localDir)
   with lcd(localDir):
