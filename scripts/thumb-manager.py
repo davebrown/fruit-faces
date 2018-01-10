@@ -65,7 +65,7 @@ def decodeSize(sz):
     fail('invalid dimension "%s"' % sz)
 
 def cmd_hack():
-  s = "20x27"
+  s = "120x160"
   if len(ARGS.args) > 0:
     s = ARGS.args[0]
   w,h = decodeSize(s)
@@ -73,6 +73,8 @@ def cmd_hack():
   cprint('THIS SHOULD BE GRAY', 'grey', end='\n')
   print datetime.now().toordinal()
   print int(datetime.now().strftime("%s")) * 1000 
+  im = Image.open('../web/thumbs/1/IMG_3919_120x160_t.jpg')
+  im.rotate(180).show()
 
 def _defaultMatchFunc(f):
   if f.find('.JPG') > 0 or f.find('.jpg') > 0:
@@ -206,17 +208,18 @@ def cmd_make_thumbs():
   thumbwidth, thumbheight = decodeSize(ARGS.size)
   files = listFiles(ARGS.dir, fullSizeMatch)
   for f in files:
-    im = Image.open(f)
-    dirname, fname,  base, ext = paths(f)
-    # typically 3024 x 4032
-    #sz = im.size
-    thumbName = base + '_' + thumwidth + 'x' + thumbheight + '_t' + ext
-    thumb = im.resize( (thumbwidth, thumbheight) )
-    im.close()
-    outPath = os.path.join(dirname, thumbName)
-    print('saving thumb to %s' % outPath)
-    thumb.save(outPath)
-    thumb.close()
+    with Image.open(f) as im:
+      dirname, fname,  base, ext = paths(f)
+      # typically 3024 x 4032
+      #sz = im.size
+      for degrees in [ 0, 90, 180, 270 ]:
+        thumb = im.resize( (thumbwidth, thumbheight) ).rotate(degrees)
+        rot = '_rot%d' % degrees if degrees != 0 else ''
+        thumbName = base + '_' + str(thumbwidth) + 'x' + str(thumbheight) + rot + '_t' + ext
+        outPath = os.path.join(dirname, thumbName)
+        print('saving thumb to %s' % outPath)
+        thumb.save(outPath)
+        thumb.close()
 
   print('created %d thumbnail(s)' % len(files))
 
@@ -233,6 +236,7 @@ def colorAverage(palette):
     b = b + c[2]
   sz = len(palette)
   return (r / sz, g / sz, b / sz)
+
 def thiefFile(f,OUT):
   ct = ColorThief(f)
   verbose('thiefing on ' + f)
@@ -354,10 +358,10 @@ def cmd_thumb_page():
     fail('thumb-page requires "--dir" option')
   if ARGS.size is None:
     fail('thumb-page requires "--size" option')
-  if len(ARGS.args) < 2:
+  if len(ARGS.args) < 1:
     err('usage: thumbs-page <ncols> <output-file> [img-path-prefix=""]')
     sys.exit(1)
-  ncols = int(ARGS.args[0])
+  ncols = 4
 
   def thumbMatch(f):
     if f.find('.jpg') > 0 and f.find(ARGS.size + '_t') >= 0:
@@ -368,11 +372,8 @@ def cmd_thumb_page():
   if len(thumbs) == 0:
     fail('no .jpg thumbs matching "' + ARGS.size + '"')
   info('making table of %d thumbs with %d per row' % (len(thumbs), ncols))
-  thumbwidth, _ = decodeSize(ARGS.size)
+  thumbwidth, thumbheight = decodeSize(ARGS.size)
   out = open(ARGS.args[1], 'w')
-  pathPrefix = ""
-  if len(ARGS.args) > 2:
-    pathPrefix = ARGS.args[2]
   out.write('<html>')
   out.write('  <head><link rel="stylesheet" type="text/css" href="ff.css"/></head>')
   out.write('<body><h2>%d columns, table width %dpx<br/>\n%d total images</h2><br/>\n<table>\n' % (ncols, ncols * thumbwidth, len(thumbs)))
@@ -387,11 +388,13 @@ def cmd_thumb_page():
     if not rowOpen:
       out.write('<tr>\n')
       rowOpen = True
-    _, fname, basename, _2 = paths(thumbs[count])
-    out.write('<td><img onClick="thumbClickHandler(\'%s\');" src="%s%s"/></td>' % (basename, pathPrefix, fname))
-    if (count+1) % ncols == 0:
-      out.write('</tr>')
-      rowOpen = False
+    dirname, fname, basename, _2 = paths(thumbs[count])
+    base = fname.split('_%s_' % ARGS.size)[0]
+    for rot in [ '', 'rot90_', 'rot180_', 'rot270_' ]:
+      tname = '%s_%dx%d_%st.jpg' % (base, thumbwidth, thumbheight, rot)
+      out.write('<td><img onClick="thumbClickHandler(\'%s\');" src="%s/%s"/></td>' % (basename, dirname, tname))
+    out.write('</tr>')
+    rowOpen = False
   if rowOpen: out.write('</tr>')
   out.write('</table></body></html>')
   out.close()

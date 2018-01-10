@@ -1,4 +1,5 @@
 import os
+import os.path
 import sys
 import csv
 import requests
@@ -6,6 +7,8 @@ from termcolor import cprint
 import numpy as np
 import skimage.data
 from sklearn.preprocessing import LabelBinarizer
+import keras.utils
+import random
 
 # Import helper functions from '../tagger'
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -114,13 +117,13 @@ def loadFileLines(relPath):
     ret = [ s.rstrip() for s in ret ]
     return ret
 
-def thumbFile(relPath, imageDim):
+def thumbFile(relPath, imageDim, rot=''):
   full = join(IMAGEDIR, relPath)
   base, ext = os.path.splitext(full)
   return base + '_' + imageDim + '_t.jpg';
 
-def thumbBase(base, imageDim):
-  return join(IMAGEDIR, base + '_' + imageDim + '_t.jpg')
+def thumbBase(base, imageDim, rot=''):
+  return join(IMAGEDIR, base + '_' + imageDim + rot + '_t.jpg')
 
 def slice(array, ind):
   """return a column as array from a 2d array"""
@@ -143,6 +146,99 @@ def tag2n(img, tag):
   if imageHasTag(img, tag):
     return 1
   return 0
+
+TAGS = getTags()
+NUM_CLASSES = len(TAGS)
+
+def inferBase(full):
+  ret = os.path.splitext(full)[0]
+  ret = ret.replace('_480x640', '').replace('_t', '')
+  return ret
+
+class TrainingSet:
+
+  def _emptyCTOR(self):
+    self.images = []
+    self.np_plates = None
+    self.np_data = None
+    self.np_labels = None
+
+  def __init__(self, json, dim, flatten=True):
+    if json is None:
+      self._emptyCTOR()
+      return
+    self.images = []
+    for img in json:
+      self.images.append(TrainingImage(img, dim, flatten))
+      for rot in [ '_rot90', '_rot180', '_rot270' ]:
+        self.images.append(TrainingImage(img, dim, flatten, rot))
+
+    plates = [ c2n(img.getPlateColor()) for img in self.images ]
+    self.np_plates = keras.utils.to_categorical(plates, NUM_CLASSES)
+    #random.seed(11)
+    #random.shuffle(self.images)
+    width, height = decodeSize(dim)
+
+    if (flatten):
+      self.np_data = np.empty( (len(self.images), width * height * 3 ) )
+    else:
+      self.np_data = np.empty( ( len(self.images), width, height, 3 ) )
+    self.np_labels = np.empty( (len(self.images), len(TAGS)) )
+    i = 0
+    for img in self.images:
+      self.np_data[i] = img.np_data
+      self.np_labels[i] = img.np_label
+      i += 1
+
+  def __str__(self):
+    return '{TrainingSet size=%d}' % len(self.images)
+
+  def split(self, percent=.75):
+    if type(percent) != float:
+      raise ValueError('expect float for percent, not %s' % str(type(percent)))
+    idx = int(percent * len(self.images))
+    # we have 4 samples of each image, b/c rotation, so make sure it is
+    # a multiple of 4
+    idx += (idx % 4)
+    #print('Training set split index: %d type %s' % (idx, str(type(idx))))
+    a = TrainingSet(None, None)
+    b = TrainingSet(None, None)
+    a.images, b.images = split(self.images, idx)
+    a.np_plates, b.np_plates = split(self.np_plates, idx)
+    a.np_data, b.np_data = split(self.np_data, idx)
+    a.np_labels, b.np_labels = split(self.np_labels, idx)
+    return a, b
+
+class TrainingImage:
+
+  def __init__(self, json, dim, flatten=True, rot=''):
+    #self.base = json['base']
+    self.full = json['full']
+    self.tags = json['tags']
+    self.base = inferBase(self.full)
+    self.filePath = thumbBase(self.base, dim, rot)
+    if not os.path.exists(self.filePath):
+      raise Exception('file does not exist: %s' % self.filePath)
+
+    self.np_data = imread(self.filePath)
+    if flatten:
+      self.np_data = np.array(self.np_data).flatten()
+    self.np_label = np.array([ tag2n(json, t) for t in TAGS ])
+
+  def __str__(self):
+    return '{base: %s filePath: %s}' % (self.base, self.filePath)
+
+  def getPlateColor(self):
+    for c in ['blue', 'gray', 'white']:
+      if c in self.tags:
+        return c
+    raise Exception('image %s has no plate color tag (has: %s)' % (img['base'], img.get('tags', None)))
+
+def loadInputs2(flatten=True, imageDim='28x28'):
+  json = getJson('/images/1')
+  #ret = [ TrainingImage(img, imageDim) for img in json ]
+  ret = TrainingSet(json, imageDim, flatten)
+  return ret
 
 def loadInputs(flatten=True, imageDim='60x80', imgId=None):
   if imgId is None:
@@ -227,7 +323,42 @@ def outputHtml(filename, imageFiles, predictedColors, actualColors, probs=None):
   html.flush()
   html.close()
 
+def outputHtml2(filename, imageFiles, predictedColors, actualColors, probs=None):
+  html = open(filename, 'w')
+  html.write('<html>\n')
+  html.write("""    <style>
+      img {
+      width: 120px;
+      height: 120px;
+      }
+      .wrong { color: red; font-weight: bold; }
+    </style>
+""")
+  html.write('<body>\n<table><tr>\n')
+  correctCount = 0
+  for i in range(len(imageFiles)):
+    if i > 0 and i % 4 == 0:
+      html.write('</tr><tr>\n')
+    pc = predictedColors[i]
+    ac = actualColors[i]
+    verdict = ''
+    if ac is not None and ac is not 'unknown':
+      if pc != ac:
+        verdict = '<span class="wrong">WRONG</span>'
+      else:
+        verdict = '<b>CORRECT</b>'
+        correctCount = correctCount + 1
+    probStr = ''
+    if probs is not None:
+      probStr = '<br/><code>p(G)=%.3f<br/>p(W)=%.3f<br/> p(B)=%.3f</code>' % (probs[i][0], probs[i][1], probs[i][2])
+    #html.write('<td><img src="%s/%s"/><br/>predicted: <b>%s</b><br/>actual: <b>%s</b><br/>%s%s</td>\n' % (IMAGEDIR, imageFiles[i], pc, ac, verdict, probStr))
+    html.write('<td><img src="%s"/><br/>predicted: <b>%s</b><br/>actual: <b>%s</b><br/>%s%s</td>\n' % (imageFiles[i], pc, ac, verdict, probStr))
 
+  html.write('</tr></td></table>')
+  html.write('<b>%d of %d correct - %.3f%%</b>' % (correctCount, len(imageFiles), 100 * float(correctCount) / float(len(imageFiles))))
+  html.write('</html>')
+  html.flush()
+  html.close()
 
 def sample(lists, percent):
   if percent <= 0.0 or percent >= 1.0:

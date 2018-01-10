@@ -28,10 +28,8 @@ from keras import backend as K
 import tensorflow as tf
 
 def getPlateColor(img):
-  verbose('getcolor(%s)' % str(img))
   for c in ['blue', 'gray', 'white']:
     if u.imageHasTag(img, c):
-      verbose('image %s color %s' % (img['base'], c))
       return c
   raise Exception('image %s has no plate color tag (has: %s)' % (img['base'], img.get('tags', None)))
 
@@ -73,7 +71,6 @@ def make_model_iris(width=80, height=60):
 # adapted from mnist_cnn.py in keras examples dir
 def make_model_mnist(width=80, height=60):
 
-  input_shape = (1, width * height * 3)
   input_shape = (width, height, 3)
   
   model = Sequential()
@@ -81,8 +78,10 @@ def make_model_mnist(width=80, height=60):
   model.add(Conv2D(32, kernel_size=(3, 3),
                    activation='relu',
                    kernel_initializer=init,
+                   data_format='channels_last',
                    input_shape=input_shape))
-  model.add(Conv2D(64, (3, 3), activation='relu', data_format='channels_last'))
+  model.add(Conv2D(64, (3, 3), activation='relu',
+                   data_format='channels_last', kernel_initializer='random_normal'))
   model.add(MaxPooling2D(pool_size=(2, 2)))
   model.add(Dropout(0.25))
   model.add(Flatten())
@@ -90,9 +89,11 @@ def make_model_mnist(width=80, height=60):
                   kernel_initializer=init,
                   activation='relu'))
   model.add(Dropout(0.5))
-  
   model.add(Dense(NUM_CLASSES, activation='softmax'))
 
+  # baseline: 100% in training, 87% in test (gray and cutting board blue mis-identified as white)
+  # without Dropout: 100% in training, 91% in test (all gray mis-identified as white)
+  # with rotations (3x data size) 100% training, 91.2% test
   model.compile(loss=keras.losses.categorical_crossentropy,
                 optimizer=keras.optimizers.Adadelta(),
                 metrics=['accuracy'])
@@ -155,6 +156,49 @@ def cmd_predict(args):
     predictedPlate = n2c(predicts[0])
     truePlate = n2c(labels[0])
     print('%s: predicted %s truth %s' % (imgId, predictedPlate, truePlate))
+
+def cmd_train2(args):
+
+  if ARGS.file is None:
+    fail('need file argument with -f | --file to save trained model')
+
+  # fix seed for reproducibility
+  np.random.seed(8)
+
+  FLAT_DATA = True
+
+  width, height = tu.decodeSize(ARGS.size)
+
+  # wrap all keras ops in a know TF session
+  sess = tf.Session()
+  K.set_session(sess)
+  model = make_model(ARGS.model, width, height)
+  # FIXME: hack
+  if ARGS.model == 'mnist':
+    FLAT_DATA = False
+
+  verbose('model summary:')
+  model.summary()
+
+  fullSet = u.loadInputs2(FLAT_DATA, ARGS.size)
+  # sanity check!
+  if len(fullSet.np_labels[0]) != NUM_CLASSES:
+    raise Exception('labels length (%d) != expected num_classes (%d)' % (len(fullSet.np_labels[0]), NUM_CLASSES))
+
+  trainSet, testSet = fullSet.split(.75)
+
+  info('trainSet', trainSet, 'testSet', testSet)
+
+  verbose('trained data shape: %s trained labels shape: %s' % (trainSet.np_data.shape, trainSet.np_labels.shape))
+  model.fit(trainSet.np_data, trainSet.np_plates, epochs=ARGS.epochs, batch_size=100)
+
+  predicts = model.predict(testSet.np_data)
+
+  u.outputHtml2('plates-test2.html', [ img.filePath for img in testSet.images ], [ n2c(p) for p in predicts ], [ n2c(i) for i in testSet.np_plates ])
+
+  predicts = model.predict(trainSet.np_data)
+
+  u.outputHtml2('plates-train2.html', [ img.filePath for img in trainSet.images ], [ n2c(p) for p in predicts ], [ n2c(i) for i in trainSet.np_plates ])
   
 def cmd_train(args):
 
@@ -176,6 +220,9 @@ def cmd_train(args):
   if ARGS.model == 'mnist':
     FLAT_DATA = False
 
+  verbose('model summary:')
+  model.summary()
+
   imageFiles, imageData, labels, imgJson = u.loadInputs(FLAT_DATA, ARGS.size)
 
   # sanity check!
@@ -184,7 +231,7 @@ def cmd_train(args):
   
   verbose('data shape: %s labels shape: %s' % (imageData.shape, labels.shape))
 
-  plates = [ c2n(getPlateColor(i)) for i in imgJson ]
+  plates = [ c2n(getPlateColor(img)) for img in imgJson ]
   print('plates PRE', plates)
   plates = keras.utils.to_categorical(plates, NUM_CLASSES)
   print('plates POST', plates)
@@ -196,9 +243,6 @@ def cmd_train(args):
   trainedY, testY = u.split(plates, splitIndex)
 
   verbose('trained data shape: %s trained labels shape: %s' % (trainedImages.shape, trainedLabels.shape))
-
-  verbose('model summary:')
-  model.summary()
     
   print 'before fit(), trainedImages.shape', trainedImages.shape, 'trainedY.shape', trainedY.shape
   model.fit(trainedImages, trainedY, epochs=ARGS.epochs, batch_size=100)
@@ -304,6 +348,11 @@ def _abort_this():
   #u.outputHtml('sklearn-unclassified.html', [ i[0] for i in testData ], [ n2c(p) for p in predicts ], [ c[1] for c in testData ], probs )
   
 def cmd_hack(args):
+  tset = u.loadInputs2(True, '28x28')
+  print len(tset.images), 'image(s)'
+  print tset.images[0]
+  print tset.images[0].np_data.dtype
+  sys.exit(1)
   info('hack called with args %s' % str(args))
   warn('this is a warning')
   err('this is an error')
