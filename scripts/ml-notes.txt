@@ -1,0 +1,22 @@
+train2, 300 epochs (2nd Conv2D no initializer specified):
+ - training 232/310 74.8%
+ - test 84/100 84%
+
+train 400 epochs (2nd Conv2D no initializer specified):
+ - training 326/326 100%
+ - test 69/87 79.3%
+
+train2, 400 epochs (2nd Conv2D 'random_normal' initializer specified):
+ - training 309/310 99.7%
+ - test 92/100 92%
+
+train2, 600 epochs (2nd Conv2D 'random_normal' initializer specified):
+ - training 310/310 100%
+ - test 92/100 92%
+
+
+train2, 400 epochs, rotations, (2nd Conv2D 'random_normal' initializer specified):
+ - training 1232 / 1232 100%
+ - test 372 / 408 91.2%
+
+

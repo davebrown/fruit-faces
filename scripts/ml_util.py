@@ -234,41 +234,12 @@ class TrainingImage:
         return c
     raise Exception('image %s has no plate color tag (has: %s)' % (img['base'], img.get('tags', None)))
 
-def loadInputs2(flatten=True, imageDim='28x28'):
+def loadInputs(flatten=True, imageDim='28x28'):
   json = getJson('/images/1')
   #ret = [ TrainingImage(img, imageDim) for img in json ]
   ret = TrainingSet(json, imageDim, flatten)
   return ret
 
-def loadInputs(flatten=True, imageDim='60x80', imgId=None):
-  if imgId is None:
-    json = getJson('/images')
-  else:
-    json = [ getJson('/images/%s' % imgId) ]
-    
-  tags = getTags()
-  width, height = decodeSize(imageDim)
-
-  if (flatten):
-    data = np.empty( (len(json), width * height * 3 ) )
-  else:
-    data = np.empty( ( len(json), width, height, 3 ) )
-
-  labels = np.empty( (len(json), len(tags) ) ) 
-  for i in range(len(json)):
-    img = json[i]
-    thumb = thumbBase(img['base'], imageDim)
-    imgData = imread(thumb)
-    #print('imgData shape', imgData.shape, 'type', type(imgData))
-    
-    if flatten:
-      data[i] = np.array(imgData).flatten()
-    else:
-      data[i] = imgData
-    labels[i] = np.array([ tag2n(img, t) for t in tags ])
-    
-  return [ img['full'] for img in json ], data, labels, json
-  
 # make 1-hot array
 # http://stackoverflow.com/questions/29831489/numpy-1-hot-array
 #def oneHot(arr, width):
@@ -368,10 +339,3 @@ def sample(lists, percent):
   for l in lists[1:]:
     if len(l) != listlen:
       raise Exception('lists must all be equal length, got %d != %d' % (listlen, len(l)))
-
-  
-def tupleTest():
-  return range(3)
-if __name__ == '__main__':
-  a,b,c = tupleTest()
-  print a, b, c

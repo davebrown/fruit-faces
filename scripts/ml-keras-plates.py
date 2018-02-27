@@ -157,7 +157,7 @@ def cmd_predict(args):
     truePlate = n2c(labels[0])
     print('%s: predicted %s truth %s' % (imgId, predictedPlate, truePlate))
 
-def cmd_train2(args):
+def cmd_train(args):
 
   if ARGS.file is None:
     fail('need file argument with -f | --file to save trained model')
@@ -180,7 +180,7 @@ def cmd_train2(args):
   verbose('model summary:')
   model.summary()
 
-  fullSet = u.loadInputs2(FLAT_DATA, ARGS.size)
+  fullSet = u.loadInputs(FLAT_DATA, ARGS.size)
   # sanity check!
   if len(fullSet.np_labels[0]) != NUM_CLASSES:
     raise Exception('labels length (%d) != expected num_classes (%d)' % (len(fullSet.np_labels[0]), NUM_CLASSES))
@@ -193,98 +193,11 @@ def cmd_train2(args):
   model.fit(trainSet.np_data, trainSet.np_plates, epochs=ARGS.epochs, batch_size=100)
 
   predicts = model.predict(testSet.np_data)
-
   u.outputHtml2('plates-test2.html', [ img.filePath for img in testSet.images ], [ n2c(p) for p in predicts ], [ n2c(i) for i in testSet.np_plates ])
 
   predicts = model.predict(trainSet.np_data)
-
   u.outputHtml2('plates-train2.html', [ img.filePath for img in trainSet.images ], [ n2c(p) for p in predicts ], [ n2c(i) for i in trainSet.np_plates ])
-  
-def cmd_train(args):
 
-  if ARGS.file is None:
-    fail('need file argument with -f | --file to save trained model')
-    
-  # fix seed for reproducibility
-  np.random.seed(8)
-
-  FLAT_DATA = True
-  
-  width, height = tu.decodeSize(ARGS.size)
-
-  # wrap all keras ops in a know TF session
-  sess = tf.Session()
-  K.set_session(sess)
-  model = make_model(ARGS.model, width, height)
-  # FIXME: hack
-  if ARGS.model == 'mnist':
-    FLAT_DATA = False
-
-  verbose('model summary:')
-  model.summary()
-
-  imageFiles, imageData, labels, imgJson = u.loadInputs(FLAT_DATA, ARGS.size)
-
-  # sanity check!
-  if len(labels[0]) != NUM_CLASSES:
-    raise Exception('labels length (%d) != expected num_classes (%d)' % (len(labels[0]), NUM_CLASSES))
-  
-  verbose('data shape: %s labels shape: %s' % (imageData.shape, labels.shape))
-
-  plates = [ c2n(getPlateColor(img)) for img in imgJson ]
-  print('plates PRE', plates)
-  plates = keras.utils.to_categorical(plates, NUM_CLASSES)
-  print('plates POST', plates)
-
-  splitIndex = 326
-  trainedFiles, testFiles = u.split(imageFiles, splitIndex)
-  trainedImages, testImages = u.split(imageData, splitIndex)
-  trainedLabels, testLabels = u.split(labels, splitIndex)
-  trainedY, testY = u.split(plates, splitIndex)
-
-  verbose('trained data shape: %s trained labels shape: %s' % (trainedImages.shape, trainedLabels.shape))
-    
-  print 'before fit(), trainedImages.shape', trainedImages.shape, 'trainedY.shape', trainedY.shape
-  model.fit(trainedImages, trainedY, epochs=ARGS.epochs, batch_size=100)
-
-  #K.set_learning_phase(0) # all new operations will be in test mode from now on
-  
-  #verbose('model.get_config()')
-  #print(model.get_config())
-  weights = model.get_weights()
-  print '=== model weights === shape=', weights[0].shape
-  #print '=== model weights ==='
-  #print(weights)
-  
-  predicts = model.predict(testImages)
-  verbose('predicts.shape: %s' % str(predicts.shape))
-  verbose('predicts[0] type %s' % type(predicts[0]))
-  #print('predicts content', predicts)
-
-  probs = model.predict_proba(testImages)
-  verbose('probs shape: %s' % str(probs.shape))
-  #print 'probs', probs
-  htmlFile = 'plates-unclassified.html'
-  u.outputHtml(htmlFile, testFiles, [ n2c(p) for p in predicts ], [ n2c(i) for i in testY ], None)
-  info('saved test results: %s' % htmlFile)
-  print 'test truth summary:', u.catSummary(testY)
-  print 'test prediction summary:', u.catSummary(predicts)
-
-  predicts = model.predict(trainedImages)
-  htmlFile = 'plates-classified.html'
-  u.outputHtml(htmlFile, trainedFiles, [ n2c(p) for p in predicts ], [ n2c(i) for i in trainedY ], None)
-  info('saved trained verify results: %s' % htmlFile)
-  print 'trained truth summary:', u.catSummary(trainedY)
-  print 'trained prediction summary:', u.catSummary(predicts)
-
-  model.save(ARGS.file)
-  print('trained model saved to %s' % ARGS.file)
-  
-  # try save/load of only tf graph
-  saver = tf.train.Saver()
-  savePath = saver.save(sess, '/tmp/my-model.ckpt')
-  print('saved tf session to %s' % savePath)
-  
 def cmd_load(args):
   # wrap all keras ops in a know TF session
   with tf.Session() as sess:
@@ -305,48 +218,8 @@ def cmd_load(args):
     print 'session local variables', vars
     for v in vars:
       print v.name, type(v)
-
-    
     #prediction = tf.argmax(y, 1)
-    
-    
-  
-def _abort_this():  
-  # save the tf graph as 'predict-only'
-  # https://blog.keras.io/keras-as-a-simplified-interface-to-tensorflow-tutorial.html#exporting-a-model-with-tensorflow-serving
-  previous_model = model
-  K.set_learning_phase(0)  # all new operations will be in test mode from now on
 
-  # serialize the model and get its weights, for quick re-building
-  config = previous_model.get_config()
-  print ('config is', config)
-  weights = previous_model.get_weights()
-
-  # re-build a model where the learning phase is now hard-coded to 0
-  from keras.models import model_from_config
-  #new_model = model_from_config(config)
-  new_model = Sequential.from_config(config)
-  new_model.set_weights(weights)  
-
-  from tensorflow_serving.session_bundle import exporter
-
-  export_path = '/tmp/my-model.ckpt' # where to save the exported graph
-  export_version = 1 # version number (integer)
-
-  saver = tf.train.Saver(sharded=True)
-  model_exporter = exporter.Exporter(saver)
-  signature = exporter.classification_signature(input_tensor=model.input,
-                                                scores_tensor=model.output)
-  model_exporter.init(sess.graph.as_graph_def(),
-                      default_graph_signature=signature)
-  model_exporter.export(export_path, tf.constant(export_version), sess)
-  
-  #probs = classifier.predict_log_proba(testImages)
-  #print 'probs log shape:', probs.shape
-  #print 'PROBS log', probs
-
-  #u.outputHtml('sklearn-unclassified.html', [ i[0] for i in testData ], [ n2c(p) for p in predicts ], [ c[1] for c in testData ], probs )
-  
 def cmd_hack(args):
   tset = u.loadInputs2(True, '28x28')
   print len(tset.images), 'image(s)'

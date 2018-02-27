@@ -142,8 +142,6 @@ def getTimestamp(imgFile):
     return  int(d.strftime('%s'))
   return -1
 
-  return 
-                     
 def cmd_json():
   """make a JSON catalogue of all images base name"""
   ret = []
