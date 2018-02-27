@@ -1,0 +1,73 @@
+allowWriteOperations: true
+maxImageFileSize: 10000000
+#thumbDir: ${HOME}/code/fruit-faces/web/thumbs
+#thumbDir: ${HOME}/ff-backup/thumbs
+thumbDir: /ff-thumbs
+rootUserId: 1 # facebook@moonspider.com
+tagServiceUrl: http://tagger:5000/api/v1/ # must end with '/', because retrofit2
+baseProtocol: http # to compose Location: response header of redirects
+assetUrlPrefix: http://localhost:3000
+fbAppId: 1646445118982776
+
+database:
+  # the name of your JDBC driver
+  driverClass: org.postgresql.Driver
+
+  # the username
+  user: dave
+
+  # the password
+  password: na
+
+  # the JDBC URL
+  url: jdbc:postgresql://10.0.2.2/ff-prod
+
+  # any properties specific to your JDBC driver:
+  properties:
+    charSet: UTF-8
+    # squelch voluminous hibernate logging
+    hibernate.generate_statistics: false
+
+  # the maximum amount of time to wait on an empty pool before throwing an exception
+  maxWaitForConnection: 1s
+
+  # the SQL query to run when validating a connection's liveness
+  validationQuery: "/* MyService Health Check */ SELECT 1"
+
+  # the minimum number of connections to keep open
+  minSize: 8
+
+  # the maximum number of connections to keep open
+  maxSize: 32
+
+  # whether or not idle connections should be validated
+  checkConnectionWhileIdle: false
+  checkConnectionOnReturn: true
+
+  # the amount of time to sleep between runs of the idle connection validation, abandoned cleaner and idle pool resizing
+  evictionInterval: 10s
+
+  # the minimum amount of time an connection must sit idle in the pool before it is eligible for eviction
+  minIdleTime: 1 minute
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 9080
+  adminConnectors:
+    - type: http
+      port: 9081
+  requestLog:
+     appenders:
+       - type: console
+         timeZone: UTC
+         # https://logback.qos.ch/manual/layouts.html#AccessPatternLayout
+         logFormat: "%a %l \"%u\" [%t] \"%r\" %s %b \"%i{Referer}\" \"%i{User-Agent}\""
+
+logging:
+  level: INFO
+  appenders:
+    - type: console
+      threshold: ALL
+      timeZone: UTC
+      target: stdout

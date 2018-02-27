@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tagger
+  labels:
+    app: tagger
+    tier: backend
+spec:
+  # if your cluster supports it, uncomment the following to automatically create
+  # an external load-balanced IP for the frontend service.
+  #type: LoadBalancer
+  type: NodePort
+  ports:
+  - port: 5000
+    targetPort: 5000
+    nodePort: 31050
+  selector:
+    app: tagger
+    tier: backend
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tagger
+spec:
+  replicas: 1
+#  hostAliases:
+#    - ip: "10.0.2.2"
+#      hostnames:
+#        - "postgres"
+  template:
+    metadata:
+      labels:
+        app: tagger
+        tier: backend
+    spec:
+      containers:
+      - name: tagger
+        image: tagger
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        - name: DB_HOST
+          value: "10.0.2.2"
+        ports:
+        - containerPort: 5000

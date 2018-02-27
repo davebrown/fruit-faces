@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ff-rest
+  labels:
+    app: ff-rest
+    tier: frontend
+spec:
+  # if your cluster supports it, uncomment the following to automatically create
+  # an external load-balanced IP for the frontend service.
+  #type: LoadBalancer
+  type: NodePort
+  ports:
+  - port: 9080
+    targetPort: 9080
+    nodePort: 32080
+  selector:
+    app: ff-rest
+    tier: frontend
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ff-rest
+spec:
+  replicas: 1
+#  hostAliases:
+#    - ip: "10.0.2.2"
+#      hostnames:
+#        - "postgres"
+  template:
+    metadata:
+      labels:
+        app: ff-rest
+        tier: frontend
+    spec:
+      containers:
+      - name: ff-service
+        image: ff-service
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+        - name: ff-thumbs
+          mountPath: /ff-thumbs
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+          # If your cluster config does not include a dns service, then to
+          # instead access an environment variable to find the master
+          # service's host, comment out the 'value: dns' line above, and
+          # uncomment the line below:
+          # value: env
+        - name: DB_HOST
+          value: "10.0.2.2"
+        ports:
+        - containerPort: 9080
+      volumes:
+      - name: ff-thumbs
+        hostPath:
+          path: /Users/dave/code/fruit-faces/web/thumbs
+          type: Directory

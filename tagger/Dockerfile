@@ -1,14 +1,8 @@
-FROM ubuntu
+FROM gw000/keras:2.1.4-py2-tf-cpu
 
-RUN apt-cache update
-RUN apt-get install -y python2.7 python-pip
-RUN mkdir /app
-# Bundle app source
-COPY tagservice.py /app/tagservice.py
-COPY model_plates-28x28.h5 /app/model_plates-28x28.h5
+WORKDIR /srv
 
-COPY requirements.txt /app/requirements.txt
-RUN pip install -r /app/requirements.txt
-
-EXPOSE  5000
-CMD ["python", "/src/tagservice.py", "-v run /src/model_plates-28x28.h5"]
+ADD . /srv
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+EXPOSE 5000
+CMD ["./dev.sh"]
