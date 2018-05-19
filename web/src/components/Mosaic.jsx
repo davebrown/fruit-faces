@@ -178,8 +178,8 @@ class FFThumb extends React.Component {
   render() {
     // thumb divs are 30x40, making browser scale down makes for sharper resolution
     const dim = '60x80';
-    const { root, base } = this.props.image;
-    var path = '/thumbs' + root + '/' + base + '_' + dim + '_t.jpg';
+    const { root, base, ext } = this.props.image;
+    var path = '/thumbs' + root + '/' + base + '_' + dim + '_t.' + ext;
     var selClass = '';
     {
       if (ImageStore.getFilterTag() != null && !imageHasTag(this.props.image, ImageStore.getFilterTag())) {

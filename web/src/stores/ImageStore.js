@@ -193,6 +193,7 @@ function indexImages(images) {
     //imageMap[image.base] = image;
     imageMap[image.path] = image;
     image.index = i;
+    image.ext = image.full.substring(image.full.lastIndexOf('.') + 1);
   }
   console.log('images indexed (count=' + images.length + ')');
 }

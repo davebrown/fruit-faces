@@ -33,7 +33,7 @@ public abstract class ImageResizer {
         return ext(filename);
     }
 
-    public static final List<String> VALID_EXTS = Arrays.asList("jpg", "png", "jpeg");
+    public static final List<String> VALID_EXTS = Arrays.asList("jpg", "png", "jpeg", "JPG", "JPEG", "PNG");
 
     protected static ResizeResult result(String full, int width, int height) {
         String ext = getExtension(full);
