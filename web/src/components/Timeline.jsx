@@ -21,7 +21,7 @@ class MonthContainer extends React.Component {
               const label = showLabel ? (<span className="footnote">{image.base}</span>) : '';
               return (
                 <Link key={'thumbtable-cell-' + image.id} to={'/images' + image.path} className="flex-column thumb-cell">
-                  <img src={'/thumbs' + image.root + '/' + image.base + '_60x80_t.jpg'} className={selClass}/>
+                  <img src={'/thumbs' + image.root + '/' + image.base + '_60x80_t.' + image.ext} className={selClass}/>
                   {label}
                 </Link>
               );
@@ -33,7 +33,7 @@ class MonthContainer extends React.Component {
   }
   
 }
-export default class ThumbTable extends React.Component {
+export default class Timeline extends React.Component {
 
   constructor(props) {
     super(props);

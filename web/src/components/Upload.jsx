@@ -139,6 +139,7 @@ export default class Upload extends React.Component {
   fixupImage(newImage) {
     if (newImage.base) {
       newImage.path = newImage.root + '/' + newImage.base;
+      newImage.ext = newImage.full.substring(newImage.full.lastIndexOf('.') + 1);
     }
   }
   
