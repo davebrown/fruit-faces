@@ -15,7 +15,7 @@ cd ..
 # 2) python-pip
 # 3) virtualenv
 # 4) a virtualenv called 'tagger' already exists and is sourced from .bashrc
-ssh $REMOTE_USER '. venvs/tagger/bin/activate && pip install -r tagger/requirements.txt'
+ssh $REMOTE_USER '. venvs/tagger3/bin/activate && pip3 install -r tagger/requirements.txt'
 
 echo '============ RESTART TAGGER SERVICE ================'
 ssh $REMOTE_USER 'tagger/tagger-prod.sh stop || true'

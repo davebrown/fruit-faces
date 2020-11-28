@@ -2,7 +2,7 @@
 
 # hack: source production venv
 echo 'sourcing virtualenv for tagger:'
-. ~/venvs/tagger/bin/activate
+. ~/venvs/tagger3/bin/activate
 
 set -e
 # useful:
