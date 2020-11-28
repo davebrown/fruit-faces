@@ -6,4 +6,4 @@ Pillow==8.0.1
 python-dateutil==2.8.1
 python-mimeparse==1.6.0
 PyYAML==5.3.1
-tensorflow==1.13.1
+tensorflow==2.3.1
