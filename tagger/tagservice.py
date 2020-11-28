@@ -19,6 +19,14 @@ from keras.models import load_model
 from keras import backend as K
 import tensorflow as tf
 
+if os.environ.get('TAGGER_ENVIRONMENT', None) == 'development':
+  logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+else:
+  logfile = '%s/logs/tagger.log' % os.environ.get('HOME', '/tmp')
+  logging.basicConfig(filename=logfile, level=logging.INFO,
+                      format="%(asctime)s %(levelname)s %(threadName)s %(name)s %(message)s",
+  )
+
 logger = logging.getLogger('tagservice')
 
 def say(*args):
@@ -97,29 +105,6 @@ class TagResource:
     self.model = None
     self.width, self.height = decodeSize(os.environ.get('FF_MODEL_SIZE', '28x28'))
     say('got model width', self.width, 'height', self.height)
-    # do late, lazy loading of the keras model. It fails (hangs) in the child process of the gunicorn
-    # worker if we load it in the parent process. After ~2 days debugging, lazy load is the best way
-    # to make progress :-/
-    #self.model = loadModel()
-    #with SESSION.as_default():
-    #  self._initModel()
-      
-  # def _initModel(self):
-  #   say('validating model')
-  #   try:
-  #     data = np.array([ imread('/Users/dave/code/fruit-faces/thumbs/IMG_4036_28x28_t.jpg') ] )
-  #     if os.environ.get('FLATTEN', None) is not None:
-  #       data = np.array(data).flatten()
-  #     say('initModel() loaded validation data, shape %s' % str(data.shape))
-  #     predicts = self.model.predict(data)
-  #     say('validation prediction: %s' % str(n2c(predicts[0])))
-  #     self.model.summary()
-  #   except:
-  #     msg = 'EXCEPTION in validating model'
-  #     print(msg)
-  #     traceback.print_exc()
-  #     err(msg)
-  #     raise HaltServer(msg)
 
   def on_post(self, req, resp, **kwargs):
     image = req.get_param('imagefile')
@@ -158,7 +143,9 @@ class TagResource:
       traceback.print_exc()
       raise falcon.HTTPError(falcon.HTTP_500, 'internal error')
     
-    say('ran predictions')
+    say('ran predictions: %s' % str(predicts))
+    colors = ['blue', 'gray', 'white']
+    say(', '.join([ '%s=%f' % (colors[i], predicts[0][i]) for i in range(0,3) ]))
 
     body = {
       'tags': [ n2c(predicts[0]) ]
