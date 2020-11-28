@@ -84,7 +84,7 @@ rsync -av \
 
 echo '============ STOPPING CURRENT SERVICE ================'
 
-ssh $REMOTE_USER ./daemon.sh stop
+ssh $REMOTE_USER ./daemon.sh stop || true
 sleep 1
 
 echo '========== CHECK AND APPLY DB MIGRATION(S) ==========='
