@@ -59,9 +59,11 @@ public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
                     ThreadLocalSessionContext.class.getName());
             entityManagerBundle.run(configuration,
                     new Environment("EnvName", bootstrap.getObjectMapper(),
-                            bootstrap.getValidatorFactory().getValidator(),
+                            bootstrap.getValidatorFactory(),
                             bootstrap.getMetricRegistry(),
-                            bootstrap.getClassLoader()));
+                            bootstrap.getClassLoader(),
+                            bootstrap.getHealthCheckRegistry(),
+                            configuration));
 
             EntityManager em = entityManagerBundle.getEntityManagerFactory().createEntityManager();
             String query = namespace.getString("query");
