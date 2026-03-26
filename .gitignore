@@ -7,3 +7,7 @@ node_modules
 index.js
 *.pyc
 *~
+# Secret files
+prod-secrets.sh
+server/production.yaml
+server/production.yaml~
