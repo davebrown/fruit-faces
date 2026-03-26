@@ -1,5 +1,6 @@
 package com.moonspider.ff;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
@@ -90,7 +91,10 @@ public class FFConfiguration extends Configuration {
     }
 
     public String getThumbDirPath() { return thumbDirPath; }
+    
+    @JsonIgnore
     public File getThumbDir() { return new File(thumbDirPath); }
+    
     public int getRootUserId() { return rootUserId; }
 
     public String getTagServiceUrl() {
