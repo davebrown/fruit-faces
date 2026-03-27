@@ -5,7 +5,7 @@ import request from 'browser-request';
 
 import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';
 import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { API_BASE_URL, history } from '../util/Util.js';
+import { API_BASE_URL, history, errToString } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
 
 // STATE
