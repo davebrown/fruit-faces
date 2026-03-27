@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import bowser from 'bowser';
-import amplitude from 'amplitude-js/amplitude.min';
+import amplitude from 'amplitude-js';
 import request from 'browser-request';
 
 import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_CHANGED, FILTER_CHANGED } from '../constants/FFConstants.js';

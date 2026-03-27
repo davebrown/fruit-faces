@@ -1,4 +1,4 @@
-import amplitude from 'amplitude-js/amplitude.min';
+import amplitude from 'amplitude-js';
 //import createHistory from 'history/createHashHistory';
 import createHistory from 'history/createBrowserHistory';
 import FFActions from '../actions/FFActions.js';
