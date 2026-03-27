@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import request from 'browser-request';
 import ImageStore from '../stores/ImageStore.js';
 import { API_BASE_URL, imageHasTag, reportError } from '../util/Util.js';
