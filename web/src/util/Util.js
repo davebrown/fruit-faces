@@ -1,11 +1,7 @@
 import amplitude from 'amplitude-js';
-//import createHistory from 'history/createHashHistory';
-import createHistory from 'history/createBrowserHistory';
+import { createBrowserHistory } from 'history';
 import FFActions from '../actions/FFActions.js';
-//import { browserHistory } from 'react-router-dom';
-//const history = browserHistory;
-//console.log('loaded browser history', browserHistory);
-const history = createHistory();
+const history = createBrowserHistory();
 const hashHistory = history;
 
 /*
