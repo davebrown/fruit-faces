@@ -27,11 +27,11 @@
     "react-facebook-login": "^4.1.1",
     "react-fileupload": "^2.4.0",
     "react-fontawesome": "^1.6.1",
-    "react-image-gallery": "^0.8.2",
+    "react-image-gallery": "^1.4.0",
     "react-radio-group": "^3.0.2",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
-    "react-swipeable": "^7.0.2",
+    "react-swipeable": "^5.5.1",
     "react-toastr": "^2.8.2",
     "react-tooltip": "^3.2.6",
     "victory": "^36.9.2"
