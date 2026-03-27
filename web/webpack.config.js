@@ -1,16 +1,23 @@
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+const webpack = require('webpack');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const path = require('path');
 
 module.exports = {
-  entry: ["babel-polyfill", "./src/app.js"],
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+  entry: ["./src/app.js"],
   output: {
-    filename: "index.js"
+    filename: "index.js",
+    path: path.resolve(__dirname, '.'),
+    publicPath: '/'
   },
   devServer: {
     host: '0.0.0.0',
     port: 3000,
     historyApiFallback: true,
-    disableHostCheck: true
+    allowedHosts: 'all',
+    static: {
+      directory: path.join(__dirname, '.'),
+    }
   },
   plugins: [
     new webpack.EnvironmentPlugin({
@@ -21,35 +28,39 @@ module.exports = {
       "FB_APP_ID": null,
       "FF_BUILD_DESCRIPTION": 'dev build ' + (new Date())
     }),
-    new ExtractTextPlugin('bundle.css')
+    new MiniCssExtractPlugin({
+      filename: 'bundle.css'
+    })
   ],
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.js(x)?$/,
-        //exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['es2015', 'react', 'babel-preset-stage-0' ]
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader'
         }
       },
       {
         test: /\.css$/,
-        //loader: ExtractTextPlugin.extract('style-loader', 'css-loader')
-        loader: ExtractTextPlugin.extract({ fallback: 'style-loader', use: 'css-loader' })
+        use: [MiniCssExtractPlugin.loader, 'css-loader']
       },
       {
         test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+        type: 'asset/inline',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10000
+          }
+        }
       },
       {
         test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader'
+        type: 'asset/resource'
       }      
     ]
+  },
+  resolve: {
+    extensions: ['.js', '.jsx']
   }
 };
-
-if (process.env.NODE_ENV === 'production') {
-  module.exports.plugins.push(new webpack.optimize.UglifyJsPlugin());
-}
