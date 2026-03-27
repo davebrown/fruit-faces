@@ -1,6 +1,6 @@
 import React from 'react';
 import dateformat from 'dateformat';
-import Swipable from 'react-swipeable';
+import { Swipeable as Swipable } from 'react-swipeable';
 import { Icon } from 'react-fa';
 import request from 'browser-request';
 
