@@ -1,0 +1,63 @@
+diff --git a/web/src/components/Upload.jsx b/web/src/components/Upload.jsx
+index 511524f..377420c 100644
+--- a/web/src/components/Upload.jsx
++++ b/web/src/components/Upload.jsx
+@@ -38,7 +38,8 @@ export default class Upload extends React.Component {
+       uploading: false,
+       dataUploaded: 0,
+       dataSize: 0,
+-      fileName: null
++      fileName: null,
++      commentInput: null
+     });
+     this.authChanged();
+   }
+@@ -137,8 +138,7 @@ export default class Upload extends React.Component {
+         headers: {
+           'X-FF-Auth': authStore.getAccessToken()
+         },
+-        //console.log('comment input via ref:', this.commentInput.value);
+-        json:{message: this.commentInput.value || ''}
++        json:{message: this.state.commentInput.value || ''}
+       }, (er, response, bodyString) => {
+         if (response && (response.statusCode >= 200 && response.statusCode <= 299)) {
+           reportSuccess('posted ' + (newImage.base || '') + ' to Facebook');
+@@ -174,8 +174,10 @@ export default class Upload extends React.Component {
+     }
+     */
+     var ret = true;
++    console.log('beforeUpload: this.state.commentInput=' + this.state.commentInput);
+     var comment = this.state.commentInput;
+     if (comment) comment = comment.trim();
++    console.log('Upload.jsx: comment="' + comment + '"');
+     if (this.state.postToFB && !comment) {
+       ret = confirm("Proceed with empty Facebook post text?");
+       if (!ret) {
+@@ -233,15 +235,15 @@ export default class Upload extends React.Component {
+     }
+ 
+     var fbPublish = '';
+-    var commentInput = '';
++    var commentElement = '';
+     if (postToFB) {
+       if (!havePublishPermission) {
+         fbPublish = (<span>Please grant Art for Breakfast <FBLogin renderLink={false} scope='publish_actions' authText="permission"/> to post to your Facebook timeline</span>);
+       } else {
+-        commentInput = (
++        commentElement = (
+           <div className="flex-column fb-comment">
+             <span><Icon name="facebook" title="comment on Facebook"/> Facebook comment</span>
+-            <textarea id="fb-comment-text" className="form-input" placeholder="Type a facebook comment for your image..." rows="3" ref={(input) => { this.commentInput = input; } }></textarea>
++            <textarea id="fb-comment-text" className="form-input" placeholder="Type a facebook comment for your image..." rows="3" ref={(input) => { this.setState({commentInput: input}); }}></textarea>
+           </div>
+         );
+       }
+@@ -261,7 +263,7 @@ export default class Upload extends React.Component {
+             <i className="form-icon"></i> Post to my Facebook timeline
+           </label>
+           {fbPublish}
+-          {commentInput}
++          {commentElement}
+           {progress}
+           {filename}
+         </div>

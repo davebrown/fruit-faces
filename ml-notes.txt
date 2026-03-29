@@ -1,0 +1,8 @@
+ML model checklist:
+ - randomize parameters in layers at start: kernel_initializer=RandomUniform(minval=-0.5, maxval=.5)
+ - apply bias in layers? bias_initializer=...
+ - kernel / bias regularizer?
+ - kernel / bias constraints?
+ - optimizers - RMSprop, SGD
+ - learning_rate of optimizer: lr=0.0001
+ - activation functions

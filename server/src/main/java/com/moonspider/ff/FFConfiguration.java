@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.db.PooledDataSourceFactory;
+import io.dropwizard.db.DatabaseConfiguration;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 
-public class FFConfiguration extends Configuration {
+public class FFConfiguration extends Configuration implements DatabaseConfiguration<FFConfiguration> {
 
     @Valid
     @NotNull
@@ -70,6 +72,11 @@ public class FFConfiguration extends Configuration {
 
     @JsonProperty
     private String assetUrlPrefix;
+
+    @Override
+    public PooledDataSourceFactory getDataSourceFactory(FFConfiguration configuration) {
+        return database;
+    }
 
     public DataSourceFactory getDataSourceFactory() {
         return database;

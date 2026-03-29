@@ -1,0 +1,8 @@
+1) Login with Facebook to to "Art for Breakfast" site. This is done by clicking the "Login..." link below the hamburger menu on the upper right.
+2) Navigate to the "Upload" screen https://ff.moonspider.com/upload
+3) Check the "Post to my Facebook timeline" checkbox
+4) Click the "permission" button in the sentence "Please grant Art for Breakfast _permission_ to post to your timeline"
+5) Accept the "publish_actions" permission
+6) You may optionally describe the image you want to upload in the "Comment for your image" text area.
+7) Click the button "choose photos to upload". Select a .jpg image.
+8) Your image is uploaded to the Art for Breakfast site, and a description and link to your image will appear in your Facebook feed/timeline.
