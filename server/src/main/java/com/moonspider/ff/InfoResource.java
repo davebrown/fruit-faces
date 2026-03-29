@@ -4,14 +4,15 @@ import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moonspider.ff.client.TagService;
 import com.moonspider.ff.model.PingDTO;
-import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Call;
 
 import static com.moonspider.ff.model.PingDTO.ResourceStatus.*;
 
+import io.dropwizard.hibernate.UnitOfWork;
 import javax.persistence.EntityManager;
+import org.hibernate.SessionFactory;
 import javax.persistence.Query;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -35,8 +36,8 @@ public class InfoResource extends BaseResource {
     private final TagService tagService;
 
 
-    public InfoResource(EntityManager entityManager, FFConfiguration config) {
-        super(entityManager, config);
+    public InfoResource(SessionFactory sessionFactory, FFConfiguration config) {
+        super(sessionFactory, config);
         this.tagService = Util.createTagService(config);
     }
 
@@ -97,7 +98,7 @@ public class InfoResource extends BaseResource {
     private PingDTO.Resource checkPostgres() {
         PingDTO.Resource ret;
         try {
-            Query query = entityManager.createNativeQuery("SELECT * FROM IMAGE WHERE 1=0");
+            Query query = getEntityManager().createNativeQuery("SELECT * FROM IMAGE WHERE 1=0");
             List l = query.getResultList();
             ret = new PingDTO.Resource("postgresql", OK);
         } catch (Exception problem) {

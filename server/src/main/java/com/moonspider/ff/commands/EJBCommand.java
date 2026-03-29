@@ -1,31 +1,34 @@
 package com.moonspider.ff.commands;
 
+import com.moonspider.ff.FFApplication;
 import com.moonspider.ff.FFConfiguration;
 import com.moonspider.ff.ejb.ImageEJB;
+import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.ejb.UserEJB;
-import com.scottescue.dropwizard.entitymanager.EntityManagerBundle;
-import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.db.DataSourceFactory;
+import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import org.apache.commons.io.FileUtils;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.context.internal.ThreadLocalSessionContext;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Query;
 import java.io.File;
 import java.util.List;
 
 public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
 
-    public EJBCommand() {
+    private final FFApplication application;
+
+    public EJBCommand(FFApplication application) {
         super("ejb", "EJB operations from command line");
+        this.application = application;
     }
 
     @Override
@@ -47,8 +50,8 @@ public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
         @Override
     protected void run(Bootstrap<FFConfiguration> bootstrap, Namespace namespace, FFConfiguration configuration) throws Exception {
 
-            EntityManagerBundle<FFConfiguration> entityManagerBundle =
-                    new ScanningEntityManagerBundle<FFConfiguration>("com.moonspider.ff.ejb") {
+            HibernateBundle<FFConfiguration> hibernateBundle =
+                    new HibernateBundle<FFConfiguration>(ImageEJB.class, TagEJB.class, UserEJB.class) {
                         @Override
                         public DataSourceFactory getDataSourceFactory(FFConfiguration configuration) {
                             return configuration.getDataSourceFactory();
@@ -57,7 +60,7 @@ public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
 
             configuration.getDataSourceFactory().getProperties().put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS,
                     ThreadLocalSessionContext.class.getName());
-            entityManagerBundle.run(configuration,
+            hibernateBundle.run(configuration,
                     new Environment("EnvName", bootstrap.getObjectMapper(),
                             bootstrap.getValidatorFactory(),
                             bootstrap.getMetricRegistry(),
@@ -65,37 +68,26 @@ public class EJBCommand extends ConfiguredCommand<FFConfiguration> {
                             bootstrap.getHealthCheckRegistry(),
                             configuration));
 
-            EntityManager em = entityManagerBundle.getEntityManagerFactory().createEntityManager();
+            SessionFactory sessionFactory = hibernateBundle.getSessionFactory();
+            Session session = sessionFactory.openSession();
+            session.beginTransaction();
+            
             String query = namespace.getString("query");
             if (query == null) {
-                query = FileUtils.readFileToString(new File(namespace.getString("queryFile")), "utf8");
+                File f = new File(namespace.getString("queryFile"));
+                query = FileUtils.readFileToString(f, "UTF-8");
             }
-            System.out.println("executing '" + query + "'");
-            EntityTransaction tx = em.getTransaction();
-            tx.begin();
-            if (false) {
-                UserEJB user = new UserEJB();
-                user.setName("Daffy Duck");
-                user.setEmail("daffy@duck.org");
-                user.setFbId("987654321");
-                em.persist(user);
-                tx.commit();
-                System.out.println("persisted and committed: " + user);
-                em.refresh(user);
-                System.out.println("after refresh: " + user);
-                return;
+            if (query.indexOf("\n") == -1) {
+                System.out.println("executing: " + query);
+            } else {
+                System.out.println("executing: " + query.substring(0, Math.min(70, query.length())) + "... (" + query.length() + " chars)");
             }
-            //Query q = em.createQuery("SELECT i from ImageEJB i");
-            Query q = em.createQuery(query);
-            List l = q.getResultList();
-            System.out.println("got " + l.size() + " result(s):");
-            for (Object o : l) {
-                System.out.println(o);
-                if (o instanceof ImageEJB) {
-                    ImageEJB i = (ImageEJB)o;
-                    System.out.println("owner is " + i.getUser());
-                }
+            List results = session.createQuery(query).list();
+            System.out.println(results.size() + " result(s)");
+            for (Object o : results) {
+                System.out.println("  " + o);
             }
-            tx.rollback();
+            session.getTransaction().commit();
+            session.close();
     }
 }

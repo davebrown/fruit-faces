@@ -1,9 +1,11 @@
 package com.moonspider.ff;
 
 import com.codahale.metrics.annotation.Timed;
-import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 
+import io.dropwizard.hibernate.UnitOfWork;
+import io.dropwizard.hibernate.UnitOfWork;
 import javax.persistence.EntityManager;
+import org.hibernate.SessionFactory;
 import javax.persistence.Query;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -15,8 +17,8 @@ import java.util.*;
 @Produces(MediaType.APPLICATION_JSON)
 public class StatsResource extends BaseResource {
 
-    public StatsResource(EntityManager entityManager, FFConfiguration config) {
-        super(entityManager, config);
+    public StatsResource(SessionFactory sessionFactory, FFConfiguration config) {
+        super(sessionFactory, config);
     }
 
     @GET
@@ -24,7 +26,7 @@ public class StatsResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Collection<Map> getCountByDayOfWeek() {
-        Query query = entityManager.createNativeQuery(
+        Query query = getEntityManager().createNativeQuery(
                 "SELECT name, count FROM (" +
                         "select dow.name, count(*), dow.idx\n" +
                         "from image as img, day_of_week as dow\n" +
@@ -48,7 +50,7 @@ public class StatsResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Collection<Map> getByMonth() {
-        Query query = entityManager.createNativeQuery(
+        Query query = getEntityManager().createNativeQuery(
                 "select month, count from (\n" +
                         "  select to_char(date_trunc('month', tstamp), 'Mon \"''\"YY') as month,\n" +
                         "  count(*) as count, date_trunc('month', tstamp)\n" +
@@ -72,7 +74,7 @@ public class StatsResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Collection<Map> getByTimeOfDay() {
-        Query query = entityManager.createNativeQuery(
+        Query query = getEntityManager().createNativeQuery(
                 "SELECT\n" +
                         " to_char(cast('2017-01-13' as timestamp) + S.sm * interval '1 minute', 'HH24:MI') as tod,\n" +
                         " coalesce(MM.count, 0) as count,\n" +

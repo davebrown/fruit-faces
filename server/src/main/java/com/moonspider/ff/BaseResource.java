@@ -7,11 +7,13 @@ import com.moonspider.ff.client.FBService;
 import com.moonspider.ff.ejb.UserEJB;
 import com.moonspider.ff.model.UserDTO;
 
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import io.dropwizard.hibernate.UnitOfWork;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.ws.rs.WebApplicationException;
@@ -37,11 +39,16 @@ public abstract class BaseResource {
 
     protected static FBService fb = retrofit.create(FBService.class);
 
-    protected EntityManager entityManager;
-    protected  FFConfiguration config;
-    protected BaseResource(EntityManager em, FFConfiguration config) {
-        this.entityManager = em;
+    protected SessionFactory sessionFactory;
+    protected FFConfiguration config;
+    
+    protected BaseResource(SessionFactory sessionFactory, FFConfiguration config) {
+        this.sessionFactory = sessionFactory;
         this.config = config;
+    }
+    
+    protected EntityManager getEntityManager() {
+        return sessionFactory.getCurrentSession();
     }
 
     protected <T> T getSingleResult(Query query, Class<T> c) {
@@ -91,7 +98,7 @@ public abstract class BaseResource {
     }
 
     private UserEJB findUser(UserDTO dto, EntityManager em) {
-        if (em == null) em = entityManager;
+        if (em == null) em = getEntityManager();
         Query query = em.createQuery("SELECT u from UserEJB u where u.fbId=:fbId");
         query.setParameter("fbId", dto.getFbId());
         UserEJB ejb = getSingleResult(query, UserEJB.class);
@@ -105,7 +112,7 @@ public abstract class BaseResource {
             synchronized (dto.getFbId().intern()) {
                 // manage tx ourselves here, to manage race condition on user
                 // create between /user/register and /images/mine endpoints
-                EntityManager managed = entityManager.getEntityManagerFactory().createEntityManager();
+                EntityManager managed = sessionFactory.openSession();
                 managed.getTransaction().begin();
                 try {
                     ejb = findUser(dto, managed);

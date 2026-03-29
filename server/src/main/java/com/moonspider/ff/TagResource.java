@@ -3,9 +3,11 @@ package com.moonspider.ff;
 import com.codahale.metrics.annotation.Timed;
 import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.model.ImageDTO;
-import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 
+import io.dropwizard.hibernate.UnitOfWork;
+import io.dropwizard.hibernate.UnitOfWork;
 import javax.persistence.EntityManager;
+import org.hibernate.SessionFactory;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,8 +21,8 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class TagResource extends BaseResource {
 
-    public TagResource(EntityManager entityManager, FFConfiguration configuration) {
-        super(entityManager, configuration);
+    public TagResource(SessionFactory sessionFactory, FFConfiguration configuration) {
+        super(sessionFactory, configuration);
     }
 
     private static Collection<String> COLOR_TAGS = new ArrayList();
@@ -34,7 +36,7 @@ public class TagResource extends BaseResource {
     @Path("/colors")
     @UnitOfWork(transactional = false)
     public Collection<String> getColors() {
-        TypedQuery<TagEJB> query = entityManager.createQuery(
+        TypedQuery<TagEJB> query = getEntityManager().createQuery(
                 "SELECT t FROM TagEJB t WHERE t.name IN (:color_tags)",
                 TagEJB.class);
         query.setParameter("color_tags", COLOR_TAGS);
@@ -45,7 +47,7 @@ public class TagResource extends BaseResource {
     @Path("/non-colors")
     @UnitOfWork(transactional = false)
     public Collection<String> getNonColors() {
-        TypedQuery<TagEJB> query = entityManager.createQuery(
+        TypedQuery<TagEJB> query = getEntityManager().createQuery(
                 "SELECT t FROM TagEJB t WHERE t.name NOT IN (:color_tags)",
                 TagEJB.class);
         query.setParameter("color_tags", COLOR_TAGS);
@@ -57,7 +59,7 @@ public class TagResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Collection<String> getAll() {
-        TypedQuery<TagEJB> query = entityManager.createQuery("SELECT t FROM TagEJB t", TagEJB.class);
+        TypedQuery<TagEJB> query = getEntityManager().createQuery("SELECT t FROM TagEJB t", TagEJB.class);
         return toStrings(query);
     }
 

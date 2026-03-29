@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
-import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.db.DatabaseConfiguration;
 
 import javax.validation.Valid;
@@ -74,7 +73,7 @@ public class FFConfiguration extends Configuration implements DatabaseConfigurat
     private String assetUrlPrefix;
 
     @Override
-    public PooledDataSourceFactory getDataSourceFactory(FFConfiguration configuration) {
+    public DataSourceFactory getDataSourceFactory(FFConfiguration configuration) {
         return database;
     }
 

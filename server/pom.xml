@@ -63,17 +63,11 @@
             <version>${dropwizard.version}</version>
         </dependency>
 
+        <!-- Hibernate/JPA for Dropwizard 2.x -->
         <dependency>
-            <groupId>com.scottescue</groupId>
-            <artifactId>dropwizard-entitymanager</artifactId>
-            <version>1.0.0-1</version>
-            <exclusions>
-                <!-- Exclude old dropwizard-db 1.0.0 to prevent version conflict -->
-                <exclusion>
-                    <groupId>io.dropwizard</groupId>
-                    <artifactId>dropwizard-db</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-hibernate</artifactId>
+            <version>${dropwizard.version}</version>
         </dependency>
 
         <dependency>

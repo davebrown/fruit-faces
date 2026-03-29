@@ -10,7 +10,8 @@ import com.moonspider.ff.util.ImageData;
 import com.moonspider.ff.util.ImageResizer;
 import com.moonspider.ff.util.ResizeResult;
 import com.moonspider.ff.util.ThumbnailatorResizer;
-import com.scottescue.dropwizard.entitymanager.UnitOfWork;
+import io.dropwizard.hibernate.UnitOfWork;
+import org.hibernate.SessionFactory;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Call;
 
+import io.dropwizard.hibernate.UnitOfWork;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -49,8 +51,8 @@ public class ImageResource extends BaseResource {
     private static final Logger log = LoggerFactory.getLogger(ImageResource.class);
     private TagService tagService;
 
-    public ImageResource(EntityManager entityManager, FFConfiguration config) {
-        super(entityManager, config);
+    public ImageResource(SessionFactory sessionFactory, FFConfiguration config) {
+        super(sessionFactory, config);
         this.tagService = Util.createTagService(config);
     }
 
@@ -58,8 +60,8 @@ public class ImageResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Collection<ImageDTO> getAll() {
-        //TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i ORDER BY random()", ImageEJB.class);
-        TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i ORDER BY i.tstamp ASC", ImageEJB.class);
+        //TypedQuery<ImageEJB> query = getEntityManager().createQuery("SELECT i FROM ImageEJB i ORDER BY random()", ImageEJB.class);
+        TypedQuery<ImageEJB> query = getEntityManager().createQuery("SELECT i FROM ImageEJB i ORDER BY i.tstamp ASC", ImageEJB.class);
         List<ImageEJB> dbList = query.getResultList();
         List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
         dbList.forEach(ejb->dtoList.add(new ImageDTO(ejb)));
@@ -87,7 +89,7 @@ public class ImageResource extends BaseResource {
     }
 
     private Collection<ImageDTO> imagesByUser(int userId) {
-        TypedQuery<ImageEJB> query = entityManager.createQuery("SELECT i FROM ImageEJB i where i.userId=?1 ORDER BY i.tstamp DESC", ImageEJB.class);
+        TypedQuery<ImageEJB> query = getEntityManager().createQuery("SELECT i FROM ImageEJB i where i.userId=?1 ORDER BY i.tstamp DESC", ImageEJB.class);
         query.setParameter(1, userId);
         List<ImageEJB> dbList = query.getResultList();
         List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
@@ -109,7 +111,7 @@ public class ImageResource extends BaseResource {
         */
         // FIXME: more efficient way to do this query?
         qs = "SELECT i FROM ImageEJB i where 'blue' NOT MEMBER OF i.tagList and 'white' NOT MEMBER OF i.tagList and 'gray' NOT MEMBER OF i.tagList";
-        TypedQuery<ImageEJB> query = entityManager.createQuery(qs, ImageEJB.class);
+        TypedQuery<ImageEJB> query = getEntityManager().createQuery(qs, ImageEJB.class);
         List<ImageEJB> dbList = query.getResultList();
         List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
         dbList.forEach(ejb->dtoList.add(new ImageDTO(ejb)));
@@ -117,7 +119,7 @@ public class ImageResource extends BaseResource {
     }
 
     private ImageEJB findEJB(int userId, String base) {
-        Query q = entityManager.createQuery("select i from ImageEJB i where i.userId=:userId and i.base=:base");
+        Query q = getEntityManager().createQuery("select i from ImageEJB i where i.userId=:userId and i.base=:base");
         q.setParameter("userId", userId);
         q.setParameter("base", base);
         return getSingleResult(q, ImageEJB.class);
@@ -160,7 +162,7 @@ public class ImageResource extends BaseResource {
                 thumbName(ejb.getBase(), THUMB_SIZE, ejb.getFull()),
                 thumbName(ejb.getBase(), ML_SIZE, ejb.getFull())
         );
-        entityManager.remove(ejb);
+        getEntityManager().remove(ejb);
         return Response.ok(dto).build();
     }
 
@@ -170,13 +172,13 @@ public class ImageResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Collection<ImageDTO> getByTag(String base, @PathParam("tag") String tag) {
-        TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
+        TagEJB tagEJB = getEntityManager().find(TagEJB.class, tag);
         if (tagEJB == null) {
             return Collections.EMPTY_LIST;
         }
         String qs;
         qs = "SELECT i FROM ImageEJB i WHERE :tag MEMBER OF i.tagList ORDER BY i.tstamp DESC";
-        TypedQuery<ImageEJB> query = entityManager.createQuery(qs, ImageEJB.class);
+        TypedQuery<ImageEJB> query = getEntityManager().createQuery(qs, ImageEJB.class);
         query.setParameter("tag", tagEJB);
         List<ImageEJB> dbList = query.getResultList();
         List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
@@ -205,15 +207,15 @@ public class ImageResource extends BaseResource {
             throw new WebApplicationException(404);
         }
         checkAuth(userEJB, ejb.getUser());
-        TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
+        TagEJB tagEJB = getEntityManager().find(TagEJB.class, tag);
         if (tagEJB == null) {
             tagEJB = new TagEJB(tag);
-            entityManager.persist(tagEJB);
+            getEntityManager().persist(tagEJB);
         }
         if (!ejb.getTagList().contains(tagEJB)) {
             ejb.getTagList().add(tagEJB);
         }
-        entityManager.persist(ejb);
+        getEntityManager().persist(ejb);
     }
 
     /** remove tag from this image */
@@ -236,10 +238,10 @@ public class ImageResource extends BaseResource {
             return error(404, "not found");
         }
         checkAuth(userEJB, ejb.getUser());
-        TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
+        TagEJB tagEJB = getEntityManager().find(TagEJB.class, tag);
         if (tagEJB != null) {
             ejb.getTagList().remove(tagEJB);
-            entityManager.persist(ejb);
+            getEntityManager().persist(ejb);
         }
         return Response.noContent().build();
     }
@@ -365,7 +367,7 @@ public class ImageResource extends BaseResource {
         record.setTstamp(imageData.timestamp != null ? imageData.timestamp : now);
         record.setImportTime(now);
         record.setUser(userEJB);
-        entityManager.persist(record);
+        getEntityManager().persist(record);
         log.info("successfully uploaded and persisted " + record);
         return Response.ok(new ImageDTO(record)).build();
     }
@@ -397,7 +399,7 @@ public class ImageResource extends BaseResource {
     }
 
     private long getBaseNameCount(UserEJB user, String basename) {
-        Query q = entityManager.createNativeQuery("SELECT count(*) + 1 from image where user_id=?1 and base like ?2");
+        Query q = getEntityManager().createNativeQuery("SELECT count(*) + 1 from image where user_id=?1 and base like ?2");
         q.setParameter(1, user.getId());
         q.setParameter(2, '%' + basename + '%');
         return getSingleResult(q, Number.class).longValue();
@@ -421,10 +423,10 @@ public class ImageResource extends BaseResource {
                 log.info("got tags for '" + mlFile.getName() + "': " + Arrays.toString(tagsDTO.getTags()));
                 tags = new ArrayList<>();
                 for (String tag : tagsDTO.getTags()) {
-                    TagEJB tagEJB = entityManager.find(TagEJB.class, tag);
+                    TagEJB tagEJB = getEntityManager().find(TagEJB.class, tag);
                     if (tagEJB == null) {
                         tagEJB = new TagEJB(tag);
-                        entityManager.persist(tagEJB);
+                        getEntityManager().persist(tagEJB);
                     }
                     tags.add(tagEJB);
                 }

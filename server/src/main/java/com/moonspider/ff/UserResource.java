@@ -3,11 +3,13 @@ package com.moonspider.ff;
 import com.codahale.metrics.annotation.Timed;
 import com.moonspider.ff.ejb.UserEJB;
 import com.moonspider.ff.model.UserDTO;
-import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.dropwizard.hibernate.UnitOfWork;
+import io.dropwizard.hibernate.UnitOfWork;
 import javax.persistence.EntityManager;
+import org.hibernate.SessionFactory;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -21,8 +23,8 @@ public class UserResource extends BaseResource {
 
     private static final Logger log = LoggerFactory.getLogger(UserResource.class);
 
-    public UserResource(EntityManager entityManager, FFConfiguration config) {
-        super(entityManager, config);
+    public UserResource(SessionFactory sessionFactory, FFConfiguration config) {
+        super(sessionFactory, config);
     }
 
     @POST
@@ -52,7 +54,7 @@ public class UserResource extends BaseResource {
         if (user == null || user.getFbId() == null || user.getId() != config.getRootUserId()) {
             return error(403, "denied");
         }
-        TypedQuery<UserEJB> query = entityManager.createQuery("SELECT u FROM UserEJB u", UserEJB.class);
+        TypedQuery<UserEJB> query = getEntityManager().createQuery("SELECT u FROM UserEJB u", UserEJB.class);
         List<UserEJB> dbList = query.getResultList();
         List ret = new ArrayList();
         dbList.forEach(ejb -> ret.add(new UserDTO(ejb)));

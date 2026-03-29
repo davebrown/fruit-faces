@@ -2,15 +2,16 @@ package com.moonspider.ff;
 
 import com.moonspider.ff.commands.EJBCommand;
 import com.moonspider.ff.commands.VersionCommand;
+import com.moonspider.ff.ejb.ImageEJB;
+import com.moonspider.ff.ejb.TagEJB;
+import com.moonspider.ff.ejb.UserEJB;
 import com.robertcboll.dropwizard.daemon.DaemonApplication;
-import com.scottescue.dropwizard.entitymanager.EntityManagerBundle;
-import com.scottescue.dropwizard.entitymanager.ScanningEntityManagerBundle;
 
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
-import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.forms.MultiPartBundle;
+import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -18,13 +19,13 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
-import java.util.EnumSet;
 import java.util.TimeZone;
+import java.util.EnumSet;
 
 public class FFApplication extends DaemonApplication<FFConfiguration> {
 
-    private final EntityManagerBundle<FFConfiguration> entityManagerBundle =
-            new ScanningEntityManagerBundle<FFConfiguration>("com.moonspider.ff.ejb") {
+    private final HibernateBundle<FFConfiguration> hibernateBundle =
+            new HibernateBundle<FFConfiguration>(ImageEJB.class, TagEJB.class, UserEJB.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(FFConfiguration configuration) {
                     return configuration.getDataSourceFactory();
@@ -34,7 +35,7 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
     private final MigrationsBundle<FFConfiguration> migrationsBundle =
             new MigrationsBundle<FFConfiguration>() {
                 @Override
-                public PooledDataSourceFactory getDataSourceFactory(FFConfiguration ffConfiguration) {
+                public DataSourceFactory getDataSourceFactory(FFConfiguration ffConfiguration) {
                     return ffConfiguration.getDataSourceFactory();
                 }
 
@@ -53,10 +54,10 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
                 )
         );
         bootstrap.addBundle(migrationsBundle);
-        bootstrap.addBundle(entityManagerBundle);
+        bootstrap.addBundle(hibernateBundle);
         bootstrap.addBundle(new MultiPartBundle());
         bootstrap.addCommand(new VersionCommand());
-        bootstrap.addCommand(new EJBCommand());
+        bootstrap.addCommand(new EJBCommand(this));
     }
 
     @Override
@@ -71,13 +72,13 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
             cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,X-FF-Auth,X-FF-Prevent-Duplicates");
             cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
         }
-        final ImageResource imgResource = new ImageResource(entityManagerBundle.getSharedEntityManager(), config);
+        final ImageResource imgResource = new ImageResource(hibernateBundle.getSessionFactory(), config);
         environment.jersey().register(imgResource);
-        environment.jersey().register(new TagResource(entityManagerBundle.getSharedEntityManager(), config));
-        environment.jersey().register(new StatsResource(entityManagerBundle.getSharedEntityManager(), config));
-        environment.jersey().register(new InfoResource(entityManagerBundle.getSharedEntityManager(), config));
-        environment.jersey().register(new UserResource(entityManagerBundle.getSharedEntityManager(), config));
-        environment.jersey().register(new PreviewResource(entityManagerBundle.getSharedEntityManager(), config));
+        environment.jersey().register(new TagResource(hibernateBundle.getSessionFactory(), config));
+        environment.jersey().register(new StatsResource(hibernateBundle.getSessionFactory(), config));
+        environment.jersey().register(new InfoResource(hibernateBundle.getSessionFactory(), config));
+        environment.jersey().register(new UserResource(hibernateBundle.getSessionFactory(), config));
+        environment.jersey().register(new PreviewResource(hibernateBundle.getSessionFactory(), config));
     }
 
     public static void main(String[] args) throws Exception {

@@ -2,11 +2,12 @@ package com.moonspider.ff;
 
 import com.codahale.metrics.annotation.Timed;
 import com.moonspider.ff.ejb.ImageEJB;
-import com.scottescue.dropwizard.entitymanager.UnitOfWork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.dropwizard.hibernate.UnitOfWork;
 import javax.persistence.EntityManager;
+import org.hibernate.SessionFactory;
 import javax.persistence.Query;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -18,8 +19,8 @@ public class PreviewResource extends BaseResource {
 
     private static final Logger log = LoggerFactory.getLogger(PreviewResource.class);
 
-    public PreviewResource(EntityManager entityManager, FFConfiguration config) {
-        super(entityManager, config);
+    public PreviewResource(SessionFactory sessionFactory, FFConfiguration config) {
+        super(sessionFactory, config);
     }
 
     // 'ignore' is for FB UI
@@ -76,7 +77,7 @@ public class PreviewResource extends BaseResource {
     }
 
     private ImageEJB findEJB(int userId, String base) {
-        Query q = entityManager.createQuery("select i from ImageEJB i where i.userId=:userId and i.base=:base");
+        Query q = getEntityManager().createQuery("select i from ImageEJB i where i.userId=:userId and i.base=:base");
         q.setParameter("userId", userId);
         q.setParameter("base", base);
         return getSingleResult(q, ImageEJB.class);
