@@ -7,6 +7,9 @@ import { IMAGE_CHANGED, IMAGE_ADDED, IMAGE_DELETED, IMAGES_LOADED, ORIENTATION_C
 import Dispatcher from '../dispatcher/AppDispatcher.js';
 import { API_BASE_URL, history, errToString } from '../util/Util.js';
 import FFActions from '../actions/FFActions.js';
+import { imageHasTag as _imageHasTag, indexImages as _indexImages, mix as _mix,
+         getNextImage as _getNextImage, getPreviousImage as _getPreviousImage,
+         getAboveImage as _getAboveImage, getBelowImage as _getBelowImage } from '../util/imageUtils.js';
 
 // STATE
 // array
@@ -53,63 +56,27 @@ class ImageStore extends EventEmitter {
   }
 
   getNextImage() {
-    var ret = selectedImage ? images[(selectedImage.index + 1) % images.length]: null;
-    return ret;
+    return _getNextImage(images, selectedImage);
   }
 
   getPreviousImage() {
-    var ret = null;
-    if (images && images.length && selectedImage) {
-      var ind = selectedImage.index > 0 ? selectedImage.index - 1 : images.length - 1;
-      ret = images[ind];
-    }
-    return ret;
+    return _getPreviousImage(images, selectedImage);
   }
 
   // go up one row
   getAboveImage() {
-    var ret = null;
-    if (selectedImage) {
-      var newIndex = selectedImage.index - mapWidth;
-      if (newIndex < 0) {
-        // wrap around, and go back (left) one column
-        var newCol = selectedImage.index % mapWidth - 1;
-        if (newCol < 0) newCol = mapWidth - 1;
-        var lastRowLen = images.length % mapWidth;
-        if (newCol < lastRowLen) {
-          newIndex = images.length - (lastRowLen - newCol);
-        } else {
-          newIndex = images.length - lastRowLen - (mapWidth - newCol);
-        }
-      }
-      ret = images[newIndex];
-    }
-    return ret;
+    return _getAboveImage(images, selectedImage, mapWidth);
   }
 
   getBelowImage() {
-    var ret = null;
-    if (selectedImage) {
-      var newIndex = selectedImage.index + mapWidth;
-      if (newIndex < images.length) {
-        ret = images[newIndex];
-      } else {
-        // wrap around, and go forward (right) one column
-        var newCol = selectedImage.index % mapWidth + 1;
-        if (newCol === images.length) newCol = 0;
-        newIndex = newCol;
-        // guard the edge case where mapWidth < images.length
-        ret = newIndex < images.length ? images[newCol] : null;
-      }
-    }
-    return ret;
+    return _getBelowImage(images, selectedImage, mapWidth);
   }
   getFilterTag() {
     return filterTag;
   }
   
   getTaggedImages(tag) {
-    return images.filter((img) => { return imageHasTag(img, tag); });
+    return images.filter((img) => { return _imageHasTag(img, tag); });
   }
 
   getBlues() {
@@ -174,27 +141,11 @@ const imageStore = new ImageStore();
 
 // FIXME: cut/paste
 function imageHasTag(image, tag) {
-  if (image) {
-    if (!image.tags) image.tags = [];
-    for (var i = 0, len = image.tags.length; i < len; i++) {
-      if (tag === image.tags[i]) return true;
-    }
-  }
-  return false;
+  return _imageHasTag(image, tag);
 }
 
 function indexImages(images) {
-  imageMap = {};
-  for (var i = 0; i < images.length; i++) {
-    var image = images[i];
-    if (!image.path) {
-      image.path = image.root + '/' + image.base;
-    }
-    //imageMap[image.base] = image;
-    imageMap[image.path] = image;
-    image.index = i;
-    image.ext = image.full.substring(image.full.lastIndexOf('.') + 1);
-  }
+  imageMap = _indexImages(images);
   console.log('images indexed (count=' + images.length + ')');
 }
 
@@ -237,22 +188,7 @@ function getMobileMap() {
 }
 
 function mix(arrays) {
-  var i, j;
-  var ret = [];
-  var max = 0;
-  for (i = 0; i < arrays.length; i++) {
-    max = max < arrays[i].length ? arrays[i].length : max;
-  }
-
-  for (i = 0; i < max; i++) {
-    for (j = 0; j < arrays.length; j++) {
-      if (i >= arrays[j].length) continue;
-      var img = arrays[j][i];
-      img.index = ret.length;
-      ret.push(img);
-    }
-  }
-  return ret;
+  return _mix(arrays);
 }
 
 
