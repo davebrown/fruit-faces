@@ -20,7 +20,7 @@ jest.mock('../../util/Util.js', () => ({
 }));
 jest.mock('../Filters.jsx', () => () => null);
 jest.mock('react-fa', () => ({ Icon: () => null }));
-test('real tooltip changes during continuous hover and stays dismissed after keyboard navigation', () => {
+test('real tooltip switches after the first click during continuous hover and stays dismissed after keyboard navigation', () => {
   const container = document.createElement('div');
   document.body.appendChild(container);
   try {
@@ -42,17 +42,13 @@ test('real tooltip changes during continuous hover and stays dismissed after key
 
     mouseEvent('mouseenter');
     expect(visibleTooltip().textContent).toBe('Click a thumbnail to see it larger');
-    for (const target of [thumbnail, thumbnailLink.querySelector('div')]) {
+    for (const target of [thumbnail, thumbnailLink.querySelector('div'), thumbnailLink]) {
       act(() => target.click());
-      expect(visibleTooltip()).toBeNull();
+      expect(visibleTooltip().textContent).toContain('Save mouse clicks!');
+      expect(visibleTooltip().textContent).not.toContain('Click a thumbnail');
       mouseEvent('mousemove');
-      expect(visibleTooltip()).toBeNull();
+      expect(visibleTooltip().textContent).toContain('left / right / up / down keys');
     }
-    act(() => thumbnailLink.click());
-    expect(visibleTooltip().textContent).toContain('Save mouse clicks!');
-    expect(visibleTooltip().textContent).not.toContain('Click a thumbnail');
-    mouseEvent('mousemove');
-    expect(visibleTooltip().textContent).toContain('left / right / up / down keys');
     mouseEvent('mouseleave');
     expect(visibleTooltip()).toBeNull();
     mouseEvent('mouseenter');

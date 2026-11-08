@@ -76,7 +76,7 @@ export default class Mosaic extends React.Component {
   onThumbnailClick() {
     this.setState(state => ({ clickCount: state.clickCount + 1 }), () => {
       clickCount = this.state.clickCount;
-      if (clickCount === 3 && this.state.showKeyTooltip) {
+      if (clickCount === 1 && this.state.showKeyTooltip) {
         ReactTooltip.show(ReactDOM.findDOMNode(this.refs.ff_table));
       }
     });
@@ -128,7 +128,7 @@ export default class Mosaic extends React.Component {
     } else if (clickCount === 0) {
       ttText = ttClickText;
       ttDisable = false;
-    } else if (showKeyTooltip && clickCount >= 3) {
+    } else if (showKeyTooltip && clickCount >= 1) {
       ttText = ttKeyText;
       ttDisable = false;
     }
@@ -167,7 +167,7 @@ export default class Mosaic extends React.Component {
           }
         </div>
         {!ttDisable &&
-          <ReactTooltip id="table-tt" place="right" multiline={true}
+          <ReactTooltip key={ttText} id="table-tt" place="right" multiline={true}
             type="success" effect="float" afterShow={ ttShowEvent } />
         }
       </div>
