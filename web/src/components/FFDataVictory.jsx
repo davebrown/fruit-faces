@@ -76,7 +76,7 @@ class FFChartDOW extends React.Component {
           data={this.state.data}
           x="day"
           y="count"
-          labels={(datum) => datum.y}
+          labels={({ datum }) => Math.round(datum.count * 10) / 10}
           style={{
             data: {fill: '#4070ff', padding: 0, width: 20.0 },
             labels: {fontSize: 10 },
@@ -106,7 +106,7 @@ class FFChartTOD extends React.Component {
         amplitude.logEvent('TOD_STATS_LOAD_ERROR', { errorMsg: errMsg });
         this.setState({error: errMsg});
       } else {
-        var todData = JSON.parse(bodyString);
+        var todData = JSON.parse(bodyString).map(({ time, count }) => ({ time, count }));
         this.setState({data: todData});
       }
     }
@@ -147,6 +147,7 @@ class FFChartTOD extends React.Component {
           dependentAxis={true}
           style={{
             axis: { strokeWidth: 0 },
+            axisLabel: { padding: 30 },
             ticks: { strokeWidth: 0 },
           }}
           label="Count"
@@ -157,8 +158,10 @@ class FFChartTOD extends React.Component {
           x="time"
           y="count"
         >
-          <VictoryLine/>
+          <VictoryLine x="time" y="count"/>
           <VictoryScatter
+            x="time"
+            y="count"
             style={{
               data: {
                 fill: "blue",
@@ -166,7 +169,6 @@ class FFChartTOD extends React.Component {
                 strokeWidth: 2.0
               }
             }}
-            labelComponent={<VictoryTooltip/>}
           />
         </VictoryGroup>
       </VictoryChart>
@@ -237,7 +239,7 @@ class FFChartMonth extends React.Component {
         <VictoryAxis
           style={{
             axis: { strokeWidth: 0 },
-            tickLabels: {fontSize: 10, padding: 5, angle: 0 }
+            tickLabels: {fontSize: 5, padding: 5, angle: 0 }
           }}
         />
         <VictoryAxis
