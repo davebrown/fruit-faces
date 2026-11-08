@@ -18,7 +18,6 @@ import { SIDE_MENU_OPENED, KEY_NAV_HAPPENED } from '../constants/FFConstants.js'
 function len(a) { return a && a.length; }
 
 // track state on whether or not to show tooltips
-var showClickTooltip = true;
 var showKeyTooltip = true;
 var clickCount = 0;
 
@@ -32,6 +31,7 @@ export default class Mosaic extends React.Component {
     super(props);
     this.onFilterClick = this.onFilterClick.bind(this);
     this.retractFilterForm = this.retractFilterForm.bind(this);
+    this.onThumbnailClick = this.onThumbnailClick.bind(this);
   }
 
   componentWillMount() {
@@ -39,16 +39,14 @@ export default class Mosaic extends React.Component {
       switch (action.actionType) {
         case KEY_NAV_HAPPENED:
           showKeyTooltip = false;
-          ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
-          ReactTooltip.hide();
-          ReactTooltip.rebuild();
+          this.setState({ showKeyTooltip });
           break;
         case SIDE_MENU_OPENED:
           this.setState({filterState: FILTER_FORM_NONE });
           break;
       }
     });
-    this.setState({ filterState: FILTER_FORM_NONE });
+    this.setState({ filterState: FILTER_FORM_NONE, clickCount, showKeyTooltip });
   }
 
   componentWillUnmount() {
@@ -67,10 +65,21 @@ export default class Mosaic extends React.Component {
         now.filter !== nextProps.filter) {
       ret = true;
     }
-    if (this.state.filterState !== nextState.filterState) {
+    if (this.state.filterState !== nextState.filterState ||
+        this.state.clickCount !== nextState.clickCount ||
+        this.state.showKeyTooltip !== nextState.showKeyTooltip) {
       ret = true;
     }
     return ret;
+  }
+
+  onThumbnailClick() {
+    this.setState(state => ({ clickCount: state.clickCount + 1 }), () => {
+      clickCount = this.state.clickCount;
+      if (clickCount === 3 && this.state.showKeyTooltip) {
+        ReactTooltip.show(ReactDOM.findDOMNode(this.refs.ff_table));
+      }
+    });
   }
 
   onFilterClick(e) {
@@ -93,7 +102,7 @@ export default class Mosaic extends React.Component {
   
   render() {
     var { images, selectedImage, filter } = this.props;
-    const filterState = this.state.filterState;
+    const { filterState, clickCount, showKeyTooltip } = this.state;
     images = ImageStore.getImages();
     if (!images) {
       return (<h1 className="loading" style={{ color: '#808080', minWidth: '340px', marginTop: '20vh' }}>Loading thumbnails</h1>);
@@ -111,11 +120,12 @@ export default class Mosaic extends React.Component {
                      + left + ' ' + right + ' ' + up + ' ' + down + '<br/>'
                      + "to navigate the pictures instead";
 
-    var ttText = null;
+    // Keep the target attribute so unmounted tooltips can remove their listeners.
+    var ttText = '';
     var ttDisable = true;
     if (bowser.mobile) {
       ttDisable = true;
-    } else if (showClickTooltip) {
+    } else if (clickCount === 0) {
       ttText = ttClickText;
       ttDisable = false;
     } else if (showKeyTooltip && clickCount >= 3) {
@@ -124,7 +134,7 @@ export default class Mosaic extends React.Component {
     }
 
     const ttShowEvent = () => {
-      if (showClickTooltip) {
+      if (clickCount === 0) {
         amplitude.logEvent('SHOWED_CLICK_TOOLTIP', {});
       } else if (showKeyTooltip) {
         amplitude.logEvent('SHOWED_KEY_TOOLTIP', { clickCount: clickCount });
@@ -151,12 +161,15 @@ export default class Mosaic extends React.Component {
           {
             images.map((image) => {
               var key = 'ff-thumb-' + image.id;
-              return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.path === image.path}/>;
+              return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.path === image.path}
+                onClick={this.onThumbnailClick}/>;
             })
           }
         </div>
-        <ReactTooltip disable={ttDisable} id="table-tt" place="right" multiline={true}
-          type="success" effect="float" afterShow={ ttShowEvent } />
+        {!ttDisable &&
+          <ReactTooltip id="table-tt" place="right" multiline={true}
+            type="success" effect="float" afterShow={ ttShowEvent } />
+        }
       </div>
     );
     return content;
@@ -167,13 +180,6 @@ class FFThumb extends React.Component {
 
   constructor(props) {
     super(props);
-  }
-
-  clickHandler() {
-    clickCount++;
-    showClickTooltip = false;
-    ReactTooltip.hide(ReactDOM.findDOMNode(this.refs.ff_table));
-    ReactTooltip.rebuild();
   }
 
   render() {
@@ -191,9 +197,9 @@ class FFThumb extends React.Component {
     }
     const to = '/images' + this.props.image.path;
     return (
-      <Link to={ to }>
+      <Link to={ to } onClick={this.props.onClick}>
       <div className={selClass} key={this.props.image.base}>
-        <img src={path} onClick={this.clickHandler.bind(this)}/>
+        <img src={path}/>
       </div>
     </Link>);
   }
