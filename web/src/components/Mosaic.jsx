@@ -154,9 +154,9 @@ export default class Mosaic extends React.Component {
               return <FFThumb key={key} image={image} selected={selectedImage && selectedImage.path === image.path}/>;
             })
           }
-          <ReactTooltip disable={ttDisable} id="table-tt" place="right" multiline={true}
-            type="success" effect="float" afterShow={ ttShowEvent } />
         </div>
+        <ReactTooltip disable={ttDisable} id="table-tt" place="right" multiline={true}
+          type="success" effect="float" afterShow={ ttShowEvent } />
       </div>
     );
     return content;

@@ -205,6 +205,10 @@ p {
     height: 40px;
 }
 
+#table-tt.show {
+    opacity: 1;
+}
+
 .thumb-outside-filter img {
     opacity: 0.2;
 }
