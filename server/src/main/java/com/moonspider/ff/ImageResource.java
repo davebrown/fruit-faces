@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 import retrofit2.Call;
 
 import io.dropwizard.hibernate.UnitOfWork;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.*;
 import java.net.URI;
 import java.util.*;

@@ -5,7 +5,7 @@
 package com.moonspider.ff.ejb;
 
 import java.util.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="tag")

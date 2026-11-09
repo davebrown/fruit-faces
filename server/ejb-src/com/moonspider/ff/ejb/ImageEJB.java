@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.moonspider.ff.model.ImageDTO;
 
 import java.util.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name="image")
