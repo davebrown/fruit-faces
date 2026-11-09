@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jre
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 ADD target/ff-1.0.0.jar /app
 ADD docker.yaml /app

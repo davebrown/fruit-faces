@@ -102,16 +102,10 @@ public class ImageResource extends BaseResource {
     @Timed
     @UnitOfWork(transactional = false)
     public Collection<ImageDTO> getNoPlateTag() {
-        String qs;
-        /*
-        qs = "SELECT i.tagList from ImageEJB i where i.base = 'IMG_4580'";
-        qs = "SELECT i FROM ImageEJB i where i.base = 'IMG_4580'";
-        qs = "SELECT i FROM ImageEJB i where 'blue' IN (SELECT t.name from TagEJB t)";
-        qs = "SELECT i FROM ImageEJB i where 'blue' = ANY (SELECT t.name from i.tagList t)";
-        */
-        // FIXME: more efficient way to do this query?
-        qs = "SELECT i FROM ImageEJB i where 'blue' NOT MEMBER OF i.tagList and 'white' NOT MEMBER OF i.tagList and 'gray' NOT MEMBER OF i.tagList";
-        TypedQuery<ImageEJB> query = getEntityManager().createQuery(qs, ImageEJB.class);
+        TypedQuery<ImageEJB> query = getEntityManager().createQuery(
+                "SELECT i FROM ImageEJB i WHERE NOT EXISTS "
+                        + "(SELECT t FROM i.tagList t WHERE t.name IN ('blue', 'white', 'gray'))",
+                ImageEJB.class);
         List<ImageEJB> dbList = query.getResultList();
         List<ImageDTO> dtoList = new ArrayList<>(dbList.size());
         dbList.forEach(ejb->dtoList.add(new ImageDTO(ejb)));

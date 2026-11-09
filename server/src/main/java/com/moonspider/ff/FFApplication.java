@@ -15,14 +15,11 @@ import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.FilterRegistration;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.TimeZone;
-import java.util.EnumSet;
+import java.util.Set;
 
 public class FFApplication extends Application<FFConfiguration> {
 
@@ -67,15 +64,13 @@ public class FFApplication extends Application<FFConfiguration> {
     @Override
     public void run(FFConfiguration config,
                     Environment environment) {
-        /* set up CORS to help our browser friends */
-        {
-            final FilterRegistration.Dynamic cors = environment.servlets()
-                    .addFilter("crossOriginRequests", CrossOriginFilter.class);
-            cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
-            cors.setInitParameter("allowedOrigins", "*");
-            cors.setInitParameter("allowedHeaders", "X-Requested-With,Content-Type,Accept,Origin,X-FF-Auth,X-FF-Prevent-Duplicates");
-            cors.setInitParameter("allowedMethods", "OPTIONS,GET,PUT,POST,DELETE,HEAD");
-        }
+        CrossOriginHandler cors = new CrossOriginHandler();
+        cors.setAllowedOriginPatterns(Set.of(".*"));
+        cors.setAllowCredentials(true);
+        cors.setAllowedHeaders(Set.of("X-Requested-With", "Content-Type", "Accept", "Origin",
+                "X-FF-Auth", "X-FF-Prevent-Duplicates"));
+        cors.setAllowedMethods(Set.of("OPTIONS", "GET", "PUT", "POST", "DELETE", "HEAD"));
+        environment.getApplicationContext().insertHandler(cors);
         final ImageResource imgResource = new ImageResource(hibernateBundle.getSessionFactory(), config);
         environment.jersey().register(imgResource);
         environment.jersey().register(new TagResource(hibernateBundle.getSessionFactory(), config));

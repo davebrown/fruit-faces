@@ -150,7 +150,9 @@ public class ApiTest {
         assertEquals(image, json(request("GET", "/api/v1/images/" + owner + "/face", null, null, null)));
         assertEquals(1, json(request("GET", "/api/v1/images/mine", "test-owner", null, null)).size());
         assertEquals(1, json(request("GET", "/api/v1/images/tags/blue", null, null, null)).size());
-        assertEquals(0, json(request("GET", "/api/v1/images/no-plate", null, null, null)).size());
+        HttpResponse<String> noPlate = request("GET", "/api/v1/images/no-plate", null, null, null);
+        assertEquals(noPlate.body(), 200, noPlate.statusCode());
+        assertEquals(0, json(noPlate).size());
         assertEquals("blue", json(request("GET", "/api/v1/tags/colors", null, null, null)).get(0).asText());
         assertEquals("apple", json(request("GET", "/api/v1/tags/non-colors", null, null, null)).get(0).asText());
 
@@ -167,7 +169,15 @@ public class ApiTest {
         assertEquals(403, request("DELETE", path, "test-other", null, null).statusCode());
         assertEquals(1, json(request("GET", "/api/v1/images", null, null, null)).size());
         assertEquals(204, request("DELETE", path + "/tags/blue", "test-owner", null, null).statusCode());
-        assertEquals(1, json(request("GET", "/api/v1/images/no-plate", null, null, null)).size());
+        noPlate = request("GET", "/api/v1/images/no-plate", null, null, null);
+        assertEquals(noPlate.body(), 200, noPlate.statusCode());
+        assertEquals(1, json(noPlate).size());
+        for (String tag : new String[]{"apple", "banana"}) {
+            assertEquals(204, request("DELETE", path + "/tags/" + tag, "test-owner", null, null).statusCode());
+        }
+        noPlate = request("GET", "/api/v1/images/no-plate", null, null, null);
+        assertEquals(noPlate.body(), 200, noPlate.statusCode());
+        assertEquals(1, json(noPlate).size());
 
         HttpResponse<String> preview = request("GET", "/api/v1/preview/" + owner + "/face", null, null, null);
         assertEquals(200, preview.statusCode());
@@ -216,7 +226,14 @@ public class ApiTest {
                 .header("Access-Control-Request-Headers", "X-FF-Auth,Content-Type")
                 .method("OPTIONS", HttpRequest.BodyPublishers.noBody()).build(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, cors.statusCode());
-        assertTrue(cors.headers().firstValue("access-control-allow-headers").orElse("").contains("X-FF-Auth"));
+        assertTrue(cors.headers().firstValue("access-control-allow-headers").orElse("")
+                .toLowerCase(java.util.Locale.ROOT).contains("x-ff-auth"));
+        HttpResponse<String> denied = CLIENT.send(HttpRequest.newBuilder(uri("/api/v1/images/mine"))
+                .header("Origin", "http://localhost:3000").GET().build(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(401, denied.statusCode());
+        assertEquals("http://localhost:3000",
+                denied.headers().firstValue("access-control-allow-origin").orElse(""));
+        assertEquals("true", denied.headers().firstValue("access-control-allow-credentials").orElse(""));
     }
 
     private static Connection connect() throws Exception {
