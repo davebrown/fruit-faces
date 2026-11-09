@@ -1,6 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { act } from 'react-dom/test-utils';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Mosaic from '../Mosaic.jsx';
 import Dispatcher from '../../dispatcher/AppDispatcher.js';
@@ -19,56 +18,34 @@ jest.mock('../../util/Util.js', () => ({
   history: { push: jest.fn() }
 }));
 jest.mock('../Filters.jsx', () => () => null);
-jest.mock('react-fa', () => ({ Icon: () => null }));
-test('real tooltip switches after the first click during continuous hover and stays dismissed after keyboard navigation', () => {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  try {
-    act(() => {
-      ReactDOM.render(
-        <MemoryRouter>
-          <Mosaic images={mockImages} selectedImage={null} filter={null}/>
-        </MemoryRouter>,
-        container
-      );
-    });
-    const mosaic = container.querySelector('[data-for="table-tt"]');
-    const thumbnailLink = mosaic.querySelector('a');
-    const thumbnail = thumbnailLink.querySelector('img');
-    const mouseEvent = type => act(() => {
-      mosaic.dispatchEvent(new MouseEvent(type, { clientX: 15, clientY: 15 }));
-    });
-    const visibleTooltip = () => container.querySelector('#table-tt.show');
 
-    mouseEvent('mouseenter');
-    expect(visibleTooltip().textContent).toBe('Click a thumbnail to see it larger');
-    for (const target of [thumbnail, thumbnailLink.querySelector('div'), thumbnailLink]) {
-      act(() => target.click());
-      expect(visibleTooltip().textContent).toContain('Save mouse clicks!');
-      expect(visibleTooltip().textContent).not.toContain('Click a thumbnail');
-      mouseEvent('mousemove');
-      expect(visibleTooltip().textContent).toContain('left / right / up / down keys');
-    }
-    mouseEvent('mouseleave');
-    expect(visibleTooltip()).toBeNull();
-    mouseEvent('mouseenter');
-    expect(visibleTooltip().textContent).toContain('Save mouse clicks!');
-    act(() => thumbnail.click());
-    expect(visibleTooltip().textContent).toContain('Save mouse clicks!');
+test('real tooltip switches on the first click without pointer movement and stays dismissed after keyboard navigation', async () => {
+  const { container } = render(
+    <MemoryRouter><Mosaic images={mockImages} selectedImage={null} filter={null}/></MemoryRouter>
+  );
+  const mosaic = container.querySelector('#mosaic-grid');
+  const link = mosaic.querySelector('a');
+  fireEvent.mouseEnter(mosaic, { clientX: 15, clientY: 15 });
+  await waitFor(() => expect(screen.getByRole('tooltip').textContent).toBe('Click a thumbnail to see it larger'));
 
-    act(() => Dispatcher.dispatch({ actionType: KEY_NAV_HAPPENED }));
-    expect(visibleTooltip()).toBeNull();
-    act(() => thumbnail.click());
-    mouseEvent('mousemove');
-    mouseEvent('mouseleave');
-    mouseEvent('mouseenter');
-    act(() => {
-      window.dispatchEvent(new Event('blur'));
-      window.dispatchEvent(new Event('focus'));
-    });
-    expect(visibleTooltip()).toBeNull();
-  } finally {
-    act(() => ReactDOM.unmountComponentAtNode(container));
-    container.remove();
+  for (const target of [link.querySelector('img'), link.querySelector('div'), link]) {
+    fireEvent.click(target);
+    await waitFor(() => expect(screen.getByRole('tooltip').textContent).toContain('Save mouse clicks!'));
+    expect(screen.getByRole('tooltip').textContent).not.toContain('Click a thumbnail');
+    fireEvent.mouseMove(mosaic, { clientX: 20, clientY: 20 });
+    expect(screen.getByRole('tooltip').textContent).toContain('left / right / up / down keys');
   }
+  fireEvent.mouseLeave(mosaic);
+  await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
+  fireEvent.mouseEnter(mosaic);
+  await waitFor(() => expect(screen.getByRole('tooltip').textContent).toContain('Save mouse clicks!'));
+
+  act(() => Dispatcher.dispatch({ actionType: KEY_NAV_HAPPENED }));
+  expect(screen.queryByRole('tooltip')).toBeNull();
+  fireEvent.click(link);
+  fireEvent.mouseLeave(mosaic);
+  fireEvent.mouseEnter(mosaic);
+  fireEvent.blur(window);
+  fireEvent.focus(window);
+  expect(screen.queryByRole('tooltip')).toBeNull();
 });

@@ -1,13 +1,10 @@
-import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import { Router, Route, Switch } from 'react-router';
 import { BrowserRouter, Link } from 'react-router-dom';
-import request from 'browser-request';
 import bowser from 'bowser';
-import { ToastContainer, ToastMessage } from 'react-toastr';
+import Notifications from './components/Notifications.jsx';
 
-import Dispatcher from './dispatcher/AppDispatcher.js';
-import { IMAGE_CHANGED, IMAGES_LOADED, STATUS_REPORT } from './constants/FFConstants.js';
 import FFActions from './actions/FFActions.js';
 import ImageStore from './stores/ImageStore.js';
 import Dialog from './components/Dialog.js';
@@ -15,7 +12,6 @@ import FFDataVictory from './components/FFDataVictory.jsx';
 import Tech from './components/Tech.jsx';
 import Home from './components/Home.jsx';
 import About from './components/About.jsx';
-import Filters from './components/Filters.jsx';
 import ThumbContainer from './components/ThumbContainer.jsx';
 import FFMainImage from './components/FFMainImage.js';
 import Upload from './components/Upload.jsx';
@@ -23,9 +19,8 @@ import Toastr from './components/Toastr.jsx';
 import SideMenu from './components/SideMenu.jsx';
 import Slideshow from './components/Slideshow.jsx';
 
-import { amplitude, API_BASE_URL, errToString, imageHasTag, reportError,
-         reportWarning, reportSuccess, reportInfo, history } from './util/Util.js';
-import { authStore, FB_APP_ID } from './stores/AuthStore.js';
+import { amplitude, history } from './util/Util.js';
+import { authStore } from './stores/AuthStore.js';
 
 const NotFound = () => (
   <div>
@@ -40,51 +35,12 @@ const UnsupportedBrowser = () => (
     <p>We recommend that you try <a href="https://www.google.com/chrome/browser/desktop/index.html">Google Chrome</a> instead.</p>
   </div>
 );
-const ToastMessageFactory = React.createFactory(ToastMessage.animation);
-
 class FFContainer extends React.Component {
- constructor(props) {
-    super(props);
-    Dispatcher.register(this.statusListener.bind(this));
- }
-
-  statusListener(action) {
-    switch (action.actionType) {
-      case STATUS_REPORT:
-        //console.log('FFContainer.status', action);
-        const opts =  {
-          timeOut: 3000,
-          extendedTimeOut: 10000,
-          preventDuplicates: true,
-          closeButton: true
-        };
-        const cont = this.refs.container;
-        
-        switch (action.statusType) {
-          case 'success':
-            cont.success(action.message, action.title, opts);
-            break;
-          case 'warning':
-            cont.warning(action.message, action.title, opts);
-            break;
-          case 'info':
-            cont.info(action.message, action.title, opts);
-            break;
-          case 'error':
-          default:
-            cont.error(action.message, action.title, opts);
-            break;
-        }
-    }
-  }
-
   render() {
     const homeComponent = Home;
     return (
       <div className="flex-container">
-        <ToastContainer ref="container"
-          toastMessageFactory={ToastMessageFactory}
-          className="toast-top-right" />
+        <Notifications/>
         <ThumbContainer/>
         <Switch>
           <Route exact={true} path='/mosaic' component={null}/>
@@ -111,6 +67,10 @@ class FFContainer extends React.Component {
 }
 
 function keyDownHandler(evt) {
+  if (evt.defaultPrevented || evt.altKey || evt.ctrlKey || evt.metaKey ||
+      evt.target.closest?.('input, textarea, select, [contenteditable="true"]')) {
+    return;
+  }
   var newImage = null;
   var direction = null;
   switch (evt.keyCode) {
@@ -144,19 +104,17 @@ function keyDownHandler(evt) {
   }
 }
 
-// FIXME: don't like using global document handler, but I don't receive arrow key
-// events if certain elements don't have focus
-document.onkeydown = keyDownHandler;
-
-function routeLocationDidUpdate(location) {
-  console.debug('routeLocationUpdated: ');
-  console.log(location);
-}
-
-
 class FFApp extends React.Component {
   constructor(props) {
     super(props);
+  }
+
+  componentDidMount() {
+    document.addEventListener('keydown', keyDownHandler);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', keyDownHandler);
   }
 
   render() {
@@ -194,5 +152,5 @@ if (bowser.mobile || bowser.ipad) {
   */
 }
 
-ReactDOM.render(<FFApp/>, document.getElementById('container'));
+createRoot(document.getElementById('container')).render(<FFApp/>);
 

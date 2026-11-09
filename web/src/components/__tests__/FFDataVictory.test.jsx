@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { render } from '@testing-library/react';
 import request from 'browser-request';
 import FFDataVictory from '../FFDataVictory.jsx';
 
@@ -32,8 +32,7 @@ function renderCharts() {
   request.mockImplementation((url, callback) => {
     callback(null, { statusCode: 200 }, JSON.stringify(data[url.split('/').pop()]));
   });
-  const container = document.createElement('div');
-  container.innerHTML = renderToStaticMarkup(<FFDataVictory/>);
+  const { container } = render(<FFDataVictory/>);
   return container.querySelectorAll('.VictoryContainer > svg');
 }
 

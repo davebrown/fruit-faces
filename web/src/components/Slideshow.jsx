@@ -1,34 +1,23 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import ImageGallery from 'react-image-gallery';
+import 'react-image-gallery/styles/image-gallery.css';
 import ImageStore from '../stores/ImageStore.js';
 
-export default class Slideshow extends React.Component {
+export default function Slideshow() {
+  const [images, setImages] = useState(() => ImageStore.getImages() || []);
+  useEffect(() => {
+    const update = () => setImages(ImageStore.getImages() || []);
+    ImageStore.addChangeListener(update);
+    update();
+    return () => ImageStore.removeChangeListener(update);
+  }, []);
 
-  constructor(props) {
-    super(props);
-    this.images = [];
-    const images = ImageStore.getImages();
-    for (var i = 0; i < images.length; i++) {
-      const root = '/thumbs' + images[i].root + '/';
-      this.images.push({
-        original: root + images[i].full,
-        thumbnail: root + images[i].base + '_60x80_t.jpg'
-      });
-    }
-  }
-
-  handleImageLoad(event) {
-    console.log('Image loaded ', event.target)
-  }
-  
-  render() {
-    return (
-      <div className="red-border fill-area">
-        <h1>SLIDESHOW</h1>
-        <ImageGallery
-          items={this.images}
-          onImageLoad={this.handleImageLoad}/>
-      </div>);
-  }
+  const items = images.map(image => ({
+    original: `/thumbs${image.root}/${image.full}`,
+    thumbnail: `/thumbs${image.root}/${image.base}_60x80_t.${image.ext}`
+  }));
+  return <div className="red-border fill-area">
+    <h1>SLIDESHOW</h1>
+    <ImageGallery items={items}/>
+  </div>;
 }

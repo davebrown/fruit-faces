@@ -1,97 +1,46 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import FacebookLogin from 'react-facebook-login';
-import request from 'browser-request';
-import bowser from 'bowser';
-import { Icon } from 'react-fa';
-import Dispatcher from '../dispatcher/AppDispatcher.js';
-import { FB_INITIALIZED, FB_AUTH_CHANGED } from '../constants/FFConstants.js';
-import { authStore, FB_APP_ID, fbLoginCallback } from '../stores/AuthStore.js';
-import { REDIRECT_URI } from '../util/Util.js';
+import Icon from './Icon.jsx';
+import { authStore, fbLoginCallback } from '../stores/AuthStore.js';
 
 export default class FBLogin extends React.Component {
+  state = { ready: false };
 
-  constructor(props) {
-    super(props);
-    this.authChanged = this.authChanged.bind(this);
-  }
-
-  componentWillMount() {
-    this.mounted = true;
+  componentDidMount() {
     authStore.addChangeListener(this.authChanged);
     this.authChanged();
   }
 
   componentWillUnmount() {
     authStore.removeChangeListener(this.authChanged);
-    this.mounted = false;
   }
 
-  authChanged() {
-    if (this.mounted) {
-      this.setState({
-        userId: authStore.getUserID(),
-        name: authStore.getFullName(),
-        profilePicUrl: authStore.getProfilePicUrl()
+  authChanged = () => {
+    this.setState({ ready: Boolean(window.FB?.login) });
+  };
+
+  login = event => {
+    event.preventDefault();
+    if (!window.FB?.login) return;
+    window.FB.login(response => {
+      if (!response.authResponse?.accessToken) return;
+      window.FB.api('/me', { fields: 'name,email,picture' }, profile => {
+        fbLoginCallback({ ...response.authResponse, ...(profile.error ? {} : profile) });
       });
-    }
-  }
+    }, {
+      scope: this.props.scope || 'email,public_profile',
+      return_scopes: true
+    });
+  };
 
-  doLogout() {
-    FB.logout();
-  }
-  
   render() {
-    const icon = (<Icon name="facebook-square"/>);
-    const scope = this.props.scope || 'email,public_profile';
-    if (this.props.renderLink) {
-      const containerStyle = {
-        display: 'block',
-        outline: 'none'
-      };
-      //const scope = 'publish_actions';
-      return (
-        <FacebookLogin
-          appId={FB_APP_ID}
-          autoLoad={true}
-          fields="name,email,picture"
-          isMobile={bowser.mobile}
-          disableMobileRedirect={true}
-          scope={scope}
-          redirectUri={ REDIRECT_URI }
-        callback={fbLoginCallback}
-          tag="a"
-          cssClass="bm-menu menu-item"
-          containerStyle={containerStyle}
-          textButton={this.props.authText || ' Login'}
-          typeButton="link"
-          icon={icon}
-        >
-        </FacebookLogin>
-
-      );
-      
-    }
-    
-    if (typeof(FB) === 'undefined') {
-      return (<div><span>Loading Facebook form...</span><span className="loading">loading</span></div>);
-    }
-    const { userId, name, profilePicUrl } = this.state;
-    
-    return (
-      <FacebookLogin
-        appId={FB_APP_ID}
-        autoLoad={true}
-        fields="name,email,picture"
-        isMobile={bowser.mobile}
-        disableMobileRedirect={true}
-        redirectUri={ REDIRECT_URI }
-        cssClass="btn btn-sm"
-        scope={scope}
-        textButton={this.props.authText || ' Login with Facebook'}
-        icon={icon}
-        callback={fbLoginCallback} />
-    );
-
+    const { renderLink, authText } = this.props;
+    const label = authText || (renderLink ? ' Login' : ' Login with Facebook');
+    return renderLink ?
+      <a href="#" className="bm-menu menu-item" onClick={this.login} aria-disabled={!this.state.ready}>
+        <Icon name="facebook-square"/>{label}
+      </a> :
+      <button type="button" className="btn btn-sm" onClick={this.login} disabled={!this.state.ready}>
+        <Icon name="facebook-square"/>{label}
+      </button>;
   }
 }

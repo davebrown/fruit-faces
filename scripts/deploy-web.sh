@@ -39,6 +39,6 @@ npm run build
 
 echo 'ARTIFACTS BUILT, syncing backend to prod'
 
-rsync -av css index.html index.js tos.html privacy.html *.png favicon.ico site.webmanifest $REMOTE_USER:website/
+rsync -av css index.html index.js bundle.css tos.html privacy.html *.png favicon.ico site.webmanifest $REMOTE_USER:website/
 
 echo 'ARTIFACTS COPIED'

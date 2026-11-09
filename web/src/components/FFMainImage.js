@@ -1,7 +1,7 @@
 import React from 'react';
 import dateformat from 'dateformat';
-import { Swipeable as Swipable } from 'react-swipeable';
-import { Icon } from 'react-fa';
+import { useSwipeable } from 'react-swipeable';
+import Icon from './Icon.jsx';
 import request from 'browser-request';
 
 import { amplitude, API_BASE_URL, history, reportError, reportInfo, responsiveWidth } from '../util/Util.js';
@@ -24,17 +24,31 @@ const TAG_FORM_OFF = 2;
 // we can adjust time by (timestamp + (offset - 420))
 const TZ_OFFSET = (new Date()).getTimezoneOffset();
 
+function Swipable({ children, id, onSwipedLeft, onSwipedRight, onSwiping, onSwiped }) {
+  const handlers = useSwipeable({ onSwipedLeft, onSwipedRight, onSwiping, onSwiped });
+  return <div id={id} {...handlers}>{children}</div>;
+}
+
+function routeImagePath(props) {
+  const params = props.match?.params;
+  return params?.imageBase ? `/${params.userId}/${params.imageBase}` : null;
+}
+
 class FFMainImage extends React.Component {
 
   constructor(props) {
     super(props);
+    const imagePath = routeImagePath(props);
+    this.state = {
+      image: ImageStore.getImage(imagePath), imagePath,
+      tagState: TAG_FORM_NONE, animateTools: true
+    };
+    this.imageHolder = React.createRef();
     this.mounted = false;
     this.mainImageActionListener = this.mainImageActionListener.bind(this);
     this.swipeLeft = this.swipeLeft.bind(this);
     this.swipeRight = this.swipeRight.bind(this);
     this.onSwiping = this.onSwiping.bind(this);
-    this.onSwipingLeft = this.onSwipingLeft.bind(this);
-    this.onSwipingRight = this.onSwipingRight.bind(this);
     this.onMouseEnter = this.onMouseEnter.bind(this);
     this.onMouseOut = this.onMouseOut.bind(this);
     this.onTagClick = this.onTagClick.bind(this);
@@ -51,18 +65,16 @@ class FFMainImage extends React.Component {
       case IMAGES_LOADED:
         // necessary for when we arrive with an image route selected,
         // but the images are not loaded yet...
-        this.forceUpdate();
+        this.resolveSelectedImage(this.props);
         break;
       case IMAGE_CHANGED:
         if (this.mounted) {
-          this.setState( { image: action.image, animateTools: false } );
-          this.props = { }; // clear out router state
+          this.setState({ image: action.image, imagePath: action.image?.path, animateTools: false });
         }
         break;
       case IMAGE_DELETED:
         if (this.mounted) {
-          this.setState( { image: action.newImage, animateTools: false } );
-          this.props = { }; // clear out router state
+          this.setState({ image: action.newImage, imagePath: action.newImage?.path, animateTools: false });
           history.replace(action.newImage ? '/images' + action.newImage.path : '/');
 
         }
@@ -72,35 +84,28 @@ class FFMainImage extends React.Component {
 
   /* update selected image from router path params, if needed */
   resolveSelectedImage(props) {
-    const params = props && props.match && props.match.params;
-    if (params && params.imageBase) {
-      const path = '/' + params.userId + '/' + params.imageBase;
+    const path = routeImagePath(props);
+    if (path) {
       const image = ImageStore.getImage(path);
       this.setState({
         image: image,
         imagePath: path
       });
-      if (image) {
+      if (image && image !== ImageStore.getSelectedImage() && !Dispatcher.isDispatching()) {
         FFActions.imageChanged(image);
       }
     }
   }
-  componentWillMount() {
-    this.dispatcherToken = Dispatcher.register(this.mainImageActionListener);
-    this.resolveSelectedImage(this.props);
-    this.setState( {
-      tagState: TAG_FORM_NONE,
-      animateTools: true
-    }
-    );
-  }
-
   componentDidMount() {
     this.mounted = true;
+    this.dispatcherToken = Dispatcher.register(this.mainImageActionListener);
+    this.resolveSelectedImage(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextContext) {
-    this.resolveSelectedImage(nextProps);
+  componentDidUpdate(prevProps) {
+    if (routeImagePath(prevProps) !== routeImagePath(this.props)) {
+      this.resolveSelectedImage(this.props);
+    }
   }
 
   componentWillUnmount() {
@@ -148,13 +153,13 @@ class FFMainImage extends React.Component {
     const fbClass = this.state.animateFB ? 'animated shake' : '';
     return (
       <Swipable id={key} key={key} onSwipedLeft={this.swipeLeft} onSwipedRight={this.swipeRight}
-        onSwipingLeft={this.onSwipingLeft} onSwipingRight={this.onSwipingRight}
+        onSwiped={() => this.translateImage(0)}
         onSwiping={this.onSwiping}>
-        <div id="main-image-holder" className="flex-container" onTouchStart={this.onTouchStart} onTouchEnd={this.onTouchEnd}
+        <div id="main-image-holder" ref={this.imageHolder} className="flex-container"
           onClick={this.onImageClick}
         >
           <img id="main-image" src={src} onMouseEnter={this.onMouseEnter} onMouseOut={this.onMouseOut}/>
-          <ImageToolbar ref="imageToolbar" onFBClick={this.onFBClick} onTagClick={this.onTagClick}
+          <ImageToolbar onFBClick={this.onFBClick} onTagClick={this.onTagClick}
             onUploadClick={this.onUploadClick} onDeleteClick={this.onDeleteClick}
           />
           { tagForm }
@@ -243,30 +248,16 @@ class FFMainImage extends React.Component {
     //this.setState({showToolbar: false});
   }
   
-  onSwipingLeft(event, absX) {
-    //console.log('onSwipingLeft(' + absX + ')');
-    this.translateImage(-absX);
-  }
-  onSwipingRight(event, absX) {
-    //console.log('onSwipingRight(' + absX + ')');
-    this.translateImage(absX);
-  }
-
-  onTouchStart(event) {
-  }
-
-  onTouchEnd(event) {
-  }
-
   translateImage(delta) {
-    var imageHolder = document.getElementById('main-image-holder');
+    var imageHolder = this.imageHolder.current;
     if (imageHolder != null) {
       imageHolder.style.left = delta + 'px';
     } else {
       //console.log('CANNOT FIND IMAGE HOLDER');
     }
   }
-  onSwiping(event, deltaX, deltaY, absX, absY, velocity) {
+  onSwiping(event) {
+    this.translateImage(-event.deltaX);
   }
   
   swipeLeft() {

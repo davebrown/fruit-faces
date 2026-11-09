@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { RadioGroup, Radio } from 'react-radio-group';
 
 import Timeline from './Timeline.jsx';
 import Mosaic from './Mosaic.jsx';
@@ -23,8 +22,18 @@ export default class ThumbContainer extends React.Component {
     this.viewChange = this.viewChange.bind(this);
   }
 
-  componentWillMount() {
-    Dispatcher.register(this.imageChangeListener);
+  componentDidMount() {
+    this.dispatcherToken = Dispatcher.register(this.imageChangeListener);
+    this.setState({
+      imagesLoaded: imageStore.getImages() !== null,
+      images: imageStore.getImages() || [],
+      selectedImage: imageStore.getSelectedImage(),
+      filter: imageStore.getFilterTag()
+    });
+  }
+
+  componentWillUnmount() {
+    Dispatcher.unregister(this.dispatcherToken);
   }
   
   imageChangeListener(action) {
@@ -60,14 +69,16 @@ export default class ThumbContainer extends React.Component {
     const viewComp = view == 'timeline' ? timeline : (<Mosaic images={images} selectedImage={selectedImage} filter={filter}/>);
     return (
       <div className="flex-column flex-fixed scrollable thumb-container">
-        <RadioGroup name="thumb-view" className="thumb-view-chooser" selectedValue={view} onChange={this.viewChange}>
+        <div className="thumb-view-chooser">
           <label key="radio-mosaic" className="form-radio">
-            <Radio value="mosaic"/> <i className="form-icon"></i> mosaic view
+            <input type="radio" name="thumb-view" value="mosaic" checked={view === 'mosaic'}
+              onChange={() => this.viewChange('mosaic')}/> <i className="form-icon"></i> mosaic view
           </label>
           <label key="radio-timeline" className="form-radio">
-            <Radio value="timeline"/> <i className="form-icon"></i> timeline view
+            <input type="radio" name="thumb-view" value="timeline" checked={view === 'timeline'}
+              onChange={() => this.viewChange('timeline')}/> <i className="form-icon"></i> timeline view
           </label>
-        </RadioGroup>
+        </div>
         {viewComp}
       </div>
     );

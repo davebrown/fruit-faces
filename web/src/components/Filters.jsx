@@ -1,5 +1,4 @@
 import React from 'react';
-import { RadioGroup, Radio } from 'react-radio-group';
 
 import ImageStore from '../stores/ImageStore.js';
 import FFActions from '../actions/FFActions.js';
@@ -48,13 +47,13 @@ export default class Filters extends React.Component {
       <div className={'flex-column tag-form filters ' + (this.props.className || '')}>
         <h4 style={{ marginTop: '2px', marginBottom: '2px' }} className="text-center">Filters</h4>
         <button className="btn btn-primary btn-small" onClick={this.handleClear}>Clear</button>
-        <RadioGroup name="plates" selectedValue={this.state.selectedValue} onChange={this.handleChange}
-          className="flex-column form-group">
+        <div className="flex-column form-group">
           {
             TAGS.map((tag) => {
               const key = 'filter-radio-' + tag;
               return <label key={key} className="form-radio">
-                <Radio value={tag}/>
+                <input type="radio" name="plates" value={tag} checked={this.state.selectedValue === tag}
+                  onChange={() => this.handleChange(tag)}/>
                 <i className="form-icon"></i> {tag.charAt(0).toUpperCase() + tag.slice(1) + ' plates'}
               </label>
             })
@@ -63,12 +62,13 @@ export default class Filters extends React.Component {
             FRUITS.map((tag) => {
               const key = 'filter-radio-' + tag;
               return <label key={key} className="form-radio">
-                <Radio value={tag}/>
+                <input type="radio" name="plates" value={tag} checked={this.state.selectedValue === tag}
+                  onChange={() => this.handleChange(tag)}/>
                 <i className="form-icon"></i> {tag.charAt(0).toUpperCase() + tag.slice(1)}
               </label>
             })
           }
-        </RadioGroup>
+        </div>
       </div>
       );
     /*

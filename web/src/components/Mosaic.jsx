@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
 import request from 'browser-request';
 
 import { Link } from 'react-router-dom';
 import bowser from 'bowser';
-import ReactTooltip from 'react-tooltip';
-import { Icon } from 'react-fa';
+import { Tooltip } from 'react-tooltip';
+import Icon from './Icon.jsx';
 
 import Filters from './Filters.jsx';
 import ImageStore from '../stores/ImageStore.js';
@@ -29,12 +28,13 @@ export default class Mosaic extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = { filterState: FILTER_FORM_NONE, clickCount, showKeyTooltip, tooltipOpen: false };
     this.onFilterClick = this.onFilterClick.bind(this);
     this.retractFilterForm = this.retractFilterForm.bind(this);
     this.onThumbnailClick = this.onThumbnailClick.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.dispatcherToken = Dispatcher.register((action) => {
       switch (action.actionType) {
         case KEY_NAV_HAPPENED:
@@ -46,7 +46,6 @@ export default class Mosaic extends React.Component {
           break;
       }
     });
-    this.setState({ filterState: FILTER_FORM_NONE, clickCount, showKeyTooltip });
   }
 
   componentWillUnmount() {
@@ -67,18 +66,16 @@ export default class Mosaic extends React.Component {
     }
     if (this.state.filterState !== nextState.filterState ||
         this.state.clickCount !== nextState.clickCount ||
-        this.state.showKeyTooltip !== nextState.showKeyTooltip) {
+        this.state.showKeyTooltip !== nextState.showKeyTooltip ||
+        this.state.tooltipOpen !== nextState.tooltipOpen) {
       ret = true;
     }
     return ret;
   }
 
   onThumbnailClick() {
-    this.setState(state => ({ clickCount: state.clickCount + 1 }), () => {
+    this.setState(state => ({ clickCount: state.clickCount + 1, tooltipOpen: true }), () => {
       clickCount = this.state.clickCount;
-      if (clickCount === 1 && this.state.showKeyTooltip) {
-        ReactTooltip.show(ReactDOM.findDOMNode(this.refs.ff_table));
-      }
     });
   }
 
@@ -120,7 +117,6 @@ export default class Mosaic extends React.Component {
                      + left + ' ' + right + ' ' + up + ' ' + down + '<br/>'
                      + "to navigate the pictures instead";
 
-    // Keep the target attribute so unmounted tooltips can remove their listeners.
     var ttText = '';
     var ttDisable = true;
     if (bowser.mobile) {
@@ -155,8 +151,10 @@ export default class Mosaic extends React.Component {
           <Icon id="mosaic-upload-link" name="upload" title="upload a fruit face" onClick={() => { history.push('/upload'); }}/>
         </div>
         {filterForm}
-        <div ref="ff_table" className="flex-container flex-fixed flex-wrap scrollable thumbs" data-for="table-tt"
-          data-multiline={true} data-tip={ttText}
+        <div id="mosaic-grid" className="flex-container flex-fixed flex-wrap scrollable thumbs"
+          data-tooltip-id="table-tt"
+          onMouseEnter={() => this.setState({ tooltipOpen: true })}
+          onMouseLeave={() => this.setState({ tooltipOpen: false })}
         >
           {
             images.map((image) => {
@@ -167,8 +165,14 @@ export default class Mosaic extends React.Component {
           }
         </div>
         {!ttDisable &&
-          <ReactTooltip key={ttText} id="table-tt" place="right" multiline={true}
-            type="success" effect="float" afterShow={ ttShowEvent } />
+          <Tooltip id="table-tt" anchorSelect="#mosaic-grid" place="right"
+            variant="success" float opacity={1} isOpen={this.state.tooltipOpen}
+            setIsOpen={tooltipOpen => this.setState({ tooltipOpen })}
+            afterShow={ttShowEvent}>
+            {ttText.split('<br/>').map((line, index) => <React.Fragment key={index}>
+              {index > 0 && <br/>}{line}
+            </React.Fragment>)}
+          </Tooltip>
         }
       </div>
     );

@@ -6,3 +6,9 @@ process.env.FF_URL = 'http://localhost:3000';
 process.env.AMPLITUDE_API_KEY = 'test-key';
 process.env.FB_APP_ID = 'test-fb-app-id';
 process.env.NODE_ENV = 'test';
+global.IS_REACT_ACT_ENVIRONMENT = true;
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};

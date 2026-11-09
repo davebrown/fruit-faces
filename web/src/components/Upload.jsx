@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import FileUpload from 'react-fileupload';
 import request from 'browser-request';
-import { Icon } from 'react-fa';
+import Icon from './Icon.jsx';
 
 import FFActions from '../actions/FFActions.js';
 import { API_BASE_URL, reportError, reportSuccess, errToString } from '../util/Util.js';
@@ -15,6 +14,11 @@ export default class Upload extends React.Component {
 
   constructor(props) {
     super(props);
+    this.fileInput = React.createRef();
+    this.state = {
+      avoidDups: true, postToFB: false, havePublishPermission: false,
+      uploading: false, dataUploaded: 0, dataSize: 0, file: null, fileUri: null
+    };
     this.uploadSuccess = this.uploadSuccess.bind(this);
     this.uploadError = this.uploadError.bind(this);
     this.uploading = this.uploading.bind(this);
@@ -29,19 +33,8 @@ export default class Upload extends React.Component {
   }
 
   
-  componentWillMount() {
+  componentDidMount() {
     authStore.addChangeListener(this.authChanged);
-    this.uploadStopped();
-    this.setState({
-      avoidDups: true,
-      postToFB: false,
-      havePublishPermission: false,
-      uploading: false,
-      dataUploaded: 0,
-      dataSize: 0,
-      file: null,
-      fileUri: null
-    });
     this.authChanged();
   }
 
@@ -84,6 +77,15 @@ export default class Upload extends React.Component {
 
   componentWillUnmount() {
     authStore.removeChangeListener(this.authChanged);
+    if (this.xhr) {
+      this.xhr.onload = this.xhr.onerror = null;
+      this.xhr.upload.onprogress = null;
+      this.xhr.abort();
+    }
+    if (this.reader) {
+      this.reader.onload = null;
+      this.reader.abort();
+    }
   }
 
   dupCheckHandler(e) {
@@ -108,21 +110,25 @@ export default class Upload extends React.Component {
     }
     */
     if (files && files.length > 0) {
+      if (this.reader) {
+        this.reader.onload = null;
+        this.reader.abort();
+      }
+      this.setState({ file: null, fileUri: null, error: null });
       const file = files[0];
       if (file.type.match('image.*')) {
-        const uploader = this;
         const reader = new FileReader();
+        this.reader = reader;
         reader.onload = (img) => {
           if (img && img.target && img.target.result) {
-            uploader.setState({fileUri: img.target.result, file: file});
-          }
-          return (e) => {
-            uploader.setState({fileUri: e.target.result, file: file});
+            this.setState({fileUri: img.target.result, file, error: null});
           }
         };
         reader.readAsDataURL(file);
       } else {
         this.setState({
+          file: null,
+          fileUri: null,
           error: file.name + ' is not an image file'
         });
       }
@@ -136,6 +142,30 @@ export default class Upload extends React.Component {
     });
   }
 
+  startUpload = () => {
+    if (!this.state.file || this.state.uploading || !this.beforeUpload()) return;
+    const xhr = new XMLHttpRequest();
+    this.xhr = xhr;
+    const data = new FormData();
+    data.append('imagefile', this.state.file);
+    data.append('avoidDups', String(this.state.avoidDups));
+    xhr.open('POST', API_BASE_URL + '/api/v1/images');
+    xhr.setRequestHeader('X-FF-Auth', this.state.accessToken);
+    xhr.upload.onprogress = this.uploading;
+    xhr.onerror = () => this.uploadError(new Error('Network error while uploading image'));
+    xhr.onload = () => {
+      try {
+        const response = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 300) this.uploadSuccess(response);
+        else this.uploadError(response);
+      } catch (error) {
+        this.uploadError(error);
+      }
+    };
+    this.doUpload();
+    xhr.send(data);
+  };
+
   fixupImage(newImage) {
     if (newImage.base) {
       newImage.path = newImage.root + '/' + newImage.base;
@@ -148,8 +178,7 @@ export default class Upload extends React.Component {
     var images = (this.state && this.state.uploadedImages) || [];
     if (newImage && newImage.base) {
       this.fixupImage(newImage);
-      images.push(newImage);
-      this.setState({ uploadedImages: images });
+      this.setState({ uploadedImages: [...images, newImage] });
     }
     FFActions.imageAdded(newImage);
     FFActions.imageChanged(newImage);
@@ -171,8 +200,10 @@ export default class Upload extends React.Component {
     }
     this.setState({
       file: null,
-      fileUri: null
+      fileUri: null,
+      error: null
     });
+    if (this.fileInput.current) this.fileInput.current.value = '';
     reportSuccess(newImage.base || '', 'Uploaded image');
   }
   
@@ -214,40 +245,14 @@ export default class Upload extends React.Component {
     if (!authStore.getUserID()) {
       return (<div className="center-single-child"><span>Please <FBLogin/> to upload images.</span></div>);
     }
-    const target = API_BASE_URL + "/api/v1/images";
     const { uploading, dataUploaded, dataSize, uploadedImages,
             avoidDups, postToFB, havePublishPermission, file, fileUri } = this.state;
-    const options = {
-      baseUrl: target,
-      fileFieldName: 'imagefile',
-      chooseAndUpload: false,
-      requestHeaders: {
-        'X-FF-Auth': this.state.accessToken
-      },
-      paramAddToField: {
-        avoidDups: avoidDups
-      },
-      chooseFile: this.chooseFile,
-      beforeUpload: this.beforeUpload,
-      uploadSuccess: this.uploadSuccess,
-      uploadError: this.uploadError,
-      uploadFail: this.uploadError,
-      uploading: this.uploading,
-      doUpload: this.doUpload
-    };
 
     var progress = '';
     var filename = '';
     if (uploading) {
       progress = (<progress className="block-center" value={dataUploaded} max={dataSize}></progress>);
       filename = (<span className="footnote block-center text-center">{file && file.name || ''}</span>);
-    } else if (this.state.error) {
-      const err = this.state.error;
-      const msg = errToString(err);
-      setTimeout(function() {
-        this.setState({error: null});
-      }.bind(this), 3000);
-      return (<div className="error">{msg}</div>);
     }
     var thumbDisplay;
     if (!uploadedImages) {
@@ -297,23 +302,28 @@ export default class Upload extends React.Component {
     return (
       <div className="flex-column upload">
         <div className="flex-column form-group">
-          <FileUpload style={{ margin: '0 auto', padding: '12px', width: '100%' }} className="text-centerx" options={options}>
+          <div style={{ margin: '0 auto', padding: '12px', width: '100%' }} className="text-centerx">
             <label className="form-label">
-              <input checked={avoidDups ? 'checked' : ''} onChange={this.dupCheckHandler} type="checkbox"/>
+              <input checked={avoidDups} onChange={this.dupCheckHandler} type="checkbox"/>
               <i className="form-icon"></i> Prevent duplicate images
             </label>
             <label className="form-label">
-              <input id="post-to-fb-check" checked={postToFB ? 'checked' : ''} onChange={this.fbCheckHandler} type="checkbox"/>
+              <input id="post-to-fb-check" checked={postToFB} onChange={this.fbCheckHandler} type="checkbox"/>
               <i className="form-icon"></i> Post to my Facebook timeline
             </label>
             {fbPublish}
             {commentInput}
-            <button className="btn btn-primary btn-lg" ref="chooseBtn">Choose photo</button>
+            <input ref={this.fileInput} type="file" accept="image/*" aria-label="Choose photo" hidden
+              onChange={event => this.chooseFile(event.target.files)} disabled={uploading}/>
+            <button className="btn btn-primary btn-lg" onClick={() => this.fileInput.current.click()}
+              disabled={uploading}>Choose photo</button>
             {thumbPreview}
-            <button id="upload-button" className={uploadClasses} ref="uploadBtn">Upload</button>
+            <button id="upload-button" className={uploadClasses} onClick={this.startUpload}
+              disabled={!file || uploading}>Upload</button>
+            {this.state.error && <div role="alert" className="error">{errToString(this.state.error)}</div>}
             {progress}
             {filename}
-          </FileUpload>
+          </div>
         </div>
         <h4 className="text-center" style={{ marginBottom: '0px', marginTop: '18px' }}>
           Faces uploaded by you already</h4>

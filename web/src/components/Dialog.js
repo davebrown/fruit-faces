@@ -1,6 +1,6 @@
 import React from 'react';
 import { history } from '../util/Util.js';
-import { Icon } from 'react-fa';
+import Icon from './Icon.jsx';
 
 import FBBlock from './FBBlock.jsx';
 

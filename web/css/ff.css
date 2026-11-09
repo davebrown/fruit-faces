@@ -205,8 +205,11 @@ p {
     height: 40px;
 }
 
-#table-tt.show {
+#table-tt {
     opacity: 1;
+    width: max-content;
+    max-width: none;
+    z-index: 1000;
 }
 
 .thumb-outside-filter img {

@@ -23,6 +23,7 @@ const BM_STYLES = {
 export default class SideMenu extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { open: false };
     this.authChanged = this.authChanged.bind(this);
     this.linkClicked = this.linkClicked.bind(this);
     this.doLogout = this.doLogout.bind(this);
@@ -47,9 +48,8 @@ export default class SideMenu extends React.Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     authStore.addChangeListener(this.authChanged);
-    this.setState({ open: false });
     this.authChanged();
   }
 

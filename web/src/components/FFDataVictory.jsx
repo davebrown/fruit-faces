@@ -5,7 +5,6 @@ import {
   VictoryBar, VictoryLine, VictoryChart, VictoryAxis, VictoryTheme, Bar,
   VictoryLabel, VictoryTooltip, VictoryGroup, VictoryScatter, Point
 } from 'victory';
-import ReactTooltip from 'react-tooltip';
 
 import { amplitude, API_BASE_URL, errToString } from '../util/Util.js';
 import FBBlock from './FBBlock.jsx';
@@ -25,7 +24,7 @@ class FFChartDOW extends React.Component {
     this.loadData = this.loadData.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadData();
   }
 
@@ -95,7 +94,7 @@ class FFChartTOD extends React.Component {
     this.loadData = this.loadData.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadData();
   }
 
@@ -184,7 +183,7 @@ class FFChartMonth extends React.Component {
     this.loadData = this.loadData.bind(this);
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.loadData();
   }
 

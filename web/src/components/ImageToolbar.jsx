@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Icon } from 'react-fa';
+import Icon from './Icon.jsx';
 
 export default class ImageToolbar extends React.Component {
 

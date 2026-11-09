@@ -243,6 +243,7 @@ function fbStatusCallback(response) {
 }
 /* receives callback from FacebookLogin component */
 function fbLoginCallback(response) {
+  if (!response?.accessToken) return;
   authStore._setLogin(response);
   if (response.name && response.email && response.expiresIn) {
     var now = Date.now();

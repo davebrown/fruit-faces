@@ -25,11 +25,7 @@ class TagForm extends React.Component {
   
   constructor(props) {
     super(props);
-  }
-
-  componentWillMount() {
-    this.checkBoxes = new Set();
-    this.setState({error: null});
+    this.state = { error: null };
   }
 
   render() {
