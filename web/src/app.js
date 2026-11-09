@@ -123,8 +123,8 @@ class FFApp extends React.Component {
     }
     return (
       <Router history={history}>
+        <SideMenu/>
         <main id="main" className="main">
-          <SideMenu/>
           <FFContainer/>
         </main>
       </Router>

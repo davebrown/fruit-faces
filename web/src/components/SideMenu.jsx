@@ -27,6 +27,7 @@ export default class SideMenu extends React.Component {
     this.authChanged = this.authChanged.bind(this);
     this.linkClicked = this.linkClicked.bind(this);
     this.doLogout = this.doLogout.bind(this);
+    this.menuStateChanged = this.menuStateChanged.bind(this);
   }
 
   linkClicked(e) {
@@ -43,6 +44,8 @@ export default class SideMenu extends React.Component {
   }    
 
   menuStateChanged(menuState) {
+    if (this.state.open === menuState.isOpen) return;
+    this.setState({ open: menuState.isOpen });
     if (menuState.isOpen) {
       FFActions.sideMenuOpened();
     }
@@ -86,6 +89,11 @@ export default class SideMenu extends React.Component {
     return (
       <div className="right">
         <Menu right isOpen={open} outerContainerId={"container"} pageWrapId="main"
+          onOpen={() => {
+            this.setState({ open: true });
+            FFActions.sideMenuOpened();
+          }}
+          onClose={this.linkClicked}
           onStateChange={this.menuStateChanged} width={ menuWidth } styles={ BM_STYLES }>
           {profileTag}
           {authLink}
