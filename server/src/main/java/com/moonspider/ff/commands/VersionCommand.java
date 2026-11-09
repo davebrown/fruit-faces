@@ -2,9 +2,9 @@ package com.moonspider.ff.commands;
 
 import com.moonspider.ff.FFConfiguration;
 import com.moonspider.ff.InfoResource;
-import io.dropwizard.cli.Command;
-import io.dropwizard.cli.ConfiguredCommand;
-import io.dropwizard.setup.Bootstrap;
+import io.dropwizard.core.cli.Command;
+import io.dropwizard.core.cli.ConfiguredCommand;
+import io.dropwizard.core.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 

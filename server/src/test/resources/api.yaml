@@ -1,0 +1,31 @@
+allowWriteOperations: true
+maxImageFileSize: 10000000
+thumbDir: overridden-by-test
+rootUserId: 1
+fbAppId: test-app
+baseProtocol: http
+assetUrlPrefix: http://localhost
+tagServiceUrl: http://127.0.0.1:1/
+database:
+  driverClass: org.postgresql.Driver
+  user: overridden-by-test
+  password: ""
+  url: jdbc:postgresql://localhost/postgres
+  minSize: 1
+  initialSize: 1
+  maxSize: 4
+  properties:
+    hibernate.hbm2ddl.auto: validate
+server:
+  applicationConnectors:
+    - type: http
+      bindHost: 127.0.0.1
+      port: 0
+  adminConnectors:
+    - type: http
+      bindHost: 127.0.0.1
+      port: 0
+  requestLog:
+    appenders: []
+logging:
+  level: WARN

@@ -3,6 +3,7 @@
 set -e
 
 REMOTE_USER=ff@ff.moonspider.com
+REMOTE_ADMIN=dave@ff.moonspider.com
 
 # sync and build tagger service
 echo '============ SYNC TAGGER SERVICE AND DEPENDENCIES ================'
@@ -68,25 +69,29 @@ npm run build
 echo 'ARTIFACTS built, syncing frontend to prod'
 ssh $REMOTE_USER mkdir -p website/thumbs
 
-rsync -av css index.html index.js tos.html privacy.html $REMOTE_USER:website/
+rsync -av css index.html index.js index.js.LICENSE.txt bundle.css tos.html privacy.html $REMOTE_USER:website/
 
 
 cd ..
 echo 'syncing backend to prod'
 
+echo '============ STOPPING CURRENT SERVICE ================'
+
+ssh $REMOTE_USER ./daemon.sh stop || true
+ssh $REMOTE_ADMIN 'if systemctl cat ff.service >/dev/null 2>&1; then sudo -n systemctl stop ff.service; fi'
+sleep 1
+
 rsync -av \
       server/target/ff-1.0.0.jar \
       server/production.yaml \
       server/daemon.sh \
+      server/ff.service \
       $REMOTE_USER:.
 
 
 #rsync -Lav thumbs/ $REMOTE_USER:website/thumbs/
 
-echo '============ STOPPING CURRENT SERVICE ================'
-
-ssh $REMOTE_USER ./daemon.sh stop || true
-sleep 1
+ssh $REMOTE_ADMIN 'sudo -n install -m 644 /home/ff/ff.service /etc/systemd/system/ff.service && sudo -n systemctl daemon-reload && sudo -n systemctl enable ff.service'
 
 echo '========== CHECK AND APPLY DB MIGRATION(S) ==========='
 
@@ -95,7 +100,7 @@ ssh $REMOTE_USER java -jar ff-1.0.0.jar db migrate production.yaml
 
 echo '============ STARTING CURRENT SERVICE ================'
 
-ssh $REMOTE_USER ./daemon.sh start
+ssh $REMOTE_ADMIN 'sudo -n systemctl start ff.service'
 
 sleep 6
 

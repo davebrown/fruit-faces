@@ -2,7 +2,7 @@ package com.moonspider.ff;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.DatabaseConfiguration;
 

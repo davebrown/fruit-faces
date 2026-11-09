@@ -151,7 +151,7 @@ public class ImageResizerTest {
     @Test
     public void listDimensions() throws IOException {
         //File DIR = new File(System.getProperty("user.home"), "pics");
-        final Path DIR = Paths.get(System.getProperty("user.home"), "pics");
+        final Path DIR = imageFile("/images/landscape-0.jpg").toPath().getParent();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(DIR, "*.JPG")) {
             //stream.forEach(System.out::println);
             //stream.forEach((f) -> System.out.println(f));

@@ -5,7 +5,7 @@ import com.moonspider.ff.commands.VersionCommand;
 import com.moonspider.ff.ejb.ImageEJB;
 import com.moonspider.ff.ejb.TagEJB;
 import com.moonspider.ff.ejb.UserEJB;
-import com.robertcboll.dropwizard.daemon.DaemonApplication;
+import io.dropwizard.core.Application;
 
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
@@ -13,16 +13,20 @@ import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.migrations.MigrationsBundle;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.TimeZone;
 import java.util.EnumSet;
 
-public class FFApplication extends DaemonApplication<FFConfiguration> {
+public class FFApplication extends Application<FFConfiguration> {
+
+    private static final Logger log = LoggerFactory.getLogger(FFApplication.class);
 
     private final HibernateBundle<FFConfiguration> hibernateBundle =
             new HibernateBundle<FFConfiguration>(ImageEJB.class, TagEJB.class, UserEJB.class) {
@@ -99,7 +103,6 @@ public class FFApplication extends DaemonApplication<FFConfiguration> {
 
         TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"));
         FFApplication app = new FFApplication();
-        final String pidFile = System.getenv().getOrDefault("PIDFILE", System.getProperty("user.home") + "/ff.pid");
-        app.daemonize(pidFile).run(args);
+        app.run(args);
     }
 }

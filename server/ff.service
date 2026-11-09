@@ -1,0 +1,17 @@
+[Unit]
+Description=Fruit Faces API
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=ff
+Group=ff
+WorkingDirectory=/home/ff
+ExecStart=/usr/bin/java -jar /home/ff/ff-1.0.0.jar server /home/ff/production.yaml
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+
+[Install]
+WantedBy=multi-user.target

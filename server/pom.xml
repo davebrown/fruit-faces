@@ -19,38 +19,42 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <openjpa.version><!--2.0.1|-->2.4.1<!--2.1.0-20101017.064959--></openjpa.version>
-        <log4j.version>1.2.16</log4j.version>
-        <junit.version>4.8.2</junit.version>
-        <es.version>5.1.1</es.version>
         <postgres.version>42.7.3</postgres.version>
-        <dropwizard.version>2.1.12</dropwizard.version>
+        <dropwizard.version>3.0.17</dropwizard.version>
         <git.revision>1234</git.revision>
     </properties>
 
-    <repositories>
-
-        <repository>
-            <id>moonspider</id>
-            <name>moonspider</name>
-            <url>http://moonspider.com/maven/</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
-            <!-- Force compatible SnakeYAML version for Dropwizard 2.1.12 -->
             <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>1.33</version>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-bom</artifactId>
+                <version>${dropwizard.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-testing</artifactId>
+            <version>${dropwizard.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.11.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -63,7 +67,6 @@
             <version>${dropwizard.version}</version>
         </dependency>
 
-        <!-- Hibernate/JPA for Dropwizard 2.x -->
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-hibernate</artifactId>
@@ -80,26 +83,6 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-forms</artifactId>
             <version>${dropwizard.version}</version>
-        </dependency>
-
-        <!-- debug daemonizer -->
-        <dependency>
-            <groupId>org.kohsuke</groupId>
-            <artifactId>akuma</artifactId>
-            <version>1.11-SNAPSHOT</version>
-        </dependency>
-
-        <!-- akuma daemon library uses java.util.logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-            <version>2.0.16</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.robertcboll.dropwizard</groupId>
-            <artifactId>dropwizard-daemon</artifactId>
-            <version>0.2</version>
         </dependency>
 
         <dependency>
@@ -164,6 +147,18 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>3.2.5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
             <!-- This plugin is to get git revision, date, and build timestamp into build-info.json -->
             <plugin>
                 <groupId>pl.project13.maven</groupId>
