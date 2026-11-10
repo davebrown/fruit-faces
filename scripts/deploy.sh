@@ -32,7 +32,7 @@ cd ..
 # fail prod build if any local edits to working copy
 # with -Dmaven.buildNumber.doCheck=true
 cd server
-mvn package
+./mvnw package
 cd ..
 
 export NODE_ENV=production
